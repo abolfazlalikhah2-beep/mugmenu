@@ -21,3 +21,15 @@ export async function requireBusinessOwner(): Promise<{ session: Session; busine
   if (!user?.businessId) redirect("/onboarding");
   return { session, businessId: user.businessId };
 }
+
+/**
+ * Owner-role authorization for account/billing and team-management pages —
+ * every business member passes requireBusinessOwner(), but only the OWNER
+ * role should see billing or add/edit other staff accounts.
+ */
+export async function requireOwnerRole(): Promise<{ session: Session; businessId: string; userId: string }> {
+  const { session, businessId } = await requireBusinessOwner();
+  const user = await prisma.user.findUnique({ where: { phone: session.phone } });
+  if (!user || user.role !== "OWNER") redirect("/dashboard");
+  return { session, businessId, userId: user.id };
+}

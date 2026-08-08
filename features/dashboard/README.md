@@ -10,7 +10,8 @@ The authenticated, business-scoped panel at `/dashboard/*` — from
 - `services/`
   - `onboarding-service.ts` — creates the `Business` row and links it to the current `User`.
   - `stats-service.ts` + `stat-delta.ts` — dashboard home numbers. `stat-delta.ts` is the pure today-vs-yesterday percentage math, unit tested.
-  - `order-mgmt-service.ts`, `product-service.ts`, `category-service.ts`, `settings-service.ts` — CRUD + zod validation (`dashboard-schemas.ts`), each checking the resource actually belongs to the caller's `businessId` before mutating it.
+  - `order-mgmt-service.ts`, `product-service.ts`, `category-service.ts`, `settings-service.ts`, `discount-service.ts` — CRUD + zod validation (`dashboard-schemas.ts`), each checking the resource actually belongs to the caller's `businessId` before mutating it.
+    `discount-service.ts` covers both discount kinds: manual `CODE` (customer types a code at checkout) and `AUTOMATIC` (applies to matching cart items with no code — scope is whole menu, a set of categories, or one product). Neither kind is wired into the order/checkout total yet — this is the admin CRUD screen only (`Admin Discounts.dc.html`); applying the discount to `order-flow.ts` is future work.
 - `routes/actions.ts` — every action calls `requireBusinessOwner()` first (authorization, not just "is logged in") before touching a service.
 
 ## Authorization
@@ -27,5 +28,6 @@ npm run test     # stat-delta unit tests
 npm run dev
 # log in with the seeded owner (09376220110 / demo1234), or register a new
 # account and complete /onboarding, then walk /dashboard, /dashboard/orders,
-# /dashboard/products, /dashboard/categories, /dashboard/settings.
+# /dashboard/products, /dashboard/categories, /dashboard/discounts,
+# /dashboard/settings.
 ```

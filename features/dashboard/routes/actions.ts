@@ -2,17 +2,20 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireSession, requireBusinessOwner } from "@/features/auth/services/authorize";
+import { requireSession, requireBusinessOwner, requireOwnerRole } from "@/features/auth/services/authorize";
 import { findUserByPhone } from "@/features/auth/repositories/user-repository";
 import * as onboardingService from "@/features/dashboard/services/onboarding-service";
 import * as settingsService from "@/features/dashboard/services/settings-service";
 import * as orderMgmtService from "@/features/dashboard/services/order-mgmt-service";
 import * as productService from "@/features/dashboard/services/product-service";
 import * as categoryService from "@/features/dashboard/services/category-service";
+import * as discountService from "@/features/dashboard/services/discount-service";
+import * as userMgmtService from "@/features/dashboard/services/user-mgmt-service";
 
 export interface ActionState {
   error?: string;
   ok?: boolean;
+  tempPassword?: string;
 }
 
 function bool(formData: FormData, key: string) {
@@ -46,21 +49,63 @@ export async function toggleAcceptingOrdersAction(isAcceptingOrders: boolean) {
   return result;
 }
 
-export async function updateSettingsAction(
+export async function updateBusinessInfoAction(
   _prevState: ActionState,
   formData: FormData
 ): Promise<ActionState> {
   const { businessId } = await requireBusinessOwner();
-  const result = await settingsService.updateSettings(businessId, {
+  const result = await settingsService.updateBusinessInfo(businessId, {
     name: String(formData.get("name") ?? ""),
     nameEn: String(formData.get("nameEn") ?? ""),
     phone: String(formData.get("phone") ?? ""),
     address: String(formData.get("address") ?? ""),
     openingHoursStart: String(formData.get("openingHoursStart") ?? ""),
     openingHoursEnd: String(formData.get("openingHoursEnd") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/settings");
+  return { ok: true };
+}
+
+export async function updateOrderSettingsAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await settingsService.updateOrderSettings(businessId, {
     acceptsDineIn: bool(formData, "acceptsDineIn"),
     acceptsTakeaway: bool(formData, "acceptsTakeaway"),
     acceptsDelivery: bool(formData, "acceptsDelivery"),
+    prepTimeDineIn: String(formData.get("prepTimeDineIn") ?? ""),
+    prepTimeTakeaway: String(formData.get("prepTimeTakeaway") ?? ""),
+    prepTimeDelivery: String(formData.get("prepTimeDelivery") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/settings");
+  return { ok: true };
+}
+
+export async function updateQrSettingsAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await settingsService.updateQrSettings(businessId, {
+    qrShowInfo: bool(formData, "qrShowInfo"),
+    qrShowHours: bool(formData, "qrShowHours"),
+    qrShowLogo: bool(formData, "qrShowLogo"),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/settings");
+  return { ok: true };
+}
+
+export async function updatePaymentSettingsAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await settingsService.updatePaymentSettings(businessId, {
     acceptsOnlinePayment: bool(formData, "acceptsOnlinePayment"),
     acceptsCashPayment: bool(formData, "acceptsCashPayment"),
     packagingFee: String(formData.get("packagingFee") ?? ""),
@@ -178,4 +223,129 @@ export async function moveCategoryAction(categoryId: string, direction: "up" | "
   const result = await categoryService.moveCategory(businessId, categoryId, direction);
   revalidatePath("/dashboard/categories");
   return result;
+}
+
+export async function createDiscountCodeAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await discountService.createDiscountCode(businessId, {
+    name: String(formData.get("name") ?? ""),
+    code: String(formData.get("code") ?? ""),
+    description: String(formData.get("description") ?? ""),
+    startDate: String(formData.get("startDate") ?? ""),
+    endDate: String(formData.get("endDate") ?? ""),
+    isActive: bool(formData, "isActive"),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/discounts");
+  return { ok: true };
+}
+
+export async function updateDiscountCodeAction(
+  discountId: string,
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await discountService.updateDiscountCode(businessId, discountId, {
+    name: String(formData.get("name") ?? ""),
+    code: String(formData.get("code") ?? ""),
+    description: String(formData.get("description") ?? ""),
+    startDate: String(formData.get("startDate") ?? ""),
+    endDate: String(formData.get("endDate") ?? ""),
+    isActive: bool(formData, "isActive"),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/discounts");
+  return { ok: true };
+}
+
+export async function createAutoDiscountAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await discountService.createAutoDiscount(businessId, {
+    name: String(formData.get("name") ?? ""),
+    percent: String(formData.get("percent") ?? ""),
+    scope: String(formData.get("scope") ?? "ALL_MENU"),
+    categoryIds: formData.getAll("categoryIds").map(String),
+    productId: String(formData.get("productId") ?? ""),
+    description: String(formData.get("description") ?? ""),
+    startDate: String(formData.get("startDate") ?? ""),
+    endDate: String(formData.get("endDate") ?? ""),
+    isActive: bool(formData, "isActive"),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/discounts");
+  return { ok: true };
+}
+
+export async function updateAutoDiscountAction(
+  discountId: string,
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await discountService.updateAutoDiscount(businessId, discountId, {
+    name: String(formData.get("name") ?? ""),
+    percent: String(formData.get("percent") ?? ""),
+    scope: String(formData.get("scope") ?? "ALL_MENU"),
+    categoryIds: formData.getAll("categoryIds").map(String),
+    productId: String(formData.get("productId") ?? ""),
+    description: String(formData.get("description") ?? ""),
+    startDate: String(formData.get("startDate") ?? ""),
+    endDate: String(formData.get("endDate") ?? ""),
+    isActive: bool(formData, "isActive"),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/discounts");
+  return { ok: true };
+}
+
+export async function deleteDiscountAction(discountId: string) {
+  const { businessId } = await requireBusinessOwner();
+  const result = await discountService.deleteDiscount(businessId, discountId);
+  revalidatePath("/dashboard/discounts");
+  return result;
+}
+
+export async function toggleDiscountActiveAction(discountId: string, isActive: boolean) {
+  const { businessId } = await requireBusinessOwner();
+  const result = await discountService.toggleDiscountActive(businessId, discountId, isActive);
+  revalidatePath("/dashboard/discounts");
+  return result;
+}
+
+export async function createStaffUserAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireOwnerRole();
+  const result = await userMgmtService.createStaffUser(businessId, {
+    fullName: String(formData.get("fullName") ?? ""),
+    phone: String(formData.get("phone") ?? ""),
+    role: String(formData.get("role") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/users");
+  return { ok: true, tempPassword: result.tempPassword };
+}
+
+export async function updateStaffUserAction(
+  userId: string,
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireOwnerRole();
+  const result = await userMgmtService.updateStaffUser(businessId, userId, {
+    fullName: String(formData.get("fullName") ?? ""),
+    phone: String(formData.get("phone") ?? ""),
+    role: String(formData.get("role") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/users");
+  return { ok: true };
 }

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { User } from "lucide-react";
 import { ServerToggle } from "@/components/dashboard/server-toggle";
 import { toggleAcceptingOrdersAction } from "@/features/dashboard/routes/actions";
@@ -23,7 +24,7 @@ export function Topbar({
           <ServerToggle initial={isAcceptingOrders} action={toggleAcceptingOrdersAction} />
         </div>
         <span className="h-[30px] w-px bg-[#ECECEC]" />
-        <div className="flex items-center gap-2.5">
+        <Link href="/dashboard/account" className="flex items-center gap-2.5">
           <div className="text-right">
             <div className="text-sm font-medium">{businessName}</div>
             <div className="text-xs font-light text-text-3">مدیر مجموعه</div>
@@ -31,7 +32,7 @@ export function Topbar({
           <div className="flex h-[46px] w-[46px] items-center justify-center rounded-2xl bg-[#E5F0E6]">
             <User size={22} className="text-brand" />
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   );

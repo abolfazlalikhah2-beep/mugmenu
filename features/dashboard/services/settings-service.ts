@@ -1,7 +1,12 @@
 import "server-only";
 import { logger } from "@/lib/logger";
 import * as repo from "@/features/dashboard/repositories/dashboard-repository";
-import { settingsSchema } from "@/features/dashboard/services/dashboard-schemas";
+import {
+  businessInfoSchema,
+  orderSettingsSchema,
+  qrSettingsSchema,
+  paymentSettingsSchema,
+} from "@/features/dashboard/services/dashboard-schemas";
 
 export type ServiceResult = { ok: true } | { ok: false; error: string };
 
@@ -9,12 +14,39 @@ export function getBusiness(businessId: string) {
   return repo.getBusinessById(businessId);
 }
 
-export async function updateSettings(businessId: string, input: unknown): Promise<ServiceResult> {
-  const parsed = settingsSchema.safeParse(input);
+export async function updateBusinessInfo(businessId: string, input: unknown): Promise<ServiceResult> {
+  const parsed = businessInfoSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
 
   await repo.updateBusiness(businessId, parsed.data);
-  logger.info("dashboard.settings_updated", { businessId });
+  logger.info("dashboard.business_info_updated", { businessId });
+  return { ok: true };
+}
+
+export async function updateOrderSettings(businessId: string, input: unknown): Promise<ServiceResult> {
+  const parsed = orderSettingsSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  await repo.updateBusiness(businessId, parsed.data);
+  logger.info("dashboard.order_settings_updated", { businessId });
+  return { ok: true };
+}
+
+export async function updateQrSettings(businessId: string, input: unknown): Promise<ServiceResult> {
+  const parsed = qrSettingsSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  await repo.updateBusiness(businessId, parsed.data);
+  logger.info("dashboard.qr_settings_updated", { businessId });
+  return { ok: true };
+}
+
+export async function updatePaymentSettings(businessId: string, input: unknown): Promise<ServiceResult> {
+  const parsed = paymentSettingsSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  await repo.updateBusiness(businessId, parsed.data);
+  logger.info("dashboard.payment_settings_updated", { businessId });
   return { ok: true };
 }
 

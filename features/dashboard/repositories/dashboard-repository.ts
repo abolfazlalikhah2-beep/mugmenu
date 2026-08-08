@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db";
-import type { OrderStatus } from "@/lib/generated/prisma/enums";
+import type { OrderStatus, DiscountType, DiscountScope } from "@/lib/generated/prisma/enums";
 
 // ---------- Business ----------
 
@@ -193,4 +193,70 @@ export async function swapCategorySortOrder(a: { id: string; sortOrder: number }
     prisma.category.update({ where: { id: a.id }, data: { sortOrder: b.sortOrder } }),
     prisma.category.update({ where: { id: b.id }, data: { sortOrder: a.sortOrder } }),
   ]);
+}
+
+// ---------- Discounts ----------
+
+export function getDiscounts(businessId: string) {
+  return prisma.discount.findMany({
+    where: { businessId },
+    include: { product: true },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export function getDiscountForEdit(id: string) {
+  return prisma.discount.findUnique({ where: { id } });
+}
+
+export function findDiscountByCode(businessId: string, code: string, excludeId?: string) {
+  return prisma.discount.findFirst({
+    where: { businessId, code, ...(excludeId ? { id: { not: excludeId } } : {}) },
+  });
+}
+
+export function createDiscount(data: {
+  businessId: string;
+  type: DiscountType;
+  name: string;
+  description?: string;
+  code?: string;
+  percent?: number;
+  scope?: DiscountScope;
+  categoryIds?: string[];
+  productId?: string;
+  startDate?: Date;
+  endDate?: Date;
+  isActive: boolean;
+}) {
+  return prisma.discount.create({ data });
+}
+
+export function updateDiscount(id: string, data: Record<string, unknown>) {
+  return prisma.discount.update({ where: { id }, data });
+}
+
+export function deleteDiscount(id: string) {
+  return prisma.discount.delete({ where: { id } });
+}
+
+// ---------- Reports ----------
+
+export function getOrdersForReport(businessId: string, since: Date) {
+  return prisma.order.findMany({
+    where: { businessId, createdAt: { gte: since } },
+    select: { createdAt: true, totalPrice: true },
+  });
+}
+
+export function getOrderItemsForReport(businessId: string, since: Date) {
+  return prisma.orderItem.findMany({
+    where: { order: { businessId, createdAt: { gte: since } } },
+    select: {
+      quantity: true,
+      productId: true,
+      product: { select: { name: true, imageUrl: true, category: { select: { name: true } } } },
+      order: { select: { createdAt: true } },
+    },
+  });
 }

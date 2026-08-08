@@ -30,6 +30,19 @@ model Business {
   acceptsOnlinePayment   Boolean  @default(false)
   acceptsCashPayment     Boolean  @default(true)
   packagingFee           Int      @default(12000)
+  prepTimeDineIn         Int      @default(15)
+  prepTimeTakeaway       Int      @default(20)
+  prepTimeDelivery       Int      @default(45)
+  qrShowInfo             Boolean  @default(true)
+  qrShowHours            Boolean  @default(true)
+  qrShowLogo             Boolean  @default(true)
+  // No payment gateway yet (phase 3, see CLAUDE.md) — these describe the
+  // plan every business currently starts on, not a self-service purchase.
+  planName               String   @default("اشتراک حرفه‌ای")
+  planPriceToman         Int      @default(390000)
+  planMaxUsers           Int      @default(5)
+  planStartedAt          DateTime @default(now())
+  planExpiresAt          DateTime @default(dbgenerated("(now() + interval '30 days')"))
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 
@@ -38,9 +51,19 @@ model Business {
   products   Product[]
   orders     Order[]
   reviews    Review[]
+  discounts  Discount[]
 }
 
-// Restaurant owner / staff login (see lib/auth).
+enum UserRole {
+  OWNER
+  MENU_MANAGER
+  CASHIER
+}
+
+// Restaurant owner / staff login (see lib/auth). A freshly self-registered
+// user defaults to OWNER (they become the owner once /onboarding creates
+// their business); staff added later from /dashboard/users get an explicit
+// role and are linked to businessId at creation, skipping onboarding.
 model User {
   id           String   @id @default(cuid())
   phone        String   @unique
@@ -48,6 +71,7 @@ model User {
   fullName     String
   businessId   String?
   business     Business? @relation(fields: [businessId], references: [id])
+  role         UserRole  @default(OWNER)
   createdAt    DateTime @default(now())
 }
 
@@ -83,6 +107,7 @@ model Product {
 
   orderItems OrderItem[]
   reviews    Review[]
+  discounts  Discount[]
 
   @@unique([businessId, name])
   @@index([businessId])
@@ -133,6 +158,42 @@ model OrderItem {
   unitPrice Int
 
   @@index([orderId])
+}
+
+enum DiscountType {
+  CODE
+  AUTOMATIC
+}
+
+enum DiscountScope {
+  ALL_MENU
+  CATEGORY
+  PRODUCT
+}
+
+// CODE: manual promo code (customer enters it). AUTOMATIC: applied to
+// matching cart items with no code — scope decides which items (see
+// features/dashboard/services/discount-service.ts).
+model Discount {
+  id          String         @id @default(cuid())
+  businessId  String
+  business    Business       @relation(fields: [businessId], references: [id])
+  type        DiscountType
+  name        String
+  description String?
+  code        String?
+  percent     Int?
+  scope       DiscountScope?
+  categoryIds String[]       @default([])
+  productId   String?
+  product     Product?       @relation(fields: [productId], references: [id])
+  startDate   DateTime?
+  endDate     DateTime?
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+
+  @@unique([businessId, code])
+  @@index([businessId])
 }
 
 // Item-level (productId set) or restaurant-level (productId null) review.
