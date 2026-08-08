@@ -1,0 +1,29 @@
+# Overrides docker-compose.yml for a production-shaped run:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build
+# Same services/network topology as dev — only the app's build target and
+# volumes differ — so this stays close to what actually ships.
+services:
+  app:
+    build:
+      target: runner
+    environment:
+      NODE_ENV: production
+    volumes: !reset []
+    ports:
+      - "3000:3000"
+
+  # One-off migration runner — the `runner` image intentionally doesn't
+  # ship the Prisma CLI (keeps it lean), and running migrations from every
+  # replica's own boot is a race with >1 instance. Run explicitly before
+  # (re)starting `app`:
+  #   docker compose -f docker-compose.yml -f docker-compose.prod.yml run --rm migrate
+  migrate:
+    profiles: ["tools"]
+    build:
+      target: builder
+    environment:
+      DATABASE_URL: postgresql://magmenu:magmenu_dev_password@db:5432/magmenu?schema=public
+    command: ["npx", "prisma", "migrate", "deploy"]
+    depends_on:
+      db:
+        condition: service_healthy

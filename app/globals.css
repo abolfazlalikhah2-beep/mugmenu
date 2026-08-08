@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+/* ===== MagMenu design tokens — source of truth: CLAUDE.md + Style Guide.dc.html ===== */
+@theme {
+  --color-brand: #328c3d;
+  --color-brand-hover: #25682d;
+  --color-success: #10d37b;
+  --color-star: #facb0f;
+
+  --color-ink: #000000;
+  --color-text-1: #5f5f5f;
+  --color-text-2: #747474;
+  --color-text-3: #9f9f9f;
+  --color-text-4: #a7a7a7;
+  --color-text-5: #b7b7b7;
+
+  --color-page: #f2f3f2;
+  --color-card: #ffffff;
+  --color-chip: #f6f6f6;
+
+  --color-border-input: #dddddd;
+  --color-border-line: #eaeaea;
+  --color-border-chip: #cecece;
+  --color-disabled: #b9cfbb;
+
+  --radius-card: 35px;
+  --radius-card-sm: 20px;
+  --radius-pill: 20px;
+  --radius-btn: 15px;
+  --radius-input: 14px;
+  --radius-chip: 10px;
+
+  --shadow-float: 0px 8px 17.5px rgba(0, 0, 0, 0.04);
+  --shadow-modal: 0px 26px 41.2px 4px rgba(0, 0, 0, 0.04);
+}
+
+@theme inline {
+  --font-sans: var(--font-vazirmatn);
+  --font-mont: var(--font-montserrat);
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-ink);
+}

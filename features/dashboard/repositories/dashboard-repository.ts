@@ -1,0 +1,196 @@
+import "server-only";
+import { prisma } from "@/lib/db";
+import type { OrderStatus } from "@/lib/generated/prisma/enums";
+
+// ---------- Business ----------
+
+export function getBusinessById(id: string) {
+  return prisma.business.findUnique({ where: { id } });
+}
+
+export function updateBusiness(id: string, data: Record<string, unknown>) {
+  return prisma.business.update({ where: { id }, data });
+}
+
+export function createBusiness(data: {
+  slug: string;
+  name: string;
+  nameEn?: string;
+  phone?: string;
+  address?: string;
+  description?: string;
+  logoUrl?: string;
+}) {
+  return prisma.business.create({ data });
+}
+
+export function linkUserToBusiness(userId: string, businessId: string) {
+  return prisma.user.update({ where: { id: userId }, data: { businessId } });
+}
+
+// ---------- Orders ----------
+
+export function countOrders(businessId: string, range?: { gte: Date; lt: Date }) {
+  return prisma.order.count({ where: { businessId, ...(range ? { createdAt: range } : {}) } });
+}
+
+export async function sumRevenue(businessId: string, range: { gte: Date; lt: Date }) {
+  const result = await prisma.order.aggregate({
+    where: { businessId, createdAt: range },
+    _sum: { totalPrice: true },
+  });
+  return result._sum.totalPrice ?? 0;
+}
+
+export async function countDistinctCustomers(businessId: string, range: { gte: Date; lt: Date }) {
+  const rows = await prisma.order.findMany({
+    where: { businessId, createdAt: range },
+    select: { customerPhone: true },
+    distinct: ["customerPhone"],
+  });
+  return rows.length;
+}
+
+/** Raw creation timestamps for this month — bucketed by hour-of-day in the service layer. */
+export function getOrderTimestampsThisMonth(businessId: string, since: Date) {
+  return prisma.order.findMany({
+    where: { businessId, createdAt: { gte: since } },
+    select: { createdAt: true },
+  });
+}
+
+/** All order lines for this business — aggregated into category/product sales in the service layer. */
+export function getOrderItemsWithProduct(businessId: string) {
+  return prisma.orderItem.findMany({
+    where: { order: { businessId } },
+    include: { product: { include: { category: true } } },
+  });
+}
+
+export function getRecentOrders(businessId: string, take: number) {
+  return prisma.order.findMany({
+    where: { businessId },
+    include: { items: { include: { product: true } } },
+    orderBy: { createdAt: "desc" },
+    take,
+  });
+}
+
+export function getOrders(
+  businessId: string,
+  filter: { status?: OrderStatus; search?: string }
+) {
+  return prisma.order.findMany({
+    where: {
+      businessId,
+      ...(filter.status ? { status: filter.status } : {}),
+      ...(filter.search
+        ? {
+            OR: [
+              { customerName: { contains: filter.search, mode: "insensitive" } },
+              { customerPhone: { contains: filter.search } },
+              { id: { contains: filter.search } },
+            ],
+          }
+        : {}),
+    },
+    include: { items: { include: { product: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export function getOrderWithItems(id: string) {
+  return prisma.order.findUnique({
+    where: { id },
+    include: { items: { include: { product: true } } },
+  });
+}
+
+export function updateOrderStatus(id: string, status: OrderStatus) {
+  return prisma.order.update({ where: { id }, data: { status } });
+}
+
+// ---------- Products ----------
+
+export function getProducts(businessId: string) {
+  return prisma.product.findMany({
+    where: { businessId },
+    include: { category: true },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export function getProductForEdit(id: string) {
+  return prisma.product.findUnique({ where: { id } });
+}
+
+export function createProduct(data: {
+  businessId: string;
+  categoryId: string;
+  name: string;
+  description?: string;
+  price: number;
+  discountPercent?: number;
+  imageUrl?: string;
+}) {
+  return prisma.product.create({ data });
+}
+
+export function updateProduct(id: string, data: Record<string, unknown>) {
+  return prisma.product.update({ where: { id }, data });
+}
+
+export function deleteProduct(id: string) {
+  return prisma.product.delete({ where: { id } });
+}
+
+// ---------- Categories ----------
+
+export function getCategoriesWithCounts(businessId: string) {
+  return prisma.category.findMany({
+    where: { businessId },
+    orderBy: { sortOrder: "asc" },
+    include: { _count: { select: { products: true } } },
+  });
+}
+
+export function getCategoryForEdit(id: string) {
+  return prisma.category.findUnique({ where: { id } });
+}
+
+export async function nextCategorySortOrder(businessId: string) {
+  const last = await prisma.category.findFirst({
+    where: { businessId },
+    orderBy: { sortOrder: "desc" },
+  });
+  return (last?.sortOrder ?? -1) + 1;
+}
+
+export function createCategory(data: {
+  businessId: string;
+  name: string;
+  icon?: string;
+  imageUrl?: string;
+  sortOrder: number;
+}) {
+  return prisma.category.create({ data });
+}
+
+export function updateCategory(id: string, data: Record<string, unknown>) {
+  return prisma.category.update({ where: { id }, data });
+}
+
+export function deleteCategory(id: string) {
+  return prisma.category.delete({ where: { id } });
+}
+
+export function countProductsInCategory(categoryId: string) {
+  return prisma.product.count({ where: { categoryId } });
+}
+
+export async function swapCategorySortOrder(a: { id: string; sortOrder: number }, b: { id: string; sortOrder: number }) {
+  await prisma.$transaction([
+    prisma.category.update({ where: { id: a.id }, data: { sortOrder: b.sortOrder } }),
+    prisma.category.update({ where: { id: b.id }, data: { sortOrder: a.sortOrder } }),
+  ]);
+}

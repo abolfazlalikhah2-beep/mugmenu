@@ -1,0 +1,153 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// A cafe/restaurant tenant, published at /{slug}. See CLAUDE.md's
+// multi-tenant note.
+model Business {
+  id                     String   @id @default(cuid())
+  slug                   String   @unique
+  name                   String
+  nameEn                 String?
+  logoUrl                String?
+  address                String?
+  phone                  String?
+  description            String?
+  isAcceptingOrders      Boolean  @default(true)
+  openingHoursStart      String?
+  openingHoursEnd        String?
+  acceptsDineIn          Boolean  @default(true)
+  acceptsTakeaway        Boolean  @default(true)
+  acceptsDelivery        Boolean  @default(false)
+  acceptsOnlinePayment   Boolean  @default(false)
+  acceptsCashPayment     Boolean  @default(true)
+  packagingFee           Int      @default(12000)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  owners     User[]
+  categories Category[]
+  products   Product[]
+  orders     Order[]
+  reviews    Review[]
+}
+
+// Restaurant owner / staff login (see lib/auth).
+model User {
+  id           String   @id @default(cuid())
+  phone        String   @unique
+  passwordHash String
+  fullName     String
+  businessId   String?
+  business     Business? @relation(fields: [businessId], references: [id])
+  createdAt    DateTime @default(now())
+}
+
+model Category {
+  id         String  @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+  name       String
+  icon       String?
+  imageUrl   String?
+  sortOrder  Int     @default(0)
+  isActive   Boolean @default(true)
+
+  products Product[]
+
+  @@unique([businessId, name])
+  @@index([businessId])
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  businessId      String
+  business        Business @relation(fields: [businessId], references: [id])
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id])
+  name            String
+  description     String?
+  price           Int
+  discountPercent Int?
+  imageUrl        String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  orderItems OrderItem[]
+  reviews    Review[]
+
+  @@unique([businessId, name])
+  @@index([businessId])
+  @@index([categoryId])
+}
+
+enum OrderType {
+  DINE_IN
+  TAKEAWAY
+  DELIVERY
+}
+
+enum OrderStatus {
+  NEW
+  PREPARING
+  READY
+  DELIVERED
+  CANCELED
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  businessId     String
+  business       Business    @relation(fields: [businessId], references: [id])
+  type           OrderType
+  status         OrderStatus @default(NEW)
+  customerName   String
+  customerPhone  String
+  tableNumber    String?
+  address        String?
+  location       String?
+  estimatedTime  String?
+  totalPrice     Int
+  createdAt      DateTime    @default(now())
+
+  items OrderItem[]
+
+  @@index([businessId])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Int
+
+  @@index([orderId])
+}
+
+// Item-level (productId set) or restaurant-level (productId null) review.
+model Review {
+  id           String   @id @default(cuid())
+  businessId   String
+  business     Business @relation(fields: [businessId], references: [id])
+  productId    String?
+  product      Product? @relation(fields: [productId], references: [id])
+  customerName String
+  rating       Int
+  comment      String?
+  createdAt    DateTime @default(now())
+
+  @@unique([productId, customerName])
+  @@index([businessId])
+  @@index([productId])
+}

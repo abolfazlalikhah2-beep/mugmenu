@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body { margin:0; }
+  *, *::before, *::after { box-sizing:border-box; }
+  a { color:#328C3D; text-decoration:none; }
+  a:hover { color:#25682d; }
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb { background:#D8D8D8; border-radius:3px; }
+</style>
+</helmet>
+<div dir="rtl" style="font-family:'Vazirmatn',sans-serif; background:#EDEEED; color:#000; min-height:100vh; padding:56px 48px 120px; direction:rtl;">
+  <div style="max-width:1400px; margin:0 auto; display:flex; flex-direction:column; gap:52px;">
+
+    <div style="display:flex; flex-direction:column; gap:6px;">
+      <span style="font-family:'Montserrat'; font-size:11px; letter-spacing:.42em; text-transform:uppercase; color:#B7B7B7;">STEP 2 · ADMIN PANEL · PART A</span>
+      <h1 style="margin:0; font-size:30px; font-weight:700;">قدم ۲ — پنل مدیریت (بخش الف)</h1>
+      <p style="margin:0; font-size:14px; font-weight:300; color:#5F5F5F;">ثبت‌نام و آنبوردینگ رستوران‌دار، داشبورد خانه، و سفارشات. راست‌چین، هم‌سبک دیزاین‌سیستم.</p>
+    </div>
+
+    <sc-for list="{{ frames }}" as="f" hint-placeholder-count="4">
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-family:'Montserrat'; font-size:12px; font-weight:600; color:#328C3D; background:#E5F0E6; border-radius:8px; padding:4px 10px;">{{ f.tag }}</span>
+          <span style="font-size:17px; font-weight:600;">{{ f.title }}</span>
+          <span style="font-size:13px; font-weight:300; color:#9F9F9F;">{{ f.note }}</span>
+        </div>
+        <div style="display:flex; gap:34px; align-items:flex-start; flex-wrap:wrap;">
+          <sc-for list="{{ f.views }}" as="v" hint-placeholder-count="2">
+            <div style="display:flex; flex-direction:column; gap:10px; align-items:center;">
+              <span style="font-family:'Montserrat'; font-size:10px; letter-spacing:.3em; color:#B7B7B7;">{{ v.label }}</span>
+              {{ v.el }}
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+
+  </div>
+</div>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#328C3D"/><text x="50" y="62" font-family="sans-serif" font-size="30" font-weight="700" fill="#fff" text-anchor="middle">A</text></svg></template></x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const R = React.createElement;
+    const money = n => n.toLocaleString('fa-IR');
+    const DESK = 'linear-gradient(135deg,#F2F3F1 0%,#E7E8E7 100%)';
+
+    // ---- icons ----
+    const I = (paths,s=22,c='currentColor',sw=1.6)=>R('svg',{width:s,height:s,viewBox:'0 0 24 24',fill:'none'},(Array.isArray(paths)?paths:[paths]).map((d,i)=>R('path',{key:i,d,stroke:c,strokeWidth:sw,strokeLinecap:'round',strokeLinejoin:'round'})));
+    const homeI=(c,s)=>I(['M3 10l9-7 9 7','M5 9v11h14V9','M9 20v-6h6v6'],s||22,c);
+    const boxI=(c,s)=>I(['M21 8l-9-5-9 5 9 5 9-5Z','M3 8v8l9 5 9-5V8','M12 13v8'],s||22,c);
+    const gridI=(c,s)=>I(['M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z'],s||22,c);
+    const receiptI=(c,s)=>I(['M6 3h12v18l-3-2-3 2-3-2-3 2V3Z','M9 8h6M9 12h6'],s||22,c);
+    const gearI=(c,s)=>I(['M12 15a3 3 0 100-6 3 3 0 000 6Z','M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1l-.4-2.5H9.6l-.4 2.5a7 7 0 00-1.7 1l-2.4-1-2 3.4L3.1 11a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.4 2.5h4.8l.4-2.5a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6a7 7 0 00.1-1Z'],s||22,c);
+    const bellI=(c,s)=>I(['M6 9a6 6 0 1112 0c0 7 3 7 3 9H3c0-2 3-2 3-9Z','M10.5 21a1.5 1.5 0 003 0'],s||22,c);
+    const userI=(c,s)=>I(['M12 12a4 4 0 100-8 4 4 0 000 8Z','M4 20a8 8 0 0116 0'],s||20,c);
+    const pinI=(c,s)=>R('svg',{width:s||14,height:s||14,viewBox:'0 0 24 24',fill:'none'},R('path',{d:'M12 22s7-6.2 7-12A7 7 0 0 0 5 10c0 5.8 7 12 7 12Z',stroke:c,strokeWidth:1.4}),R('circle',{cx:12,cy:10,r:2.4,stroke:c,strokeWidth:1.4}));
+
+    // ---- frame wrappers ----
+    const deskFrame=(content)=>R('div',{style:{width:1190,height:670,borderRadius:20,overflow:'hidden',position:'relative',boxShadow:'0 12px 40px rgba(0,0,0,0.08)',background:'#fff'}},
+      R('div',{style:{width:1920,height:1080,position:'absolute',top:0,right:0,transform:'scale(0.6198)',transformOrigin:'top right'}}, content));
+    const phoneFrame=(card)=>R('div',{style:{width:392,height:812,borderRadius:44,overflow:'hidden',position:'relative',boxShadow:'0 14px 44px rgba(0,0,0,0.14)',border:'1px solid #E4E4E4',background:'#fff'}},
+      R('div',{style:{position:'absolute',top:0,left:0,right:0,height:34,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 26px',zIndex:5,fontSize:12,fontWeight:500,color:'#111',pointerEvents:'none'}},
+        R('span',null,'۹:۴۱'),R('span',{style:{fontFamily:'Montserrat',fontSize:10}},'5G')),
+      R('div',{style:{position:'absolute',inset:0,overflowY:'auto'}}, card));
+
+    // ---- shared ----
+    const badge=(t,fg,bg)=>R('span',{style:{fontSize:12,fontWeight:500,color:fg,background:bg,borderRadius:9,padding:'5px 12px',whiteSpace:'nowrap'}},t);
+    const orderStatus=(k)=>{const map={new:['جدید','#2563EB','#EAF1FE'],prep:['در حال آماده‌سازی','#B7791F','#FCF3E3'],ready:['آماده تحویل','#328C3D','#E5F0E6'],done:['تحویل شده','#8A8A8A','#F0F0F0']};const v=map[k];return badge(v[0],v[1],v[2]);};
+    const toggle=(on)=>R('div',{style:{width:46,height:26,borderRadius:20,background:on?'#328C3D':'#D6D6D6',position:'relative',flexShrink:0,transition:'all .2s'}},R('div',{style:{position:'absolute',top:3,left:on?3:23,width:20,height:20,borderRadius:'50%',background:'#fff',boxShadow:'0 1px 3px rgba(0,0,0,.2)'}}));
+
+    const orders=this.orders();
+
+    // ===== PANEL SHELL =====
+    const nav=[['داشبورد',homeI],['محصولات',boxI],['دسته‌بندی',gridI],['سفارشات',receiptI],['تنظیمات',gearI]];
+    const sidebar=(active)=>R('div',{style:{width:264,background:'#fff',borderLeft:'1px solid #EDEDED',display:'flex',flexDirection:'column',padding:'30px 20px',flexShrink:0}},
+      R('div',{style:{display:'flex',alignItems:'center',gap:10,padding:'0 8px 28px'}},R('img',{src:'assets/wordmark-faded.png',style:{height:30,filter:'invert(38%) sepia(50%) saturate(700%) hue-rotate(80deg)'}})),
+      R('div',{style:{display:'flex',flexDirection:'column',gap:6}},
+        nav.map((n,i)=>R('div',{key:i,style:{display:'flex',alignItems:'center',gap:12,height:50,borderRadius:14,padding:'0 16px',cursor:'pointer',background:i===active?'#EAF3EB':'transparent',color:i===active?'#328C3D':'#7A7A7A',fontSize:15,fontWeight:i===active?500:400}},n[1](i===active?'#328C3D':'#9A9A9A',21),R('span',null,n[0])))),
+      R('div',{style:{marginTop:'auto',display:'flex',alignItems:'center',gap:12,height:50,borderRadius:14,padding:'0 16px',color:'#C15656',fontSize:15,cursor:'pointer'}},I(['M15 4h4v16h-4','M10 8l-4 4 4 4','M6 12h9'],21,'#C15656'),R('span',null,'خروج')));
+    const topbar=(title)=>R('div',{style:{height:88,background:'#fff',borderBottom:'1px solid #EDEDED',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 34px',flexShrink:0}},
+      R('div',{style:{fontSize:23,fontWeight:600}},title),
+      R('div',{style:{display:'flex',alignItems:'center',gap:18}},
+        R('div',{style:{display:'flex',alignItems:'center',gap:8}},R('span',{style:{fontSize:14,fontWeight:300,color:'#777'}},'وضعیت سفارش‌گیری'),toggle(true)),
+        R('div',{style:{width:1,height:30,background:'#ECECEC'}}),
+        R('div',{style:{width:44,height:44,borderRadius:13,background:'#F0F0F0',display:'flex',alignItems:'center',justifyContent:'center',position:'relative'}},bellI('#5A5A5A',22),R('span',{style:{position:'absolute',top:10,right:12,width:7,height:7,borderRadius:'50%',background:'#E5484D'}})),
+        R('div',{style:{display:'flex',alignItems:'center',gap:10}},
+          R('div',{style:{textAlign:'right'}},R('div',{style:{fontSize:14,fontWeight:500}},'رستوران چلوکبابی باختر'),R('div',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F'}},'مدیر مجموعه')),
+          R('div',{style:{width:46,height:46,borderRadius:14,background:'#E5F0E6',display:'flex',alignItems:'center',justifyContent:'center'}},userI('#328C3D',22)))));
+    const panel=(active,title,content,overlay)=>R('div',{style:{position:'absolute',inset:0,background:'#F4F5F4',display:'flex'}},
+      sidebar(active),
+      R('div',{style:{flex:1,display:'flex',flexDirection:'column',minWidth:0}}, topbar(title), R('div',{style:{flex:1,padding:'30px 34px',overflow:'hidden'}}, content)),
+      overlay||null);
+
+    // ===== DASHBOARD =====
+    const statCard=(label,val,delta,up,icon)=>R('div',{style:{background:'#fff',borderRadius:22,padding:'22px 24px',display:'flex',flexDirection:'column',gap:14,boxShadow:'0px 8px 17.5px rgba(0,0,0,0.03)'}},
+      R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between'}},
+        R('span',{style:{fontSize:14,fontWeight:300,color:'#8A8A8A'}},label),
+        R('div',{style:{width:40,height:40,borderRadius:12,background:'#EAF3EB',display:'flex',alignItems:'center',justifyContent:'center'}},icon)),
+      R('div',{style:{fontSize:30,fontWeight:700}},val),
+      R('div',{style:{display:'flex',alignItems:'center',gap:6}},R('span',{style:{fontSize:12,fontWeight:500,color:up?'#328C3D':'#C15656'}},(up?'▲ ':'▼ ')+delta),R('span',{style:{fontSize:12,fontWeight:300,color:'#B0B0B0'}},'نسبت به دیروز')));
+    // busy-time area chart (24h) — mirror of competitor "زمان شلوغی"
+    const busy=[2,1,1,0,0,0,0,3,12,28,44,62,150,248,205,168,150,178,190,150,96,54,22,6];
+    const bMax=260, cw=980, ch=210, pad=8;
+    const bx=i=>pad+i*((cw-2*pad)/(busy.length-1));
+    const by=v=>ch-8-(v/bMax)*(ch-26);
+    const linePath=busy.map((v,i)=>(i?'L':'M')+bx(i).toFixed(1)+' '+by(v).toFixed(1)).join(' ');
+    const areaPath=linePath+' L'+bx(busy.length-1).toFixed(1)+' '+(ch-4)+' L'+bx(0).toFixed(1)+' '+(ch-4)+' Z';
+    const busyChart=R('div',{style:{background:'#fff',borderRadius:22,padding:'24px 28px',boxShadow:'0px 8px 17.5px rgba(0,0,0,0.03)',display:'flex',flexDirection:'column',gap:14}},
+      R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between'}},
+        R('div',{style:{fontSize:17,fontWeight:600}},'زمان شلوغی این ماه'),
+        R('div',{style:{display:'flex',alignItems:'center',gap:7}},R('span',{style:{width:11,height:11,borderRadius:'50%',background:'#328C3D'}}),R('span',{style:{fontSize:13,color:'#777'}},'تعداد سفارش'))),
+      R('svg',{viewBox:'0 0 '+cw+' '+ch,style:{width:'100%',height:210,overflow:'visible'}},
+        R('defs',null,R('linearGradient',{id:'busyfill',x1:'0',y1:'0',x2:'0',y2:'1'},R('stop',{offset:'0%',stopColor:'#328C3D',stopOpacity:0.22}),R('stop',{offset:'100%',stopColor:'#328C3D',stopOpacity:0}))),
+        [0.25,0.5,0.75,1].map((g,i)=>R('line',{key:i,x1:pad,x2:cw-pad,y1:by(bMax*g),y2:by(bMax*g),stroke:'#F0F0F0',strokeWidth:1})),
+        R('path',{d:areaPath,fill:'url(#busyfill)'}),
+        R('path',{d:linePath,fill:'none',stroke:'#328C3D',strokeWidth:2.5,strokeLinejoin:'round',strokeLinecap:'round'}),
+        [13,17].map((i,k)=>R('circle',{key:k,cx:bx(i),cy:by(busy[i]),r:4.5,fill:'#fff',stroke:'#328C3D',strokeWidth:2.5}))),
+      R('div',{style:{display:'flex',justifyContent:'space-between',padding:'0 2px'}},
+        ['۰','۴','۸','۱۲','۱۶','۲۰','۲۳'].map((t,i)=>R('span',{key:i,style:{fontSize:11,color:'#B0B0B0',fontFamily:'Vazirmatn'}},t+':۰۰'))));
+
+    // category summary + top products (competitive: sales breakdown)
+    const topFoods=[['چای سیاه','چای و دمنوش',434,16249000],['زمزم کولا','نوشیدنی',258,5160000],['چلوکباب وزیری','کباب‌ها',196,75460000]];
+    const catSummary=R('div',{style:{background:'#fff',borderRadius:22,padding:'24px 24px',boxShadow:'0px 8px 17.5px rgba(0,0,0,0.03)',display:'flex',flexDirection:'column',gap:18,height:'100%'}},
+      R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between'}},
+        R('span',{style:{fontSize:16,fontWeight:600}},'خلاصه فروش دسته'),
+        R('div',{style:{display:'flex',alignItems:'center',gap:6,height:34,padding:'0 14px',borderRadius:11,border:'1px solid #E7E7E7',fontSize:13,color:'#777',cursor:'pointer'}},R('span',null,'همه'),I('M6 9l6 6 6-6',16,'#9A9A9A'))),
+      R('div',{style:{textAlign:'right'}},R('div',{style:{fontSize:13,fontWeight:300,color:'#9F9F9F',marginBottom:6}},'کل فروش دسته'),R('div',{style:{fontSize:26,fontWeight:700}},[money(557637000),R('span',{style:{fontSize:13,fontWeight:300,color:'#9F9F9F',marginRight:6}},'تومان')])),
+      R('div',{style:{height:1,background:'#F0F0F0'}}),
+      R('div',{style:{fontSize:13,fontWeight:500,color:'#777',textAlign:'right'}},'پرفروش‌ترین‌ها'),
+      R('div',{style:{display:'flex',flexDirection:'column',gap:14}},
+        topFoods.map((f,i)=>R('div',{key:i,style:{display:'flex',alignItems:'center',gap:12}},
+          R('div',{style:{width:46,height:46,borderRadius:13,overflow:'hidden',position:'relative',flexShrink:0,background:'#F2F2F2'}},R('image-slot',{id:'top-'+i,shape:'rect',src:'',placeholder:'',style:{position:'absolute',inset:0}})),
+          R('div',{style:{flex:1,textAlign:'right',minWidth:0}},
+            R('div',{style:{fontSize:14,fontWeight:500}},f[0]),
+            R('span',{style:{display:'inline-block',marginTop:4,fontSize:10,color:'#777',background:'#F6F6F6',border:'0.3px solid #CECECE',borderRadius:8,padding:'2px 8px'}},f[1])),
+          R('div',{style:{textAlign:'left',flexShrink:0}},R('div',{style:{fontSize:13,fontWeight:600,color:'#328C3D'}},[money(f[3]),' ت']),R('div',{style:{fontSize:11,fontWeight:300,color:'#9F9F9F',marginTop:2}},[money(f[2]),' سفارش']))))));
+    const profileCard=R('div',{style:{background:'#fff',borderRadius:22,padding:'24px',boxShadow:'0px 8px 17.5px rgba(0,0,0,0.03)',display:'flex',flexDirection:'column',gap:16}},
+      R('div',{style:{display:'flex',alignItems:'center',gap:14}},
+        R('div',{style:{width:56,height:56,borderRadius:16,background:'#E5F0E6',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}},R('img',{src:'assets/logo-magmenu-white.png',style:{width:36,filter:'invert(35%) sepia(60%) saturate(600%) hue-rotate(80deg)'}})),
+        R('div',{style:{textAlign:'right'}},R('div',{style:{fontSize:17,fontWeight:600}},'چلوکبابی باختر'),R('div',{style:{fontSize:13,fontWeight:300,color:'#9F9F9F',direction:'ltr',textAlign:'right'}},'@bakhtar_kabab'))),
+      R('div',{style:{display:'flex',alignItems:'center',gap:6}},pinI('#9F9F9F',13),R('span',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F'}},'تبریز، ولیعصر، میدان تجارت جهانی')),
+      R('div',{style:{height:1,background:'#F0F0F0'}}),
+      R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between'}},
+        R('div',{style:{display:'flex',alignItems:'center',gap:8}},R('span',{style:{width:8,height:8,borderRadius:'50%',background:'#10D37B'}}),R('span',{style:{fontSize:14,fontWeight:500,color:'#328C3D'}},'مجموعه فعال است')),
+        toggle(true)));
+    const ordersTable=(rows,head)=>R('div',{style:{background:'#fff',borderRadius:22,padding:'22px 26px',boxShadow:'0px 8px 17.5px rgba(0,0,0,0.03)',display:'flex',flexDirection:'column',gap:8}},
+      head,
+      R('div',{style:{display:'grid',gridTemplateColumns:'1.2fr 1.6fr 2fr 1.3fr 1.4fr 1fr',padding:'6px 8px',fontSize:13,color:'#A0A0A0',fontWeight:300}},
+        ['کد','مشتری','آیتم‌ها','مبلغ','وضعیت','زمان'].map((h,i)=>R('span',{key:i,style:{textAlign:'right'}},h))),
+      rows.map((o,i)=>R('div',{key:i,style:{display:'grid',gridTemplateColumns:'1.2fr 1.6fr 2fr 1.3fr 1.4fr 1fr',alignItems:'center',padding:'14px 8px',borderTop:'1px solid #F4F4F4',fontSize:14}},
+        R('span',{style:{fontFamily:'Montserrat',color:'#666',fontSize:13,textAlign:'right'}},o.code),
+        R('span',{style:{fontWeight:500,textAlign:'right'}},o.name),
+        R('span',{style:{color:'#777',fontWeight:300,textAlign:'right',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},o.items),
+        R('span',{style:{fontWeight:600,color:'#328C3D',textAlign:'right'}},[money(o.total),' ت']),
+        R('span',{style:{textAlign:'right'}},orderStatus(o.st)),
+        R('span',{style:{color:'#9A9A9A',fontWeight:300,fontSize:13,textAlign:'right'}},o.time))));
+    const dashContent=R('div',{style:{display:'grid',gridTemplateColumns:'2.1fr 1fr',gap:22,height:'100%',alignItems:'start'}},
+      R('div',{style:{display:'flex',flexDirection:'column',gap:22,minWidth:0}},
+        R('div',{style:{display:'grid',gridTemplateColumns:'1.4fr 1fr 1fr',gap:18}},
+          statCard('سفارش امروز','۳۸','۱۲٪',true,receiptI('#328C3D',20)),
+          statCard('مشتری امروز','۲۹','۸٪',true,userI('#328C3D',20)),
+          statCard('درآمد امروز','۴٫۲م','۵٪',false,I(['M12 1v22','M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6'],20,'#328C3D'))),
+        busyChart,
+        ordersTable(orders.slice(0,5), R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 8px 4px'}},R('span',{style:{fontSize:17,fontWeight:600}},'۵ سفارش آخر'),R('span',{style:{fontSize:13,color:'#328C3D',cursor:'pointer'}},'مشاهده همه')))),
+      R('div',{style:{display:'flex',flexDirection:'column',gap:22,minWidth:0}}, profileCard, catSummary));
+
+    // ===== ORDERS SCREEN =====
+    const tabs=['همه','جدید','در حال آماده‌سازی','آماده تحویل'];
+    const ordersContent=R('div',{style:{display:'flex',flexDirection:'column',gap:22,height:'100%'}},
+      R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between'}},
+        R('div',{style:{display:'flex',gap:10}},tabs.map((t,i)=>R('span',{key:i,style:{height:42,padding:'0 22px',display:'flex',alignItems:'center',borderRadius:13,fontSize:14,cursor:'pointer',background:i===0?'#328C3D':'#fff',color:i===0?'#fff':'#777',fontWeight:i===0?500:400,boxShadow:i===0?'none':'0px 4px 12px rgba(0,0,0,0.03)'}},t))),
+        R('div',{style:{display:'flex',alignItems:'center',gap:10,background:'#fff',borderRadius:13,height:42,padding:'0 16px',width:280,boxShadow:'0px 4px 12px rgba(0,0,0,0.03)'}},I(['M11 19a8 8 0 100-16 8 8 0 000 16Z','M21 21l-4-4'],18,'#B0B0B0'),R('span',{style:{fontSize:13,color:'#B0B0B0'}},'جستجوی سفارش، مشتری…'))),
+      ordersTable(orders, R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 8px 4px'}},R('span',{style:{fontSize:17,fontWeight:600}},'آخرین سفارشات'),R('span',{style:{fontSize:13,color:'#9A9A9A'}},orders.length+' سفارش'))));
+
+    // ===== ORDER DETAIL / MANAGE MODAL =====
+    const stepStatus=[['new','ثبت شد','۱۹:۴۰'],['prep','در حال آماده‌سازی','۱۹:۴۲'],['ready','آماده تحویل','—'],['done','تحویل شد','—']];
+    const orderModal=(m)=>{
+      const o=orders[0];
+      const lines=[['چلوکباب وزیری',2,385000],['دوغ محلی',1,35000]];
+      const sub=lines.reduce((a,l)=>a+l[1]*l[2],0);
+      const stepIdx=1;
+      const body=R('div',{style:{width:'100%',maxWidth:m?'100%':640,maxHeight:m?'none':940,background:'#fff',borderRadius:m?0:30,boxShadow:m?'none':'0px 26px 41.2px 4px rgba(0,0,0,0.12)',overflow:'hidden',display:'flex',flexDirection:'column'}},
+        R('div',{style:{padding:m?'44px 22px 18px':'24px 34px',borderBottom:'1px solid #F0F0F0',display:'flex',alignItems:'flex-start',justifyContent:'space-between'}},
+          R('div',{style:{textAlign:'right'}},R('div',{style:{display:'flex',alignItems:'center',gap:10}},R('span',{style:{fontSize:20,fontWeight:600}},'سفارش '),R('span',{style:{fontFamily:'Montserrat',fontSize:16,color:'#666'}},o.code),orderStatus(o.st)),R('div',{style:{fontSize:13,fontWeight:300,color:'#9F9F9F',marginTop:6}},['روی میز ۷ · ',o.time])),
+          R('div',{style:{width:38,height:38,borderRadius:12,background:'#F4F5F4',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},I(['M6 6l12 12M18 6L6 18'],20,'#8A8A8A'))),
+        R('div',{style:{padding:m?'20px 22px':'22px 34px',display:'flex',flexDirection:'column',gap:20,overflow:'auto'}},
+          R('div',{style:{display:'flex',alignItems:'center',gap:14,background:'#FAFBFA',border:'1px solid #F0F0F0',borderRadius:16,padding:'14px 18px'}},
+            R('div',{style:{width:44,height:44,borderRadius:13,background:'#E5F0E6',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}},userI('#328C3D',22)),
+            R('div',{style:{flex:1,textAlign:'right'}},R('div',{style:{fontSize:15,fontWeight:500}},o.name),R('div',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F',marginTop:3,direction:'ltr',textAlign:'right'}},'0912 345 6789')),
+            R('div',{style:{width:40,height:40,borderRadius:12,background:'#fff',border:'1px solid #E7E7E7',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},I(['M4 4h4l2 5-3 2a12 12 0 006 6l2-3 5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2Z'],20,'#328C3D',1.3))),
+          R('div',{style:{display:'flex',flexDirection:'column',gap:2}},R('div',{style:{fontSize:14,fontWeight:500,textAlign:'right',color:'#555',marginBottom:8}},'اقلام سفارش'),
+            lines.map((l,i)=>R('div',{key:i,style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 0',borderTop:i?'1px solid #F4F4F4':'none'}},
+              R('div',{style:{display:'flex',alignItems:'center',gap:12}},R('span',{style:{width:26,height:26,borderRadius:8,background:'#EAF3EB',color:'#328C3D',fontSize:13,fontWeight:600,display:'flex',alignItems:'center',justifyContent:'center'}},money(l[1])),R('span',{style:{fontSize:15}},l[0])),
+              R('span',{style:{fontSize:14,fontWeight:600,color:'#328C3D'}},[money(l[1]*l[2]),' ت'])))),
+          R('div',{style:{background:'#FAFBFA',border:'1px solid #F0F0F0',borderRadius:16,padding:'16px 18px',display:'flex',flexDirection:'column',gap:10}},
+            R('div',{style:{display:'flex',justifyContent:'space-between'}},R('span',{style:{fontSize:13,color:'#777',fontWeight:300}},'جمع اقلام'),R('span',{style:{fontSize:14}},[money(sub),' تومان'])),
+            R('div',{style:{display:'flex',justifyContent:'space-between'}},R('span',{style:{fontSize:13,color:'#777',fontWeight:300}},'مالیات و بسته‌بندی'),R('span',{style:{fontSize:14}},'۱۲٬۰۰۰ تومان')),
+            R('div',{style:{height:1,background:'#EEE'}}),
+            R('div',{style:{display:'flex',justifyContent:'space-between'}},R('span',{style:{fontSize:15,fontWeight:600,color:'#328C3D'}},'مبلغ کل'),R('span',{style:{fontSize:16,fontWeight:600}},[money(sub+12000),' تومان']))),
+          R('div',{style:{display:'flex',flexDirection:'column',gap:12}},R('div',{style:{fontSize:14,fontWeight:500,textAlign:'right',color:'#555'}},'روند سفارش'),
+            R('div',{style:{display:'flex',flexDirection:'column',gap:0}},stepStatus.map((s,i)=>R('div',{key:i,style:{display:'flex',alignItems:'center',gap:12,padding:'8px 0'}},
+              R('div',{style:{display:'flex',flexDirection:'column',alignItems:'center'}},R('div',{style:{width:14,height:14,borderRadius:'50%',background:i<=stepIdx?'#328C3D':'#E3E3E3',border:i===stepIdx?'3px solid #CDE6D0':'none'}}),i<stepStatus.length-1?R('div',{style:{width:2,height:22,background:i<stepIdx?'#328C3D':'#E9E9E9'}}):null),
+              R('span',{style:{fontSize:14,fontWeight:i===stepIdx?500:400,color:i<=stepIdx?'#000':'#B0B0B0'}},s[1]),
+              R('span',{style:{marginRight:'auto',fontSize:12,fontWeight:300,color:'#9F9F9F'}},s[2]))))) ),
+        R('div',{style:{padding:m?'16px 22px 28px':'18px 34px 22px',borderTop:'1px solid #F0F0F0',display:'flex',gap:12}},
+          R('div',{style:{flex:1,height:50,borderRadius:14,background:'#328C3D',color:'#fff',fontSize:15,fontWeight:500,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},'تغییر وضعیت به «آماده تحویل»'),
+          R('div',{style:{width:110,height:50,borderRadius:14,border:'1px solid #F0C9CB',background:'#FBECEC',color:'#D06666',fontSize:15,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},'لغو سفارش')));
+      if(m) return R('div',{style:{width:'100%',minHeight:812,background:'#fff'}},body);
+      return panel(3,'سفارشات',ordersContent,R('div',{style:{position:'absolute',inset:0,background:'rgba(0,0,0,0.28)',display:'flex',alignItems:'center',justifyContent:'center',padding:'40px'}},body));
+    };
+
+    // ===== AUTH REGISTER (green) =====
+    const authInput=(label,val,eye)=>R('div',{style:{display:'flex',flexDirection:'column',gap:8,width:'100%'}},
+      R('label',{style:{fontSize:13,fontWeight:300,color:'#A7A7A7',textAlign:'right'}},label),
+      R('div',{style:{height:52,border:'1px solid #DDDDDD',borderRadius:14,display:'flex',alignItems:'center',padding:'0 18px',gap:10}},
+        eye?I(['M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z','M12 15a3 3 0 100-6 3 3 0 000 6Z'],20,'#AAAAAA',1.2):null,
+        R('span',{style:{fontSize:val?17:15,color:val?'#555':'#B7B7B7',marginRight:'auto',direction:val&&val[0]==='0'?'ltr':'rtl'}},val||'')));
+    const registerForm=(m)=>R('div',{style:{width:'100%',maxWidth:514,display:'flex',flexDirection:'column',gap:22}},
+      R('div',{style:{textAlign:'center'}},R('div',{style:{fontSize:24,fontWeight:400}},'ثبت نام'),R('div',{style:{fontFamily:'Montserrat',fontSize:14,letterSpacing:'.5em',color:'#C3C3C3',marginTop:6}},'REGISTER')),
+      authInput('شماره تلفن همراه خود را وارد کنید','0937 622 0110',false),
+      authInput('نام و نام خانوادگی','علیرضا محمدی',false),
+      authInput('رمز عبور شما','*************',true),
+      authInput('تکرار رمز عبور','*************',true),
+      R('button',{style:{fontFamily:'inherit',height:52,border:'none',borderRadius:15,background:'#328C3D',color:'#fff',fontSize:18,cursor:'pointer',marginTop:4}},'ثبت نام'),
+      R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:2}},
+        R('div',{style:{display:'flex',alignItems:'center',gap:6}},userI('#979797',15),R('span',{style:{fontSize:13,fontWeight:300,color:'#A7A7A7'}},['حساب کاربری دارید؟ ',R('a',{key:'a',href:'#',style:{color:'#328C3D'}},'وارد شوید')])),
+        R('span',{style:{fontSize:13,fontWeight:300,color:'#A7A7A7'}},'فراموشی رمز عبور')));
+    const greenPanel=(m)=>R('div',{style:{position:'relative',overflow:'hidden',background:'#12833f',display:'flex',alignItems:'center',justifyContent:'center',...(m?{height:210,borderRadius:'0 0 36px 36px'}:{width:1082,height:'100%',borderRadius:'0 82px 82px 0'})}},
+      R('img',{src:'assets/green-gradient.png',alt:'',style:{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}),
+      R('div',{style:{position:'relative',textAlign:'center',display:'flex',flexDirection:'column',alignItems:'center',gap:22}},
+        R('img',{src:'assets/logo-magmenu-white.png',style:{width:m?164:264}}),
+        m?null:R('div',{style:{fontSize:26,fontWeight:300,color:'#fff',lineHeight:1.5}},['منوی هوشمنـــد برای',R('br',{key:'b'}),'کسب و کارهای خوشمزه'])));
+    const sRegister=(m)=>{
+      if(m) return R('div',{style:{width:'100%',minHeight:812,display:'flex',flexDirection:'column',background:'#fff'}},
+        greenPanel(true),
+        R('div',{style:{flex:1,padding:'30px 24px 40px',display:'flex',flexDirection:'column',justifyContent:'flex-start'}},registerForm(true)));
+      return R('div',{style:{position:'absolute',inset:0,background:'#fff',display:'flex'}},
+        greenPanel(false),
+        R('div',{style:{flex:1,position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}},
+          R('img',{src:'assets/wordmark-faded.png',style:{position:'absolute',top:43,left:'50%',transform:'translateX(-50%)',height:38,opacity:.5}}),
+          registerForm(false),
+          R('div',{style:{position:'absolute',bottom:34,left:0,right:0,display:'flex',flexDirection:'column',alignItems:'center',gap:8}},R('div',{style:{width:509,height:1,background:'#EAEAEA'}}),R('div',{style:{fontSize:14,fontWeight:300,color:'#5F5F5F'}},'تمام حقوق مادی و معنوی این وبسایت محفوظ هست'),R('div',{style:{fontFamily:'Montserrat',fontSize:12,color:'#9F9F9F'}},'All Rights Reserved. 2026'))));
+    };
+
+    // ===== ONBOARDING =====
+    const obField=(label,val,ltr)=>R('div',{style:{display:'flex',flexDirection:'column',gap:7,flex:1,minWidth:0}},
+      R('label',{style:{fontSize:13,fontWeight:300,color:'#A7A7A7',textAlign:'right'}},label),
+      R('div',{style:{height:48,border:'1px solid #DDDDDD',borderRadius:14,display:'flex',alignItems:'center',padding:'0 16px'}},R('span',{style:{fontSize:14,color:val?'#333':'#B7B7B7',width:'100%',textAlign:'right',direction:ltr?'ltr':'rtl'}},val)));
+    const onboardCard=(p,m)=>R('div',{style:{width:'100%',maxWidth:m?'100%':720,background:'#fff',borderRadius:m?0:35,boxShadow:m?'none':'0px 26px 41.2px 4px rgba(0,0,0,0.06)',padding:m?'40px 20px 28px':'40px 46px',display:'flex',flexDirection:'column',gap:24}},
+      R('div',{style:{textAlign:'center',display:'flex',flexDirection:'column',gap:6}},
+        R('div',{style:{fontSize:24,fontWeight:600}},'تکمیل اطلاعات مجموعه'),
+        R('div',{style:{fontSize:13,fontWeight:300,color:'#9F9F9F'}},'قبل از ورود به پنل، مشخصات رستوران خود را کامل کنید')),
+      R('div',{style:{display:'flex',alignItems:'center',gap:12,justifyContent:'center'}},
+        [['۱','مشخصات',true],['۲','آدرس',false],['۳','پایان',false]].map((s,i)=>R('div',{key:i,style:{display:'flex',alignItems:'center',gap:10}},
+          R('div',{style:{display:'flex',alignItems:'center',gap:7}},R('div',{style:{width:26,height:26,borderRadius:'50%',background:s[2]?'#328C3D':'#EDEDED',color:s[2]?'#fff':'#9A9A9A',fontSize:13,display:'flex',alignItems:'center',justifyContent:'center'}},s[0]),R('span',{style:{fontSize:13,color:s[2]?'#328C3D':'#9A9A9A',fontWeight:s[2]?500:400}},s[1])),
+          i<2?R('span',{style:{width:34,height:1,background:'#E5E5E5'}}):null))),
+      R('div',{style:{display:'flex',gap:18,alignItems:'center'}},
+        R('div',{style:{width:88,height:88,borderRadius:20,overflow:'hidden',position:'relative',flexShrink:0,border:'1px dashed #CFCFCF'}},R('image-slot',{id:p+'-logo',shape:'rect',src:'',placeholder:'لوگو',style:{position:'absolute',inset:0}})),
+        R('div',{style:{flex:1,textAlign:'right'}},R('div',{style:{fontSize:15,fontWeight:500}},'لوگوی مجموعه'),R('div',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F',marginTop:4,lineHeight:1.7}},'تصویر مربعی با کیفیت، حداکثر ۲ مگابایت (PNG یا JPG)'))),
+      R('div',{style:{display:'flex',gap:14,flexWrap:m?'wrap':'nowrap'}},obField('نام مجموعه','رستوران چلوکبابی باختر'),obField('نام انگلیسی','Bakhtar',true)),
+      R('div',{style:{display:'flex',gap:14,flexWrap:m?'wrap':'nowrap'}},obField('شناسه (آیدی)','bakhtar_kabab',true),obField('شماره تماس','0912 123 457',true)),
+      obField('آدرس','تبریز، ولیعصر، پروین اعتصامی، میدان تجارت جهانی'),
+      R('div',{style:{display:'flex',flexDirection:'column',gap:7}},R('label',{style:{fontSize:13,fontWeight:300,color:'#A7A7A7',textAlign:'right'}},'توضیحات مجموعه'),R('div',{style:{minHeight:70,border:'1px solid #DDDDDD',borderRadius:14,padding:'12px 16px',fontSize:13,color:'#555',textAlign:'right',lineHeight:1.9}},'رستوران ما با الهام از طعم‌های اصیل و مواد اولیه تازه…')),
+      R('button',{style:{fontFamily:'inherit',height:52,border:'none',borderRadius:15,background:'#328C3D',color:'#fff',fontSize:17,cursor:'pointer'}},'ثبت و ورود به پنل'));
+    const sOnboard=(m)=>{
+      if(m) return R('div',{style:{width:'100%',minHeight:812,background:'#fff'}},onboardCard('mob',true));
+      return R('div',{style:{position:'absolute',inset:0,background:DESK,display:'flex',alignItems:'center',justifyContent:'center',padding:'40px'}},onboardCard('dsk',false));
+    };
+
+    const V=(label,el)=>({label,el});
+    return { frames: [
+      {tag:'جدید',title:'ثبت‌نام رستوران‌دار',note:'صفحه احراز هویت با پس‌زمینه سبز برند',views:[V('MOBILE · 390',phoneFrame(sRegister(true))),V('DESKTOP · 1920',deskFrame(sRegister(false)))]},
+      {tag:'جدید',title:'آنبوردینگ مجموعه',note:'لوگو، نام، آیدی، تماس، آدرس، توضیحات — قبل از باز شدن پنل',views:[V('MOBILE · 390',phoneFrame(sOnboard(true))),V('DESKTOP · 1920',deskFrame(sOnboard(false)))]},
+      {tag:'جدید',title:'داشبورد خانه',note:'پروفایل + وضعیت فعال، آمار روز، نمودار هفته، ۵ سفارش آخر',views:[V('DESKTOP · 1920',deskFrame(panel(0,'داشبورد',dashContent)))]},
+      {tag:'جدید',title:'سفارشات — آخرین سفارشات',note:'فیلتر وضعیت‌دار: جدید / در حال آماده‌سازی / آماده تحویل',views:[V('DESKTOP · 1920',deskFrame(panel(3,'سفارشات',ordersContent)))]},
+      {tag:'جدید',title:'مودال جزئیات و مدیریت سفارش',note:'اقلام، مبلغ، روند وضعیت، تغییر وضعیت / لغو',views:[V('MOBILE · 390',phoneFrame(orderModal(true))),V('DESKTOP · 1920',deskFrame(orderModal(false)))]},
+    ]};
+  }
+
+  orders(){return[
+    {code:'#۸۸۲۱',name:'ابوالفضل علیخواه',items:'چلوکباب وزیری ×۲، دوغ',total:782000,st:'new',time:'۲ دقیقه پیش'},
+    {code:'#۸۸۲۰',name:'مریم رستمی',items:'چلوکباب سلطانی، ماست موسیر',total:445000,st:'prep',time:'۹ دقیقه پیش'},
+    {code:'#۸۸۱۹',name:'سعید کاظمی',items:'جوجه‌کباب ×۳',total:885000,st:'prep',time:'۱۴ دقیقه پیش'},
+    {code:'#۸۸۱۸',name:'نگار احمدی',items:'کباب کوبیده، نوشابه',total:245000,st:'ready',time:'۲۲ دقیقه پیش'},
+    {code:'#۸۸۱۷',name:'رضا موسوی',items:'چلو ماهیچه، سالاد شیرازی',total:565000,st:'ready',time:'۳۱ دقیقه پیش'},
+    {code:'#۸۸۱۶',name:'الهام کریمی',items:'کباب برگ ×۲',total:900000,st:'done',time:'۴۸ دقیقه پیش'},
+    {code:'#۸۸۱۵',name:'حسین نجفی',items:'چلوکباب وزیری، دوغ محلی',total:410000,st:'done',time:'۱ ساعت پیش'},
+  ];}
+}
+</script>
+</body>
+</html>

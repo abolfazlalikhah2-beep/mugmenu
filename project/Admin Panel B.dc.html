@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body { margin:0; }
+  *, *::before, *::after { box-sizing:border-box; }
+  a { color:#328C3D; text-decoration:none; }
+  a:hover { color:#25682d; }
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb { background:#D8D8D8; border-radius:3px; }
+</style>
+</helmet>
+<div dir="rtl" style="font-family:'Vazirmatn',sans-serif; background:#EDEEED; color:#000; min-height:100vh; padding:56px 48px 120px; direction:rtl;">
+  <div style="max-width:1400px; margin:0 auto; display:flex; flex-direction:column; gap:52px;">
+
+    <div style="display:flex; flex-direction:column; gap:6px;">
+      <span style="font-family:'Montserrat'; font-size:11px; letter-spacing:.42em; text-transform:uppercase; color:#B7B7B7;">STEP 2 · ADMIN PANEL · PART B</span>
+      <h1 style="margin:0; font-size:30px; font-weight:700;">قدم ۲ — پنل مدیریت (بخش ب)</h1>
+      <p style="margin:0; font-size:14px; font-weight:300; color:#5F5F5F;">محصولات و مودال ایجاد/ویرایش، دسته‌بندی، و تنظیمات فروشگاه. هم‌سبک بخش الف.</p>
+    </div>
+
+    <sc-for list="{{ frames }}" as="f" hint-placeholder-count="5">
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-family:'Montserrat'; font-size:12px; font-weight:600; color:#328C3D; background:#E5F0E6; border-radius:8px; padding:4px 10px;">{{ f.tag }}</span>
+          <span style="font-size:17px; font-weight:600;">{{ f.title }}</span>
+          <span style="font-size:13px; font-weight:300; color:#9F9F9F;">{{ f.note }}</span>
+        </div>
+        <div style="display:flex; gap:34px; align-items:flex-start; flex-wrap:wrap;">
+          <sc-for list="{{ f.views }}" as="v" hint-placeholder-count="2">
+            <div style="display:flex; flex-direction:column; gap:10px; align-items:center;">
+              <span style="font-family:'Montserrat'; font-size:10px; letter-spacing:.3em; color:#B7B7B7;">{{ v.label }}</span>
+              {{ v.el }}
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+
+  </div>
+</div>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#328C3D"/><text x="50" y="62" font-family="sans-serif" font-size="28" font-weight="700" fill="#fff" text-anchor="middle">B</text></svg></template></x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const R = React.createElement;
+    const money = n => n.toLocaleString('fa-IR');
+
+    const I=(paths,s=22,c='currentColor',sw=1.6)=>R('svg',{width:s,height:s,viewBox:'0 0 24 24',fill:'none'},(Array.isArray(paths)?paths:[paths]).map((d,i)=>R('path',{key:i,d,stroke:c,strokeWidth:sw,strokeLinecap:'round',strokeLinejoin:'round'})));
+    const homeI=(c,s)=>I(['M3 10l9-7 9 7','M5 9v11h14V9','M9 20v-6h6v6'],s||22,c);
+    const boxI=(c,s)=>I(['M21 8l-9-5-9 5 9 5 9-5Z','M3 8v8l9 5 9-5V8','M12 13v8'],s||22,c);
+    const gridI=(c,s)=>I(['M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z'],s||22,c);
+    const receiptI=(c,s)=>I(['M6 3h12v18l-3-2-3 2-3-2-3 2V3Z','M9 8h6M9 12h6'],s||22,c);
+    const gearI=(c,s)=>I(['M12 15a3 3 0 100-6 3 3 0 000 6Z','M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1l-.4-2.5H9.6l-.4 2.5a7 7 0 00-1.7 1l-2.4-1-2 3.4L3.1 11a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.4 2.5h4.8l.4-2.5a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6a7 7 0 00.1-1Z'],s||22,c);
+    const bellI=(c,s)=>I(['M6 9a6 6 0 1112 0c0 7 3 7 3 9H3c0-2 3-2 3-9Z','M10.5 21a1.5 1.5 0 003 0'],s||22,c);
+    const userI=(c,s)=>I(['M12 12a4 4 0 100-8 4 4 0 000 8Z','M4 20a8 8 0 0116 0'],s||20,c);
+    const searchI=(c,s)=>I(['M11 19a8 8 0 100-16 8 8 0 000 16Z','M21 21l-4-4'],s||18,c);
+    const editI=(c,s)=>I(['M4 20h4L18 10l-4-4L4 16v4Z','M14 6l4 4'],s||18,c);
+    const trashI=(c,s)=>I(['M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13'],s||18,c);
+    const plusI=(c,s)=>I(['M12 5v14M5 12h14'],s||18,c);
+
+    const badge=(t,fg,bg)=>R('span',{style:{fontSize:12,fontWeight:500,color:fg,background:bg,borderRadius:9,padding:'5px 12px',whiteSpace:'nowrap'}},t);
+    const toggle=(on)=>R('div',{style:{width:46,height:26,borderRadius:20,background:on?'#328C3D':'#D6D6D6',position:'relative',flexShrink:0}},R('div',{style:{position:'absolute',top:3,left:on?3:23,width:20,height:20,borderRadius:'50%',background:'#fff',boxShadow:'0 1px 3px rgba(0,0,0,.2)'}}));
+
+    const deskFrame=(content)=>R('div',{style:{width:1190,height:670,borderRadius:20,overflow:'hidden',position:'relative',boxShadow:'0 12px 40px rgba(0,0,0,0.08)',background:'#fff'}},
+      R('div',{style:{width:1920,height:1080,position:'absolute',top:0,right:0,transform:'scale(0.6198)',transformOrigin:'top right'}}, content));
+    const phoneFrame=(card)=>R('div',{style:{width:392,height:812,borderRadius:44,overflow:'hidden',position:'relative',boxShadow:'0 14px 44px rgba(0,0,0,0.14)',border:'1px solid #E4E4E4',background:'#fff'}},
+      R('div',{style:{position:'absolute',top:0,left:0,right:0,height:34,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 26px',zIndex:5,fontSize:12,fontWeight:500,color:'#111',pointerEvents:'none'}},R('span',null,'۹:۴۱'),R('span',{style:{fontFamily:'Montserrat',fontSize:10}},'5G')),
+      R('div',{style:{position:'absolute',inset:0,overflowY:'auto'}}, card));
+
+    // ===== PANEL SHELL (matches Part A) =====
+    const nav=[['داشبورد',homeI],['محصولات',boxI],['دسته‌بندی',gridI],['سفارشات',receiptI],['تنظیمات',gearI]];
+    const sidebar=(active)=>R('div',{style:{width:264,background:'#fff',borderLeft:'1px solid #EDEDED',display:'flex',flexDirection:'column',padding:'30px 20px',flexShrink:0}},
+      R('div',{style:{display:'flex',alignItems:'center',gap:10,padding:'0 8px 28px'}},R('img',{src:'assets/wordmark-faded.png',style:{height:30,filter:'invert(38%) sepia(50%) saturate(700%) hue-rotate(80deg)'}})),
+      R('div',{style:{display:'flex',flexDirection:'column',gap:6}},
+        nav.map((n,i)=>R('div',{key:i,style:{display:'flex',alignItems:'center',gap:12,height:50,borderRadius:14,padding:'0 16px',cursor:'pointer',background:i===active?'#EAF3EB':'transparent',color:i===active?'#328C3D':'#7A7A7A',fontSize:15,fontWeight:i===active?500:400}},n[1](i===active?'#328C3D':'#9A9A9A',21),R('span',null,n[0])))),
+      R('div',{style:{marginTop:'auto',display:'flex',alignItems:'center',gap:12,height:50,borderRadius:14,padding:'0 16px',color:'#C15656',fontSize:15,cursor:'pointer'}},I(['M15 4h4v16h-4','M10 8l-4 4 4 4','M6 12h9'],21,'#C15656'),R('span',null,'خروج')));
+    const topbar=(title,action)=>R('div',{style:{height:88,background:'#fff',borderBottom:'1px solid #EDEDED',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 34px',flexShrink:0}},
+      R('div',{style:{fontSize:23,fontWeight:600}},title),
+      R('div',{style:{display:'flex',alignItems:'center',gap:18}},
+        action||null,
+        R('div',{style:{width:1,height:30,background:'#ECECEC'}}),
+        R('div',{style:{width:44,height:44,borderRadius:13,background:'#F0F0F0',display:'flex',alignItems:'center',justifyContent:'center',position:'relative'}},bellI('#5A5A5A',22),R('span',{style:{position:'absolute',top:10,right:12,width:7,height:7,borderRadius:'50%',background:'#E5484D'}})),
+        R('div',{style:{display:'flex',alignItems:'center',gap:10}},R('div',{style:{textAlign:'right'}},R('div',{style:{fontSize:14,fontWeight:500}},'رستوران چلوکبابی باختر'),R('div',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F'}},'مدیر مجموعه')),R('div',{style:{width:46,height:46,borderRadius:14,background:'#E5F0E6',display:'flex',alignItems:'center',justifyContent:'center'}},userI('#328C3D',22)))));
+    const primaryBtn=(label)=>R('div',{style:{height:44,padding:'0 20px',borderRadius:13,background:'#328C3D',color:'#fff',fontSize:14,fontWeight:500,display:'flex',alignItems:'center',gap:8,cursor:'pointer'}},plusI('#fff',18),R('span',null,label));
+    const panel=(active,title,content,action,overlay)=>R('div',{style:{position:'absolute',inset:0,background:'#F4F5F4',display:'flex'}},
+      sidebar(active),
+      R('div',{style:{flex:1,display:'flex',flexDirection:'column',minWidth:0}}, topbar(title,action), R('div',{style:{flex:1,padding:'30px 34px',overflow:'hidden'}}, content)),
+      overlay||null);
+
+    const products=this.products();
+    const cats=this.cats();
+
+    // ===== PRODUCTS LIST =====
+    const searchBox=(ph,w)=>R('div',{style:{display:'flex',alignItems:'center',gap:10,background:'#fff',borderRadius:13,height:44,padding:'0 16px',width:w||280,boxShadow:'0px 4px 12px rgba(0,0,0,0.03)'}},searchI('#B0B0B0',18),R('span',{style:{fontSize:13,color:'#B0B0B0'}},ph));
+    const catChips=(active)=>R('div',{style:{display:'flex',gap:10,flexWrap:'wrap'}},['همه','کباب‌ها','خورش‌ها','پیش‌غذا','نوشیدنی','دسر'].map((c,i)=>R('span',{key:i,style:{height:40,padding:'0 20px',display:'flex',alignItems:'center',borderRadius:12,fontSize:14,cursor:'pointer',background:i===active?'#328C3D':'#fff',color:i===active?'#fff':'#777',fontWeight:i===active?500:400,boxShadow:i===active?'none':'0px 4px 12px rgba(0,0,0,0.03)'}},c)));
+    const prodCard=(p,i)=>R('div',{key:i,style:{background:'#fff',borderRadius:20,overflow:'hidden',boxShadow:'0px 8px 17.5px rgba(0,0,0,0.03)',display:'flex',flexDirection:'column',opacity:p.active?1:0.72}},
+      R('div',{style:{height:150,position:'relative',background:'#F2F2F2'}},
+        R('image-slot',{id:'p-'+i,shape:'rect',src:'',placeholder:p.name,style:{position:'absolute',inset:0}}),
+        R('div',{style:{position:'absolute',top:12,right:12}},p.active?badge('فعال','#328C3D','rgba(255,255,255,.92)'):badge('غیرفعال','#8A8A8A','rgba(255,255,255,.92)')),
+        p.off?R('div',{style:{position:'absolute',top:12,left:12}},badge(p.off+'٪ تخفیف','#fff','#E5484D')):null),
+      R('div',{style:{padding:'14px 16px 16px',display:'flex',flexDirection:'column',gap:10,textAlign:'right'}},
+        R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between'}},R('span',{style:{fontSize:16,fontWeight:500}},p.name),R('span',{style:{fontSize:11,color:'#777',background:'#F6F6F6',border:'0.3px solid #CECECE',borderRadius:8,padding:'3px 9px'}},p.cat)),
+        R('div',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F',lineHeight:1.7,height:34,overflow:'hidden'}},p.desc),
+        R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',borderTop:'1px solid #F4F4F4',paddingTop:12}},
+          R('div',{style:{fontSize:16,fontWeight:600,color:'#328C3D'}},[money(p.price),R('span',{style:{fontSize:11,fontWeight:300,color:'#9F9F9F',marginRight:3}},'ت')]),
+          R('div',{style:{display:'flex',alignItems:'center',gap:8}},
+            R('div',{style:{width:36,height:36,borderRadius:11,background:'#F4F5F4',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},editI('#5A5A5A',18)),
+            R('div',{style:{width:36,height:36,borderRadius:11,background:'#FBECEC',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},trashI('#D06666',18)),
+            toggle(p.active)))));
+    const productsContent=R('div',{style:{display:'flex',flexDirection:'column',gap:22,height:'100%'}},
+      R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,flexWrap:'wrap'}}, catChips(1), searchBox('جستجوی محصول…',300)),
+      R('div',{style:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:20}}, products.map(prodCard)));
+
+    // ===== PRODUCT MODAL (create/edit) =====
+    const modalField=(label,val,ph,ltr)=>R('div',{style:{display:'flex',flexDirection:'column',gap:7,flex:1,minWidth:0}},
+      R('label',{style:{fontSize:13,fontWeight:300,color:'#A7A7A7',textAlign:'right'}},label),
+      R('div',{style:{height:48,border:'1px solid #DDDDDD',borderRadius:14,display:'flex',alignItems:'center',padding:'0 16px'}},R('span',{style:{fontSize:14,color:val?'#333':'#B7B7B7',width:'100%',textAlign:'right',direction:ltr?'ltr':'rtl'}},val||ph)));
+    const selectField=(label,val)=>R('div',{style:{display:'flex',flexDirection:'column',gap:7,flex:1,minWidth:0}},
+      R('label',{style:{fontSize:13,fontWeight:300,color:'#A7A7A7',textAlign:'right'}},label),
+      R('div',{style:{height:48,border:'1px solid #DDDDDD',borderRadius:14,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 16px'}},R('span',{style:{fontSize:14,color:'#333'}},val),I('M6 9l6 6 6-6',18,'#9A9A9A')));
+    const productModal=(m)=>{
+      const body=R('div',{style:{width:'100%',maxWidth:m?'100%':680,maxHeight:m?'none':920,background:'#fff',borderRadius:m?0:30,boxShadow:m?'none':'0px 26px 41.2px 4px rgba(0,0,0,0.12)',overflow:'hidden',display:'flex',flexDirection:'column'}},
+        R('div',{style:{padding:m?'44px 22px 18px':'26px 34px',borderBottom:'1px solid #F0F0F0',display:'flex',alignItems:'center',justifyContent:'space-between'}},
+          R('div',null,R('div',{style:{fontSize:20,fontWeight:600}},'ویرایش محصول'),R('div',{style:{fontSize:13,fontWeight:300,color:'#9F9F9F',marginTop:4}},'اطلاعات آیتم منو را ویرایش کنید')),
+          R('div',{style:{width:38,height:38,borderRadius:12,background:'#F4F5F4',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},I(['M6 6l12 12M18 6L6 18'],20,'#8A8A8A'))),
+        R('div',{style:{padding:m?'20px 22px':'24px 34px',display:'flex',flexDirection:'column',gap:18,overflow:'auto'}},
+          R('div',{style:{display:'flex',gap:16,alignItems:'center'}},
+            R('div',{style:{width:96,height:96,borderRadius:18,overflow:'hidden',position:'relative',flexShrink:0,border:'1px dashed #CFCFCF'}},R('image-slot',{id:'pm-img',shape:'rect',src:'',placeholder:'عکس',style:{position:'absolute',inset:0}})),
+            R('div',{style:{flex:1,textAlign:'right'}},R('div',{style:{fontSize:15,fontWeight:500}},'تصویر محصول'),R('div',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F',marginTop:4,lineHeight:1.7}},'نسبت ۴:۳ پیشنهاد می‌شود · حداکثر ۲ مگابایت'))),
+          R('div',{style:{display:'flex',gap:14,flexWrap:m?'wrap':'nowrap'}},modalField('نام محصول','چلوکباب وزیری'),selectField('دسته‌بندی','کباب‌ها')),
+          R('div',{style:{display:'flex',gap:14,flexWrap:m?'wrap':'nowrap'}},modalField('قیمت (تومان)','385000','',true),modalField('تخفیف (٪)','','۰',true)),
+          R('div',{style:{display:'flex',flexDirection:'column',gap:7}},R('label',{style:{fontSize:13,fontWeight:300,color:'#A7A7A7',textAlign:'right'}},'توضیحات'),R('div',{style:{minHeight:76,border:'1px solid #DDDDDD',borderRadius:14,padding:'12px 16px',fontSize:13,color:'#555',textAlign:'right',lineHeight:1.9}},'یک سیخ کوبیده دست‌ساز و یک سیخ برگ گوسفندی زعفرانی با برنج ایرانی دم‌کشیده.')),
+          R('div',{style:{display:'flex',flexDirection:'column',gap:10}},R('label',{style:{fontSize:13,fontWeight:300,color:'#A7A7A7',textAlign:'right'}},'گزینه‌های افزودنی (به‌زودی قابل توسعه)'),
+            R('div',{style:{display:'flex',gap:8,flexWrap:'wrap'}},['برنج اضافه','دوغ','ماست موسیر','نوشابه'].map((t,i)=>R('span',{key:i,style:{height:34,padding:'0 14px',display:'flex',alignItems:'center',gap:6,borderRadius:10,fontSize:12,background:'#F6F6F6',border:'0.3px solid #CECECE',color:'#555'}},t,I('M6 6l12 12M18 6L6 18',12,'#B0B0B0'))),
+              R('span',{style:{height:34,padding:'0 14px',display:'flex',alignItems:'center',gap:6,borderRadius:10,fontSize:12,border:'1px dashed #CFCFCF',color:'#328C3D',cursor:'pointer'}},plusI('#328C3D',14),'افزودن'))),
+          R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',background:'#FAFBFA',border:'1px solid #F0F0F0',borderRadius:14,padding:'14px 18px'}},R('div',{style:{textAlign:'right'}},R('div',{style:{fontSize:14,fontWeight:500}},'وضعیت نمایش'),R('div',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F',marginTop:3}},'محصول در منو برای مشتری نمایش داده شود')),toggle(true))),
+        R('div',{style:{padding:m?'16px 22px 28px':'18px 34px 22px',borderTop:'1px solid #F0F0F0',display:'flex',gap:12}},
+          R('div',{style:{flex:1,height:50,borderRadius:14,background:'#328C3D',color:'#fff',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},'ذخیره تغییرات'),
+          R('div',{style:{width:m?'auto':120,padding:m?'0 20px':0,height:50,borderRadius:14,border:'1px solid #DDD',background:'#fff',color:'#777',fontSize:15,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},'انصراف')));
+      if(m) return R('div',{style:{width:'100%',minHeight:812,background:'#fff'}},body);
+      return panel(1,'محصولات',productsContent,primaryBtn('محصول جدید'),
+        R('div',{style:{position:'absolute',inset:0,background:'rgba(0,0,0,0.28)',display:'flex',alignItems:'center',justifyContent:'center',padding:'40px'}},body));
+    };
+
+    // ===== CATEGORIES =====
+    const catRow=(c,i)=>R('div',{key:i,style:{display:'grid',gridTemplateColumns:'40px 2fr 1.2fr 1fr 1.1fr',alignItems:'center',padding:'16px 18px',borderTop:i?'1px solid #F4F4F4':'none',fontSize:14}},
+      R('div',{style:{display:'flex',flexDirection:'column',gap:3,color:'#C7C7C7',cursor:'grab'}},I(['M8 6h8M8 12h8M8 18h8'],18,'#C7C7C7')),
+      R('div',{style:{display:'flex',alignItems:'center',gap:12}},R('div',{style:{width:42,height:42,borderRadius:12,background:'#EAF3EB',display:'flex',alignItems:'center',justifyContent:'center'}},boxI('#328C3D',20)),R('span',{style:{fontWeight:500}},c.name)),
+      R('span',{style:{color:'#777',fontWeight:300}},[c.count,' محصول']),
+      R('span',null,c.active?badge('فعال','#328C3D','#E5F0E6'):badge('غیرفعال','#8A8A8A','#F0F0F0')),
+      R('div',{style:{display:'flex',alignItems:'center',gap:8,justifyContent:'flex-end'}},
+        R('div',{style:{width:36,height:36,borderRadius:11,background:'#F4F5F4',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},editI('#5A5A5A',18)),
+        R('div',{style:{width:36,height:36,borderRadius:11,background:'#FBECEC',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},trashI('#D06666',18)),
+        toggle(c.active)));
+    const categoriesContent=R('div',{style:{display:'flex',flexDirection:'column',gap:22,height:'100%'}},
+      R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,flexWrap:'wrap'}},R('span',{style:{fontSize:15,fontWeight:300,color:'#777'}},'ترتیب دسته‌ها با کشیدن قابل تغییر است'),searchBox('جستجوی دسته…',300)),
+      R('div',{style:{background:'#fff',borderRadius:22,padding:'8px 6px',boxShadow:'0px 8px 17.5px rgba(0,0,0,0.03)'}},
+        R('div',{style:{display:'grid',gridTemplateColumns:'40px 2fr 1.2fr 1fr 1.1fr',padding:'12px 18px',fontSize:13,color:'#A0A0A0',fontWeight:300}},['','دسته‌بندی','تعداد','وضعیت',''].map((h,k)=>R('span',{key:k,style:{textAlign:k===4?'left':'right'}},h))),
+        cats.map(catRow)));
+
+    // ===== CATEGORY MODAL (create/edit) =====
+    const iconChoices=['کباب','خورش','پیش‌غذا','نوشیدنی','دسر','سالاد'];
+    const categoryModal=(m)=>{
+      const body=R('div',{style:{width:'100%',maxWidth:m?'100%':520,background:'#fff',borderRadius:m?0:30,boxShadow:m?'none':'0px 26px 41.2px 4px rgba(0,0,0,0.12)',overflow:'hidden',display:'flex',flexDirection:'column'}},
+        R('div',{style:{padding:m?'44px 22px 18px':'26px 34px',borderBottom:'1px solid #F0F0F0',display:'flex',alignItems:'center',justifyContent:'space-between'}},
+          R('div',null,R('div',{style:{fontSize:20,fontWeight:600}},'دسته جدید'),R('div',{style:{fontSize:13,fontWeight:300,color:'#9F9F9F',marginTop:4}},'یک دسته‌بندی تازه برای منو بسازید'),),
+          R('div',{style:{width:38,height:38,borderRadius:12,background:'#F4F5F4',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},I(['M6 6l12 12M18 6L6 18'],20,'#8A8A8A'))),
+        R('div',{style:{padding:m?'20px 22px':'24px 34px',display:'flex',flexDirection:'column',gap:18}},
+          R('div',{style:{display:'flex',gap:16,alignItems:'center'}},
+            R('div',{style:{width:76,height:76,borderRadius:18,background:'#EAF3EB',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}},boxI('#328C3D',32)),
+            R('div',{style:{flex:1,textAlign:'right'}},R('div',{style:{fontSize:15,fontWeight:500}},'آیکون دسته'),R('div',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F',marginTop:4,lineHeight:1.7}},'یک آیکون متناسب با دسته انتخاب کنید'))),
+          modalField('نام دسته','کباب‌ها'),
+          R('div',{style:{display:'flex',flexDirection:'column',gap:10}},R('label',{style:{fontSize:13,fontWeight:300,color:'#A7A7A7',textAlign:'right'}},'آیکون پیشنهادی'),
+            R('div',{style:{display:'flex',gap:8,flexWrap:'wrap'}},iconChoices.map((t,i)=>R('span',{key:i,style:{height:34,padding:'0 16px',display:'flex',alignItems:'center',borderRadius:10,fontSize:13,cursor:'pointer',background:i===0?'#328C3D':'#F6F6F6',color:i===0?'#fff':'#555',border:i===0?'none':'0.3px solid #CECECE'}},t)))),
+          R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',background:'#FAFBFA',border:'1px solid #F0F0F0',borderRadius:14,padding:'14px 18px'}},R('div',{style:{textAlign:'right'}},R('div',{style:{fontSize:14,fontWeight:500}},'وضعیت نمایش'),R('div',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F',marginTop:3}},'دسته در منوی مشتری دیده شود')),toggle(true))),
+        R('div',{style:{padding:m?'16px 22px 28px':'18px 34px 22px',borderTop:'1px solid #F0F0F0',display:'flex',gap:12}},
+          R('div',{style:{flex:1,height:50,borderRadius:14,background:'#328C3D',color:'#fff',fontSize:16,fontWeight:500,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},'ذخیره دسته'),
+          R('div',{style:{width:m?'auto':120,padding:m?'0 20px':0,height:50,borderRadius:14,border:'1px solid #DDD',background:'#fff',color:'#777',fontSize:15,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},'انصراف')));
+      if(m) return R('div',{style:{width:'100%',minHeight:812,background:'#fff'}},body);
+      return panel(2,'دسته‌بندی',categoriesContent,primaryBtn('دسته جدید'),
+        R('div',{style:{position:'absolute',inset:0,background:'rgba(0,0,0,0.28)',display:'flex',alignItems:'center',justifyContent:'center',padding:'40px'}},body));
+    };
+
+    // ===== STORE SETTINGS =====
+    const setField=(label,val,ltr,full)=>R('div',{style:{display:'flex',flexDirection:'column',gap:7,flex:full?'1 1 100%':1,minWidth:0}},
+      R('label',{style:{fontSize:13,fontWeight:300,color:'#A7A7A7',textAlign:'right'}},label),
+      R('div',{style:{height:48,border:'1px solid #DDDDDD',borderRadius:14,display:'flex',alignItems:'center',padding:'0 16px'}},R('span',{style:{fontSize:14,color:'#333',width:'100%',textAlign:'right',direction:ltr?'ltr':'rtl'}},val)));
+    const settingsCard=(title,sub,children)=>R('div',{style:{background:'#fff',borderRadius:22,padding:'26px 28px',boxShadow:'0px 8px 17.5px rgba(0,0,0,0.03)',display:'flex',flexDirection:'column',gap:20}},
+      R('div',{style:{textAlign:'right'}},R('div',{style:{fontSize:17,fontWeight:600}},title),R('div',{style:{fontSize:13,fontWeight:300,color:'#9F9F9F',marginTop:4}},sub)),
+      children);
+    const orderModeRow=(label,sub,on)=>R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 0',borderTop:'1px solid #F4F4F4'}},R('div',{style:{textAlign:'right'}},R('div',{style:{fontSize:14,fontWeight:500}},label),R('div',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F',marginTop:3}},sub)),toggle(on));
+    const settingsContent=R('div',{style:{display:'grid',gridTemplateColumns:'1.3fr 1fr',gap:22,height:'100%',alignItems:'start'}},
+      R('div',{style:{display:'flex',flexDirection:'column',gap:22,minWidth:0}},
+        settingsCard('اطلاعات فروشگاه','این اطلاعات در صفحه عمومی منو نمایش داده می‌شود',R('div',{style:{display:'flex',flexDirection:'column',gap:16}},
+          R('div',{style:{display:'flex',gap:16,alignItems:'center'}},R('div',{style:{width:80,height:80,borderRadius:18,overflow:'hidden',position:'relative',flexShrink:0,border:'1px dashed #CFCFCF'}},R('image-slot',{id:'set-logo',shape:'rect',src:'',placeholder:'لوگو',style:{position:'absolute',inset:0}})),R('div',{style:{flex:1,textAlign:'right'}},R('div',{style:{fontSize:14,fontWeight:500}},'لوگوی مجموعه'),R('div',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F',marginTop:4}},'تصویر مربعی، حداکثر ۲ مگابایت'))),
+          R('div',{style:{display:'flex',gap:14}},setField('نام مجموعه','رستوران چلوکبابی باختر'),setField('نام انگلیسی','Bakhtar',true)),
+          R('div',{style:{display:'flex',gap:14}},setField('شناسه (آیدی)','bakhtar_kabab',true),setField('شماره تماس','0912 123 457',true)),
+          setField('آدرس','تبریز، ولیعصر، پروین اعتصامی، میدان تجارت جهانی',false,true))),
+        settingsCard('ساعت کاری','بازه فعالیت روزانه مجموعه',R('div',{style:{display:'flex',gap:14}},setField('ساعت شروع','15:00',true),setField('ساعت پایان','00:00',true)))),
+      R('div',{style:{display:'flex',flexDirection:'column',gap:22,minWidth:0}},
+        settingsCard('روش‌های سفارش','کانال‌های فعال دریافت سفارش',R('div',{style:{display:'flex',flexDirection:'column'}},
+          R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 0 14px'}},R('div',{style:{textAlign:'right'}},R('div',{style:{fontSize:14,fontWeight:500}},'سرو روی میز'),R('div',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F',marginTop:3}},'ثبت سفارش با شماره میز')),toggle(true)),
+          orderModeRow('بیرون‌بر','دریافت حضوری از مجموعه',true),
+          orderModeRow('ارسال با پیک','تحویل درب منزل مشتری',false))),
+        settingsCard('پرداخت','درگاه و روش تسویه',R('div',{style:{display:'flex',flexDirection:'column'}},
+          R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 0 14px'}},R('div',{style:{textAlign:'right'}},R('div',{style:{fontSize:14,fontWeight:500}},'پرداخت آنلاین'),R('div',{style:{fontSize:12,fontWeight:300,color:'#9F9F9F',marginTop:3}},'اتصال به درگاه بانکی')),toggle(true)),
+          orderModeRow('پرداخت در محل','نقدی یا کارتخوان',true))),
+        R('div',{style:{height:50,borderRadius:14,background:'#328C3D',color:'#fff',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},'ذخیره تنظیمات')));
+
+    const V=(label,el)=>({label,el});
+    return { frames: [
+      {tag:'جدید',title:'محصولات — لیست',note:'فیلتر دسته + جستجو، کارت با وضعیت/تخفیف/فعال‌سازی',views:[V('DESKTOP · 1920',deskFrame(panel(1,'محصولات',productsContent,primaryBtn('محصول جدید'))))]},
+      {tag:'جدید',title:'مودال ایجاد/ویرایش محصول',note:'عکس، قیمت، تخفیف، افزودنی‌ها (قابل توسعه)، وضعیت نمایش',views:[V('MOBILE · 390',phoneFrame(productModal(true))),V('DESKTOP · 1920',deskFrame(productModal(false)))]},
+      {tag:'جدید',title:'دسته‌بندی',note:'لیست قابل‌مرتب‌سازی با تعداد محصول و فعال/غیرفعال',views:[V('DESKTOP · 1920',deskFrame(panel(2,'دسته‌بندی',categoriesContent,primaryBtn('دسته جدید'))))]},
+      {tag:'جدید',title:'مودال ایجاد/ویرایش دسته',note:'نام، آیکون پیشنهادی، وضعیت نمایش',views:[V('MOBILE · 390',phoneFrame(categoryModal(true))),V('DESKTOP · 1920',deskFrame(categoryModal(false)))]},
+      {tag:'جدید',title:'تنظیمات فروشگاه',note:'اطلاعات، ساعت کاری، روش‌های سفارش، پرداخت',views:[V('DESKTOP · 1920',deskFrame(panel(4,'تنظیمات',settingsContent)))]},
+    ]};
+  }
+
+  products(){return[
+    {name:'چلوکباب وزیری',cat:'کباب‌ها',price:385000,desc:'یک سیخ کوبیده و یک سیخ برگ زعفرانی',active:true,off:0},
+    {name:'چلوکباب سلطانی',cat:'کباب‌ها',price:420000,desc:'برگ ممتاز و کوبیده مخصوص',active:true,off:10},
+    {name:'جوجه‌کباب زعفرانی',cat:'کباب‌ها',price:295000,desc:'ران مرغ زعفرانی و ترد',active:true,off:0},
+    {name:'کباب کوبیده',cat:'کباب‌ها',price:220000,desc:'دو سیخ کوبیده گوشت تازه',active:false,off:0},
+    {name:'خورش قیمه',cat:'خورش‌ها',price:180000,desc:'خورش سنتی با گوشت و لپه',active:true,off:0},
+    {name:'ماست موسیر',cat:'پیش‌غذا',price:45000,desc:'ماست چکیده محلی با موسیر',active:true,off:0},
+    {name:'دوغ محلی',cat:'نوشیدنی',price:35000,desc:'دوغ گازدار نعنایی',active:true,off:0},
+    {name:'شله‌زرد',cat:'دسر',price:60000,desc:'دسر سنتی زعفرانی',active:false,off:15},
+  ];}
+  cats(){return[
+    {name:'کباب‌ها',count:12,active:true},
+    {name:'خورش‌ها',count:6,active:true},
+    {name:'پیش‌غذا',count:8,active:true},
+    {name:'نوشیدنی',count:9,active:true},
+    {name:'دسر',count:5,active:false},
+  ];}
+}
+</script>
+</body>
+</html>

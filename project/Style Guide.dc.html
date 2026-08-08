@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; }
+  *, *::before, *::after { box-sizing:border-box; }
+  a { color:#328C3D; text-decoration:none; }
+  a:hover { color:#25682d; }
+</style>
+</helmet>
+<div dir="rtl" style="font-family:'Vazirmatn',sans-serif; background:#F2F3F2; color:#000; min-height:100vh; padding:64px 40px 120px; direction:rtl;">
+  <div style="max-width:1180px; margin:0 auto; display:flex; flex-direction:column; gap:56px;">
+
+    <!-- ===== HERO / BRAND ===== -->
+    <header style="display:flex; align-items:stretch; gap:28px; flex-wrap:wrap;">
+      <div style="flex:1 1 460px; background:#FFFFFF; border-radius:35px; box-shadow:0px 26px 41.2px 4px rgba(0,0,0,0.04); padding:44px 48px; display:flex; flex-direction:column; justify-content:center; gap:14px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="width:9px; height:9px; border-radius:50%; background:#328C3D;"></span>
+          <span style="font-size:13px; font-weight:500; color:#328C3D; letter-spacing:.02em;">دیزاین‌سیستم · ماگ‌منو</span>
+        </div>
+        <h1 style="margin:0; font-size:42px; font-weight:700; line-height:1.25;">راهنمای طراحی و کامپوننت‌ها</h1>
+        <p style="margin:0; font-size:15px; font-weight:300; line-height:2; color:#5F5F5F; max-width:52ch; text-wrap:pretty;">سند مرجع تیم کد. زبان طراحی، رنگ‌ها، تایپوگرافی، شعاع گوشه‌ها، سایه‌ها و کامپوننت‌های پایه‌ی محصول — استخراج‌شده از صفحات پیاده‌سازی‌شده (Login / Register / Menu / Info).</p>
+        <div style="margin-top:8px; display:flex; gap:10px; flex-wrap:wrap;">
+          <span style="font-family:'Montserrat'; font-size:11px; letter-spacing:.42em; text-transform:uppercase; color:#9F9F9F;">MAG&nbsp;MENU&nbsp;· DESIGN&nbsp;SYSTEM · V1</span>
+        </div>
+      </div>
+      <div style="flex:1 1 320px; min-height:260px; border-radius:35px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; background:#12833f;">
+        <img src="assets/green-gradient.png" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+        <img src="assets/logo-magmenu-white.png" alt="ماگ‌منو" style="position:relative; width:210px; height:auto; filter:drop-shadow(0 8px 24px rgba(0,0,0,.18));">
+      </div>
+    </header>
+
+    <!-- ===== COLORS ===== -->
+    <section style="display:flex; flex-direction:column; gap:22px;">
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <span style="font-family:'Montserrat'; font-size:11px; letter-spacing:.42em; text-transform:uppercase; color:#B7B7B7;">COLORS</span>
+        <h2 style="margin:0; font-size:26px; font-weight:600;">پالت رنگ</h2>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:18px;">
+        <sc-for list="{{ swatches }}" as="c" hint-placeholder-count="10">
+          <div style="background:#fff; border-radius:20px; box-shadow:0px 8px 17.5px rgba(0,0,0,0.04); overflow:hidden;">
+            <div style="height:96px; background:{{ c.css }}; border-bottom:1px solid rgba(0,0,0,.04);"></div>
+            <div style="padding:14px 16px; display:flex; flex-direction:column; gap:3px;">
+              <span style="font-size:14px; font-weight:500;">{{ c.name }}</span>
+              <span style="font-family:'Montserrat'; font-size:12px; color:#9F9F9F; direction:ltr; text-align:right;">{{ c.hex }}</span>
+              <span style="font-size:12px; font-weight:300; color:#9F9F9F;">{{ c.use }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="background:#fff; border-radius:20px; box-shadow:0px 8px 17.5px rgba(0,0,0,0.04); padding:22px; display:flex; gap:22px; align-items:center; flex-wrap:wrap;">
+        <div style="width:220px; height:150px; border-radius:20px; overflow:hidden; position:relative; background:#12833f;">
+          <img src="assets/green-gradient.png" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+        </div>
+        <div style="flex:1; min-width:240px;">
+          <div style="font-size:16px; font-weight:500; margin-bottom:6px;">گرادیانت برند (پس‌زمینه احراز هویت)</div>
+          <p style="margin:0; font-size:13px; font-weight:300; line-height:2; color:#5F5F5F;">فایل اصلی: <span style="font-family:Montserrat;">green-gradient.png</span>. در صفحات ورود/ثبت‌نام روی پنل سمت راست با شعاع <span style="font-family:Montserrat;">0 82px 82px 0</span> استفاده می‌شود. لوگوی سفید و متن سفید روی این گرادیانت قرار می‌گیرند.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TYPOGRAPHY ===== -->
+    <section style="display:flex; flex-direction:column; gap:22px;">
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <span style="font-family:'Montserrat'; font-size:11px; letter-spacing:.42em; text-transform:uppercase; color:#B7B7B7;">TYPOGRAPHY</span>
+        <h2 style="margin:0; font-size:26px; font-weight:600;">تایپوگرافی</h2>
+        <p style="margin:4px 0 0; font-size:13px; font-weight:300; color:#5F5F5F;">فونت فارسی: <b style="font-weight:600;">IRANYekanFN</b> — در این نمونه با <b style="font-weight:600;">Vazirmatn</b> (وب، بسیار نزدیک) نمایش داده شده. برندینگ انگلیسی: <b style="font-weight:600;">Montserrat / NEXT ART</b>.</p>
+      </div>
+
+      <div style="background:#fff; border-radius:20px; box-shadow:0px 8px 17.5px rgba(0,0,0,0.04); padding:34px 40px; display:flex; flex-direction:column; gap:26px;">
+        <sc-for list="{{ typeScale }}" as="t" hint-placeholder-count="5">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:24px; border-bottom:1px solid #F0F0F0; padding-bottom:22px;">
+            <span style="font-family:'Montserrat'; font-size:12px; color:#9F9F9F; white-space:nowrap;">{{ t.spec }}</span>
+            <span style="font-size:{{ t.px }}; font-weight:{{ t.w }}; color:#000; text-align:right; flex:1;">{{ t.sample }}</span>
+          </div>
+        </sc-for>
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:24px;">
+          <span style="font-family:'Montserrat'; font-size:12px; color:#9F9F9F; white-space:nowrap;">Montserrat · 15 · spaced</span>
+          <span style="font-family:'Montserrat'; font-size:15px; font-weight:400; letter-spacing:.54em; text-transform:uppercase; color:#C3C3C3; flex:1; text-align:right;">LOGIN</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== RADII + SHADOWS ===== -->
+    <section style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+      <div style="background:#fff; border-radius:20px; box-shadow:0px 8px 17.5px rgba(0,0,0,0.04); padding:30px 32px; display:flex; flex-direction:column; gap:20px;">
+        <div>
+          <span style="font-family:'Montserrat'; font-size:11px; letter-spacing:.42em; text-transform:uppercase; color:#B7B7B7;">RADIUS</span>
+          <h2 style="margin:4px 0 0; font-size:22px; font-weight:600;">شعاع گوشه‌ها</h2>
+        </div>
+        <div style="display:flex; gap:18px; flex-wrap:wrap;">
+          <sc-for list="{{ radii }}" as="r" hint-placeholder-count="5">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+              <div style="width:84px; height:84px; background:#F6F6F6; border:1px solid #EAEAEA; border-radius:{{ r.px }};"></div>
+              <span style="font-size:13px; font-weight:500;">{{ r.label }}</span>
+              <span style="font-family:'Montserrat'; font-size:12px; color:#9F9F9F;">{{ r.px }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="background:#fff; border-radius:20px; box-shadow:0px 8px 17.5px rgba(0,0,0,0.04); padding:30px 32px; display:flex; flex-direction:column; gap:20px;">
+        <div>
+          <span style="font-family:'Montserrat'; font-size:11px; letter-spacing:.42em; text-transform:uppercase; color:#B7B7B7;">ELEVATION</span>
+          <h2 style="margin:4px 0 0; font-size:22px; font-weight:600;">سایه‌ها</h2>
+        </div>
+        <div style="display:flex; gap:26px; flex-wrap:wrap; padding:8px 4px;">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:14px;">
+            <div style="width:120px; height:84px; background:#fff; border-radius:16px; box-shadow:0px 8px 17.5px rgba(0,0,0,0.04);"></div>
+            <span style="font-size:13px; font-weight:500;">کارت شناور</span>
+            <span style="font-family:'Montserrat'; font-size:11px; color:#9F9F9F; direction:ltr;">0 8 17.5 · 0.04</span>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:14px;">
+            <div style="width:120px; height:84px; background:#fff; border-radius:16px; box-shadow:0px 26px 41.2px 4px rgba(0,0,0,0.04);"></div>
+            <span style="font-size:13px; font-weight:500;">مودال / کارت بزرگ</span>
+            <span style="font-family:'Montserrat'; font-size:11px; color:#9F9F9F; direction:ltr;">0 26 41.2 4 · 0.04</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== COMPONENTS ===== -->
+    <section style="display:flex; flex-direction:column; gap:22px;">
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <span style="font-family:'Montserrat'; font-size:11px; letter-spacing:.42em; text-transform:uppercase; color:#B7B7B7;">COMPONENTS</span>
+        <h2 style="margin:0; font-size:26px; font-weight:600;">کامپوننت‌های پایه</h2>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+
+        <div style="background:#fff; border-radius:20px; box-shadow:0px 8px 17.5px rgba(0,0,0,0.04); padding:30px 32px; display:flex; flex-direction:column; gap:20px;">
+          <div style="font-size:16px; font-weight:600;">اینپوت</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label style="font-size:13px; font-weight:300; color:#A7A7A7; text-align:right;">شماره تلفن همراه خود را وارد کنید</label>
+            <div style="height:50px; border:1px solid #DDDDDD; border-radius:14px; display:flex; align-items:center; padding:0 18px;">
+              <span style="font-size:18px; color:#797979; direction:ltr; margin-right:auto;">0937 622 0110</span>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label style="font-size:13px; font-weight:300; color:#A7A7A7; text-align:right;">رمز عبور شما</label>
+            <div style="height:50px; border:1px solid #DDDDDD; border-radius:14px; display:flex; align-items:center; padding:0 18px;">
+              <span style="font-size:18px; color:#797979; margin-right:auto;">*************</span>
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" stroke="#AAAAAA" stroke-width="1.4"/><circle cx="12" cy="12" r="3" stroke="#AAAAAA" stroke-width="1.4"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:#fff; border-radius:20px; box-shadow:0px 8px 17.5px rgba(0,0,0,0.04); padding:30px 32px; display:flex; flex-direction:column; gap:18px;">
+          <div style="font-size:16px; font-weight:600;">دکمه‌ها</div>
+          <button style="height:50px; border:none; background:#328C3D; color:#fff; border-radius:15px; font-family:inherit; font-size:18px; font-weight:400; cursor:pointer;">ورود</button>
+          <button style="height:50px; border:1px solid #DDDDDD; background:#fff; color:#328C3D; border-radius:15px; font-family:inherit; font-size:16px; font-weight:400; cursor:pointer;">دکمه ثانویه</button>
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+            <button style="height:34px; padding:0 20px; border:0.3px solid #CECECE; background:#F6F6F6; color:#000; border-radius:10px; font-family:inherit; font-size:14px; cursor:pointer;">مرتبط ترین</button>
+            <button style="height:34px; padding:0 20px; border:none; background:#F6F6F6; color:#777; border-radius:10px; font-family:inherit; font-size:12px; opacity:.65; cursor:pointer;">جدیدترین</button>
+          </div>
+          <button style="height:50px; border:none; background:#B9CFBB; color:#fff; border-radius:15px; font-family:inherit; font-size:18px; cursor:not-allowed;">غیرفعال</button>
+        </div>
+
+        <div style="background:#fff; border-radius:20px; box-shadow:0px 8px 17.5px rgba(0,0,0,0.04); padding:30px 32px; display:flex; flex-direction:column; gap:18px;">
+          <div style="font-size:16px; font-weight:600;">بج وضعیت</div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="position:relative; width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center;">
+              <span style="position:absolute; inset:0; border-radius:50%; background:rgba(16,211,123,0.19);"></span>
+              <span style="width:6px; height:6px; border-radius:50%; background:#10D37B;"></span>
+            </span>
+            <span style="font-size:12px; color:#10D37B;">سفارش میپذیریم</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="position:relative; width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center;">
+              <span style="position:absolute; inset:0; border-radius:50%; background:rgba(159,159,159,0.19);"></span>
+              <span style="width:6px; height:6px; border-radius:50%; background:#9F9F9F;"></span>
+            </span>
+            <span style="font-size:12px; color:#9F9F9F;">فعلاً بسته است</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; background:#F6F6F6; border:0.3px solid #CECECE; border-radius:10px; height:30px; width:fit-content; padding:0 14px;">
+            <span style="font-size:12px; color:#747474;">4.4</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#FACB0F"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2Z"/></svg>
+          </div>
+        </div>
+
+        <div style="background:#fff; border-radius:20px; box-shadow:0px 8px 17.5px rgba(0,0,0,0.04); padding:30px 32px; display:flex; flex-direction:column; gap:16px;">
+          <div style="font-size:16px; font-weight:600;">آیتم لیست (آکاردئون)</div>
+          <div style="height:48px; background:#F6F6F6; border-radius:15px; display:flex; align-items:center; padding:0 20px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="margin-left:auto"><path d="M6 9l6 6 6-6" stroke="#747474" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:15px; font-weight:300; margin-right:auto;">بر روی میز</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="margin-right:12px"><path d="M6 3v7a2 2 0 002 2M6 3v18M10 3v7a2 2 0 01-2 2M16 3c-1.5 0-2.5 2-2.5 5s1 4 2.5 4v9" stroke="#328C3D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div style="height:48px; background:#F6F6F6; border-radius:15px; display:flex; align-items:center; padding:0 20px; opacity:.7;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="margin-left:auto"><path d="M6 9l6 6 6-6" stroke="#747474" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:15px; font-weight:300; margin-right:auto; color:#000;">سفارش بیرون بر</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="margin-right:12px"><path d="M21 8l-9-5-9 5 9 5 9-5ZM3 8v8l9 5 9-5V8M12 13v8" stroke="#939393" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="background:#fff; border-radius:20px; box-shadow:0px 8px 17.5px rgba(0,0,0,0.04); padding:30px 32px; display:flex; flex-direction:column; gap:18px;">
+        <div style="font-size:16px; font-weight:600;">پیل اطلاعات و امتیاز</div>
+        <div style="display:flex; align-items:center; gap:0; background:#fff; box-shadow:0px 8px 17.5px rgba(0,0,0,0.04); border-radius:20px; height:31px; width:fit-content; padding:0 14px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#FACB0F" style="margin-left:8px"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2Z"/></svg>
+          <span style="font-size:14px; color:#747474; margin-left:12px;">4.4</span>
+          <span style="width:1px; height:16px; background:#EAEAEA; margin-left:12px;"></span>
+          <span style="font-size:12px; color:#747474; margin-left:6px;">اطلاعات مجموعه ما</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#747474" stroke-width="1.4"/><path d="M12 11v5" stroke="#747474" stroke-width="1.4" stroke-linecap="round"/><circle cx="12" cy="8" r="1" fill="#747474"/></svg>
+        </div>
+      </div>
+    </section>
+
+    <footer style="display:flex; align-items:center; justify-content:center; gap:12px; padding-top:8px;">
+      <span style="width:120px; height:1px; background:#EAEAEA;"></span>
+      <span style="font-size:12px; font-weight:300; color:#5F5F5F;">دیزاین‌سیستم ماگ‌منو · نسخه ۱</span>
+      <span style="width:120px; height:1px; background:#EAEAEA;"></span>
+    </footer>
+
+  </div>
+</div>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#328C3D"/><text x="50" y="62" font-family="sans-serif" font-size="30" font-weight="700" fill="#fff" text-anchor="middle">SG</text></svg></template></x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      swatches: [
+        { name:'سبز اصلی',   hex:'#328C3D', css:'#328C3D', use:'دکمه‌ها، آیکون فعال' },
+        { name:'سبز موفقیت', hex:'#10D37B', css:'#10D37B', use:'وضعیت فعال / پذیرش سفارش' },
+        { name:'مشکی متن',   hex:'#000000', css:'#000000', use:'تیتر و متن اصلی' },
+        { name:'خاکستری ۱',  hex:'#5F5F5F', css:'#5F5F5F', use:'متن ثانویه' },
+        { name:'خاکستری ۲',  hex:'#747474', css:'#747474', use:'آیکون / لیبل' },
+        { name:'خاکستری ۳',  hex:'#9F9F9F', css:'#9F9F9F', use:'متن کم‌رنگ' },
+        { name:'خاکستری ۴',  hex:'#A7A7A7', css:'#A7A7A7', use:'لیبل اینپوت' },
+        { name:'زرد ستاره',  hex:'#FACB0F', css:'#FACB0F', use:'امتیاز / ستاره' },
+        { name:'پس‌زمینه',   hex:'#F6F6F6', css:'#F6F6F6', use:'فیلد / چیپ' },
+        { name:'خط جداکننده', hex:'#EAEAEA', css:'#EAEAEA', use:'بوردر / خطوط' },
+      ],
+      typeScale: [
+        { spec:'700 · 42', px:'34px', w:700, sample:'تیتر بزرگ صفحه' },
+        { spec:'600 · 26', px:'24px', w:600, sample:'تیتر بخش' },
+        { spec:'400 · 20', px:'20px', w:400, sample:'رستوران چلوکبابی باختر' },
+        { spec:'400 · 14', px:'15px', w:400, sample:'منوی مورد نظر را انتخاب کنید' },
+        { spec:'300 · 13', px:'14px', w:300, sample:'متن توضیحی سبک و خوانا' },
+      ],
+      radii: [
+        { label:'کارت / مودال', px:'35px' },
+        { label:'پیل', px:'20px' },
+        { label:'دکمه / ردیف', px:'15px' },
+        { label:'اینپوت', px:'14px' },
+        { label:'چیپ', px:'10px' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

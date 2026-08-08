@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body { margin:0; }
+  *, *::before, *::after { box-sizing:border-box; }
+  a { color:#328C3D; text-decoration:none; }
+  a:hover { color:#25682d; }
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb { background:#D8D8D8; border-radius:3px; }
+</style>
+</helmet>
+<div dir="rtl" style="font-family:'Vazirmatn',sans-serif; background:#EDEEED; color:#000; min-height:100vh; padding:56px 48px 120px; direction:rtl;">
+  <div style="max-width:1500px; margin:0 auto; display:flex; flex-direction:column; gap:52px;">
+
+    <div style="display:flex; flex-direction:column; gap:6px;">
+      <span style="font-family:'Montserrat'; font-size:11px; letter-spacing:.42em; text-transform:uppercase; color:#B7B7B7;">STEP 3 · MARKETING SITE</span>
+      <h1 style="margin:0; font-size:30px; font-weight:700;">قدم ۳ — سایت مارکتینگ</h1>
+      <p style="margin:0; font-size:14px; font-weight:300; color:#5F5F5F;">صفحه خانه و تعرفه‌ها؛ معرفی محصول ماگ‌منو به صاحبان کسب‌وکار. موبایل + دسکتاپ، راست‌چین.</p>
+    </div>
+
+    <sc-for list="{{ frames }}" as="f" hint-placeholder-count="2">
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-family:'Montserrat'; font-size:12px; font-weight:600; color:#328C3D; background:#E5F0E6; border-radius:8px; padding:4px 10px;">{{ f.tag }}</span>
+          <span style="font-size:17px; font-weight:600;">{{ f.title }}</span>
+          <span style="font-size:13px; font-weight:300; color:#9F9F9F;">{{ f.note }}</span>
+        </div>
+        <div style="display:flex; gap:34px; align-items:flex-start; flex-wrap:wrap;">
+          <sc-for list="{{ f.views }}" as="v" hint-placeholder-count="2">
+            <div style="display:flex; flex-direction:column; gap:10px; align-items:center;">
+              <span style="font-family:'Montserrat'; font-size:10px; letter-spacing:.3em; color:#B7B7B7;">{{ v.label }}</span>
+              {{ v.el }}
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+
+  </div>
+</div>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#328C3D"/><text x="50" y="62" font-family="sans-serif" font-size="28" font-weight="700" fill="#fff" text-anchor="middle">MKT</text></svg></template></x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const R = React.createElement;
+    const money = n => n.toLocaleString('fa-IR');
+
+    const I=(paths,s=22,c='currentColor',sw=1.6)=>R('svg',{width:s,height:s,viewBox:'0 0 24 24',fill:'none'},(Array.isArray(paths)?paths:[paths]).map((d,i)=>R('path',{key:i,d,stroke:c,strokeWidth:sw,strokeLinecap:'round',strokeLinejoin:'round'})));
+    const check=(c='#328C3D',s=20)=>R('svg',{width:s,height:s,viewBox:'0 0 24 24',fill:'none'},R('path',{d:'M5 13l4 4 10-10',stroke:c,strokeWidth:2.2,strokeLinecap:'round',strokeLinejoin:'round'}));
+    const star=(s=16,c='#FACB0F')=>R('svg',{width:s,height:s,viewBox:'0 0 24 24',fill:c},R('path',{d:'M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2Z'}));
+
+    // frame wrappers — desktop 1440 wide, scaled; content flows to natural height
+    const deskFrame=(content,cw=1440)=>{
+      const scale=1200/cw;
+      return R('div',{style:{width:1200,borderRadius:22,overflow:'hidden',position:'relative',boxShadow:'0 16px 50px rgba(0,0,0,0.09)',background:'#fff'}},
+        R('div',{style:{width:cw,transformOrigin:'top right',transform:'scale('+scale+')',marginBottom:'calc('+(scale-1)*100+'% )'}}, content));
+    };
+    const phoneFrame=(card)=>R('div',{style:{width:392,height:812,borderRadius:44,overflow:'hidden',position:'relative',boxShadow:'0 14px 44px rgba(0,0,0,0.14)',border:'1px solid #E4E4E4',background:'#fff'}},
+      R('div',{style:{position:'absolute',top:0,left:0,right:0,height:34,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 26px',zIndex:20,fontSize:12,fontWeight:500,color:'#111',pointerEvents:'none'}},R('span',null,'۹:۴۱'),R('span',{style:{fontFamily:'Montserrat',fontSize:10}},'5G')),
+      R('div',{style:{position:'absolute',inset:0,overflowY:'auto'}}, card));
+
+    const brandLogo=(dark)=>R('div',{style:{display:'flex',alignItems:'center',gap:10}},R('img',{src:'assets/wordmark-faded.png',style:{height:30,filter:dark?'brightness(0) invert(1)':'invert(38%) sepia(50%) saturate(700%) hue-rotate(80deg)'}}));
+
+    // ===== NAV =====
+    const navLinks=['خانه','امکانات','تعرفه‌ها','نمونه‌کارها','تماس'];
+    const nav=(m,active)=>R('div',{style:{position:m?'sticky':'relative',top:0,zIndex:10,height:m?64:78,background:'rgba(255,255,255,0.92)',backdropFilter:'blur(10px)',borderBottom:'1px solid #EFEFEF',display:'flex',alignItems:'center',justifyContent:'space-between',padding:m?'0 20px':'0 56px'}},
+      brandLogo(false),
+      m?R('div',{style:{width:42,height:42,borderRadius:12,background:'#F4F5F4',display:'flex',alignItems:'center',justifyContent:'center'}},I(['M4 7h16M4 12h16M4 17h16'],22,'#333'))
+       :R('div',{style:{display:'flex',alignItems:'center',gap:36}},navLinks.map((l,i)=>R('span',{key:i,style:{fontSize:15,fontWeight:i===active?500:400,color:i===active?'#328C3D':'#555',cursor:'pointer'}},l))),
+      m?null:R('div',{style:{display:'flex',alignItems:'center',gap:14}},
+        R('span',{style:{fontSize:15,color:'#555',cursor:'pointer'}},'ورود'),
+        R('div',{style:{height:46,padding:'0 24px',borderRadius:14,background:'#328C3D',color:'#fff',fontSize:15,fontWeight:500,display:'flex',alignItems:'center',cursor:'pointer'}},'شروع رایگان')));
+
+    // ===== HERO =====
+    const hero=(m)=>R('div',{style:{position:'relative',overflow:'hidden',background:'#0F7A3B'}},
+      R('img',{src:'assets/green-gradient.png',alt:'',style:{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}),
+      R('div',{style:{position:'relative',padding:m?'48px 22px 54px':'80px 56px 96px',display:'flex',flexDirection:m?'column':'row',alignItems:'center',gap:m?36:40}},
+        R('div',{style:{flex:1,textAlign:'right',color:'#fff'}},
+          R('div',{style:{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(255,255,255,0.16)',borderRadius:30,padding:'7px 16px',fontSize:13,marginBottom:22}},R('span',{style:{width:7,height:7,borderRadius:'50%',background:'#B6F5C9'}}),'منوی دیجیتال هوشمند برای رستوران‌ها'),
+          R('h1',{style:{margin:0,fontSize:m?34:56,fontWeight:800,lineHeight:1.3}},['منوی رستورانت را',R('br',{key:'b'}),'',R('span',{style:{color:'#CFF3D8'}},'دیجیتال و هوشمند'),' کن']),
+          R('p',{style:{margin:'20px 0 0',fontSize:m?15:19,fontWeight:300,lineHeight:2,color:'rgba(255,255,255,0.9)',maxWidth:520,marginRight:m?'auto':0,marginLeft:m?'auto':0}},'با ماگ‌منو در چند دقیقه منوی QR بساز، سفارش روی میز و بیرون‌بر بگیر، و همه‌چیز را از یک پنل مدیریت کن.'),
+          R('div',{style:{display:'flex',gap:14,marginTop:30,flexDirection:m?'column':'row'}},
+            R('div',{style:{height:54,padding:'0 30px',borderRadius:15,background:'#fff',color:'#0F7A3B',fontSize:16,fontWeight:600,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},'شروع رایگان'),
+            R('div',{style:{height:54,padding:'0 30px',borderRadius:15,border:'1px solid rgba(255,255,255,0.5)',color:'#fff',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center',gap:10,cursor:'pointer'}},I('M8 5v14l11-7z',18,'#fff',0),'دیدن دموی زنده')),
+          R('div',{style:{display:'flex',alignItems:'center',gap:m?16:26,marginTop:32,flexWrap:'wrap',justifyContent:m?'center':'flex-start'}},
+            R('div',{style:{display:'flex',alignItems:'center',gap:8}},R('div',{style:{display:'flex'}},[0,1,2,3].map(k=>R('div',{key:k,style:{width:30,height:30,borderRadius:'50%',background:'#CFF3D8',border:'2px solid #0F7A3B',marginRight:k?-8:0}}))),R('span',{style:{fontSize:13,color:'rgba(255,255,255,0.9)'}},'+۱۲۰۰ رستوران')),
+            R('div',{style:{display:'flex',alignItems:'center',gap:6}},[0,1,2,3,4].map(k=>star(15)),R('span',{style:{fontSize:13,color:'rgba(255,255,255,0.9)',marginRight:4}},'۴٫۸ از ۵')))),
+        R('div',{style:{flex:m?'none':'0 0 '+(m?'100%':'380px'),width:m?'100%':380,maxWidth:380}},
+          R('div',{style:{background:'#fff',borderRadius:36,padding:12,boxShadow:'0 30px 60px rgba(0,0,0,0.25)'}},
+            R('div',{style:{borderRadius:26,overflow:'hidden',height:m?360:440,position:'relative',background:'#F2F2F2'}},
+              R('image-slot',{id:'hero-phone',shape:'rect',src:'',placeholder:'اسکرین‌شات منوی موبایل',style:{position:'absolute',inset:0}}))))));
+
+    // ===== TRUST BAR =====
+    const trust=(m)=>R('div',{style:{padding:m?'26px 22px':'32px 56px',display:'flex',alignItems:'center',justifyContent:'center',gap:m?24:60,flexWrap:'wrap',borderBottom:'1px solid #F0F0F0'}},
+      R('span',{style:{fontSize:13,fontWeight:300,color:'#9F9F9F'}},'مورد اعتماد برندهای غذایی'),
+      ['باختر','سنتی','کافه رُز','ترنج','لوتوس'].map((n,i)=>R('span',{key:i,style:{fontSize:m?16:20,fontWeight:700,color:'#C7C7C7'}},n)));
+
+    // ===== FEATURES =====
+    const featData=[
+      [['M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z'],'منوی QR فوری','با اسکن QR، مشتری منوی کامل و به‌روز شما را روی موبایلش می‌بیند؛ بدون نصب اپ.'],
+      [['M6 2h9l3 3v17H6z','M9 8h6M9 12h6M9 16h4'],'سفارش‌گیری چندکاناله','روی میز، بیرون‌بر و ارسال با پیک — همه از یک منوی واحد و یکپارچه.'],
+      [['M3 3v18h18','M7 14l3-3 3 3 5-6'],'داشبورد و گزارش','فروش، پرفروش‌ترین‌ها و زمان شلوغی را لحظه‌ای ببین و تصمیم بگیر.'],
+      [['M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z'],'نظرات و امتیاز','بازخورد واقعی مشتری روی هر آیتم؛ اعتماد بساز و کیفیت را بالا ببر.'],
+      [['M4 7h16M4 12h16M4 17h10'],'مدیریت آسان منو','افزودن، ویرایش و فعال/غیرفعال کردن محصولات و دسته‌ها در چند ثانیه.'],
+      [['M12 1v22','M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6'],'پرداخت آنلاین','اتصال به درگاه بانکی و تسویه سریع؛ یا پرداخت در محل.'],
+    ];
+    const featCard=(f,i)=>R('div',{style:{background:'#fff',borderRadius:24,padding:'30px 28px',boxShadow:'0px 8px 24px rgba(0,0,0,0.04)',display:'flex',flexDirection:'column',gap:16,textAlign:'right'}},
+      R('div',{style:{width:56,height:56,borderRadius:16,background:'#EAF3EB',display:'flex',alignItems:'center',justifyContent:'center'}},I(f[0],26,'#328C3D')),
+      R('div',{style:{fontSize:19,fontWeight:600}},f[1]),
+      R('p',{style:{margin:0,fontSize:14,fontWeight:300,lineHeight:2,color:'#666'}},f[2]));
+    const features=(m)=>R('div',{style:{padding:m?'52px 22px':'88px 56px',background:'#F7F8F7'}},
+      R('div',{style:{textAlign:'center',display:'flex',flexDirection:'column',gap:14,alignItems:'center',marginBottom:m?36:56}},
+        R('span',{style:{fontSize:14,fontWeight:500,color:'#328C3D'}},'امکانات'),
+        R('h2',{style:{margin:0,fontSize:m?26:40,fontWeight:700}},'هر آنچه یک رستوران مدرن لازم دارد'),
+        R('p',{style:{margin:0,fontSize:m?15:17,fontWeight:300,color:'#777',maxWidth:560,lineHeight:2}},'از منوی دیجیتال تا مدیریت سفارش و تحلیل فروش، همه در یک پلتفرم.')),
+      R('div',{style:{display:'grid',gridTemplateColumns:m?'1fr':'1fr 1fr 1fr',gap:m?16:24}},featData.map(featCard)));
+
+    // ===== HOW IT WORKS =====
+    const steps=[['۱','ثبت‌نام و ساخت منو','در چند دقیقه حساب بساز، لوگو و اطلاعات مجموعه را وارد کن.'],['۲','افزودن محصولات','دسته‌ها و آیتم‌ها را با عکس و قیمت اضافه کن.'],['۳','چاپ QR و شروع','QR را روی میز بگذار و سفارش‌ها را از پنل مدیریت کن.']];
+    const how=(m)=>R('div',{style:{padding:m?'52px 22px':'88px 56px'}},
+      R('div',{style:{textAlign:'center',display:'flex',flexDirection:'column',gap:14,alignItems:'center',marginBottom:m?36:56}},
+        R('span',{style:{fontSize:14,fontWeight:500,color:'#328C3D'}},'چطور کار می‌کند'),
+        R('h2',{style:{margin:0,fontSize:m?26:40,fontWeight:700}},'سه قدم تا منوی دیجیتال'),),
+      R('div',{style:{display:'grid',gridTemplateColumns:m?'1fr':'1fr 1fr 1fr',gap:m?20:30}},steps.map((s,i)=>R('div',{key:i,style:{textAlign:'right',display:'flex',flexDirection:'column',gap:16}},
+        R('div',{style:{width:60,height:60,borderRadius:'50%',background:'#328C3D',color:'#fff',fontSize:24,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center'}},s[0]),
+        R('div',{style:{fontSize:20,fontWeight:600}},s[1]),
+        R('p',{style:{margin:0,fontSize:15,fontWeight:300,lineHeight:2,color:'#666'}},s[2])))));
+
+    // ===== SHOWCASE (screenshot band) =====
+    const showcase=(m)=>R('div',{style:{padding:m?'8px 22px 52px':'20px 56px 88px'}},
+      R('div',{style:{background:'#0F7A3B',borderRadius:32,position:'relative',overflow:'hidden',padding:m?'40px 24px':'64px 60px',display:'flex',flexDirection:m?'column':'row',alignItems:'center',gap:40}},
+        R('img',{src:'assets/green-gradient.png',alt:'',style:{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',opacity:.9}}),
+        R('div',{style:{position:'relative',flex:1,textAlign:'right',color:'#fff'}},
+          R('h2',{style:{margin:0,fontSize:m?26:38,fontWeight:700,lineHeight:1.4}},'پنل مدیریتی که همه‌چیز را ساده می‌کند'),
+          R('p',{style:{margin:'18px 0 26px',fontSize:m?15:17,fontWeight:300,lineHeight:2,color:'rgba(255,255,255,0.9)'}},'سفارش‌ها، محصولات، دسته‌ها و گزارش فروش — همه در یک نگاه و کاملاً فارسی و راست‌چین.'),
+          R('div',{style:{display:'inline-flex',height:52,padding:'0 28px',borderRadius:15,background:'#fff',color:'#0F7A3B',fontSize:16,fontWeight:600,alignItems:'center',cursor:'pointer'}},'مشاهده دموی پنل')),
+        R('div',{style:{position:'relative',flex:m?'none':'0 0 46%',width:m?'100%':'46%'}},
+          R('div',{style:{borderRadius:18,overflow:'hidden',height:m?200:300,position:'relative',background:'#F2F2F2',boxShadow:'0 20px 50px rgba(0,0,0,0.3)'}},R('image-slot',{id:'showcase-panel',shape:'rect',src:'',placeholder:'اسکرین‌شات پنل مدیریت',style:{position:'absolute',inset:0}})))));
+
+    // ===== TESTIMONIALS =====
+    const tData=[['مریم رستمی','رستوران باختر','از وقتی منوی ماگ‌منو رو راه انداختیم، سفارش روی میز خیلی سریع‌تر شد و خطای ثبت سفارش تقریباً صفر شد.'],['علی کریمی','کافه رُز','گزارش زمان شلوغی کمک کرد شیفت‌ها رو بهتر بچینیم. پنل واقعاً ساده و فارسیه.'],['نگار احمدی','ترنج','مشتری‌ها عاشق اینن که با QR منو رو می‌بینن. راه‌اندازیش کمتر از یه روز طول کشید.']];
+    const testimonials=(m)=>R('div',{style:{padding:m?'52px 22px':'88px 56px',background:'#F7F8F7'}},
+      R('div',{style:{textAlign:'center',marginBottom:m?36:56}},R('h2',{style:{margin:0,fontSize:m?26:40,fontWeight:700}},'رستوران‌ها چه می‌گویند')),
+      R('div',{style:{display:'grid',gridTemplateColumns:m?'1fr':'1fr 1fr 1fr',gap:m?16:24}},tData.map((t,i)=>R('div',{key:i,style:{background:'#fff',borderRadius:24,padding:'28px 26px',boxShadow:'0px 8px 24px rgba(0,0,0,0.04)',display:'flex',flexDirection:'column',gap:18,textAlign:'right'}},
+        R('div',{style:{display:'flex',gap:3}},[0,1,2,3,4].map(k=>star(17))),
+        R('p',{style:{margin:0,fontSize:15,fontWeight:300,lineHeight:2,color:'#444'}},'«'+t[2]+'»'),
+        R('div',{style:{display:'flex',alignItems:'center',gap:12,marginTop:'auto'}},R('div',{style:{width:46,height:46,borderRadius:'50%',background:'#E5F0E6',flexShrink:0}}),R('div',null,R('div',{style:{fontSize:15,fontWeight:600}},t[0]),R('div',{style:{fontSize:13,fontWeight:300,color:'#9F9F9F',marginTop:2}},t[1])))))));
+
+    // ===== CTA =====
+    const cta=(m)=>R('div',{style:{padding:m?'52px 22px':'80px 56px'}},
+      R('div',{style:{background:'#111',borderRadius:32,padding:m?'44px 26px':'70px 60px',textAlign:'center',display:'flex',flexDirection:'column',alignItems:'center',gap:22}},
+        R('h2',{style:{margin:0,fontSize:m?27:44,fontWeight:800,color:'#fff',lineHeight:1.3}},'همین امروز منوی دیجیتالت را بساز'),
+        R('p',{style:{margin:0,fontSize:m?15:18,fontWeight:300,color:'rgba(255,255,255,0.7)',maxWidth:520,lineHeight:2}},'۱۴ روز رایگان، بدون نیاز به کارت بانکی. هر زمان خواستی لغو کن.'),
+        R('div',{style:{display:'flex',gap:14,flexDirection:m?'column':'row',marginTop:6}},
+          R('div',{style:{height:56,padding:'0 34px',borderRadius:15,background:'#328C3D',color:'#fff',fontSize:17,fontWeight:600,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},'شروع رایگان'),
+          R('div',{style:{height:56,padding:'0 34px',borderRadius:15,border:'1px solid rgba(255,255,255,0.3)',color:'#fff',fontSize:17,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},'گفتگو با فروش'))));
+
+    // ===== FOOTER =====
+    const footer=(m)=>R('div',{style:{padding:m?'40px 22px 30px':'60px 56px 40px',background:'#0E0E0E',color:'#fff'}},
+      R('div',{style:{display:'flex',flexDirection:m?'column':'row',justifyContent:'space-between',gap:m?30:60,paddingBottom:36,borderBottom:'1px solid rgba(255,255,255,0.1)'}},
+        R('div',{style:{maxWidth:300,textAlign:'right'}},brandLogo(true),R('p',{style:{margin:'16px 0 0',fontSize:14,fontWeight:300,lineHeight:2,color:'rgba(255,255,255,0.6)'}},'منوی هوشمند برای کسب‌وکارهای خوشمزه. ساخته‌شده برای رستوران‌های ایرانی.')),
+        R('div',{style:{display:'flex',gap:m?40:70,flexWrap:'wrap'}},[['محصول',['امکانات','تعرفه‌ها','دموی زنده','بروزرسانی‌ها']],['شرکت',['درباره ما','وبلاگ','تماس','قوانین']],['پشتیبانی',['راهنما','سوالات متداول','آموزش','گفتگو']]].map((col,i)=>R('div',{key:i,style:{textAlign:'right',display:'flex',flexDirection:'column',gap:12}},R('div',{style:{fontSize:15,fontWeight:600}},col[0]),col[1].map((l,k)=>R('span',{key:k,style:{fontSize:14,fontWeight:300,color:'rgba(255,255,255,0.6)',cursor:'pointer'}},l)))))),
+      R('div',{style:{display:'flex',flexDirection:m?'column':'row',justifyContent:'space-between',alignItems:'center',gap:14,paddingTop:26}},
+        R('span',{style:{fontSize:13,fontWeight:300,color:'rgba(255,255,255,0.5)'}},'© ۲۰۲۶ ماگ‌منو — تمام حقوق محفوظ است.'),
+        R('div',{style:{display:'flex',gap:12}},[0,1,2].map(k=>R('div',{key:k,style:{width:38,height:38,borderRadius:11,background:'rgba(255,255,255,0.08)',display:'flex',alignItems:'center',justifyContent:'center'}},I('M12 2a10 10 0 100 20 10 10 0 000-20',18,'rgba(255,255,255,0.6)'))))));
+
+    // ===== HOME PAGE =====
+    const home=(m)=>R('div',{style:{width:'100%',background:'#fff'}}, nav(m,0), hero(m), trust(m), features(m), how(m), showcase(m), testimonials(m), cta(m), footer(m));
+
+    // ===== PRICING PAGE =====
+    const plans=[
+      {name:'شروع',price:0,unit:'رایگان',desc:'برای تست و رستوران‌های کوچک',feats:['منوی QR دیجیتال','تا ۳۰ محصول','سفارش روی میز','۱ کاربر مدیر'],cta:'شروع رایگان',hi:false},
+      {name:'حرفه‌ای',price:390000,unit:'ماهانه',desc:'برای رستوران‌های فعال',feats:['محصولات نامحدود','هر سه کانال سفارش','داشبورد و گزارش کامل','نظرات و امتیاز','۵ کاربر مدیر','پشتیبانی اولویت‌دار'],cta:'انتخاب پلن حرفه‌ای',hi:true},
+      {name:'زنجیره‌ای',price:0,unit:'تماس بگیرید',desc:'برای شعب و مجموعه‌های بزرگ',feats:['همه امکانات حرفه‌ای','مدیریت چند شعبه','API و یکپارچه‌سازی','کاربر نامحدود','مدیر اختصاصی حساب'],cta:'گفتگو با فروش',hi:false},
+    ];
+    const planCard=(p,m)=>R('div',{style:{flex:1,background:p.hi?'#0F7A3B':'#fff',color:p.hi?'#fff':'#000',borderRadius:26,padding:m?'30px 26px':'38px 32px',boxShadow:p.hi?'0 24px 50px rgba(15,122,59,0.3)':'0px 8px 24px rgba(0,0,0,0.05)',border:p.hi?'none':'1px solid #EEE',display:'flex',flexDirection:'column',gap:22,position:'relative',transform:p.hi&&!m?'scale(1.04)':'none'}},
+      p.hi?R('span',{style:{position:'absolute',top:22,left:26,fontSize:12,fontWeight:500,background:'rgba(255,255,255,0.2)',borderRadius:20,padding:'5px 14px'}},'محبوب‌ترین'):null,
+      R('div',{style:{textAlign:'right'}},R('div',{style:{fontSize:20,fontWeight:600}},p.name),R('div',{style:{fontSize:13,fontWeight:300,color:p.hi?'rgba(255,255,255,0.8)':'#9F9F9F',marginTop:6}},p.desc)),
+      R('div',{style:{textAlign:'right',display:'flex',alignItems:'flex-end',gap:8}},p.price>0?[R('span',{key:'n',style:{fontSize:40,fontWeight:800}},money(p.price)),R('span',{key:'u',style:{fontSize:14,fontWeight:300,color:p.hi?'rgba(255,255,255,0.8)':'#9F9F9F',marginBottom:8}},['تومان / ',p.unit])]:R('span',{style:{fontSize:34,fontWeight:800}},p.unit)),
+      R('div',{style:{height:1,background:p.hi?'rgba(255,255,255,0.2)':'#F0F0F0'}}),
+      R('div',{style:{display:'flex',flexDirection:'column',gap:14}},p.feats.map((f,i)=>R('div',{key:i,style:{display:'flex',alignItems:'center',gap:10,justifyContent:'flex-end'}},R('span',{style:{fontSize:15,fontWeight:300}},f),check(p.hi?'#fff':'#328C3D',20)))),
+      R('div',{style:{height:52,borderRadius:14,marginTop:'auto',background:p.hi?'#fff':'#328C3D',color:p.hi?'#0F7A3B':'#fff',fontSize:16,fontWeight:600,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}},p.cta));
+    const faqs=[['آیا برای شروع به کارت بانکی نیاز دارم؟','خیر. پلن رایگان و دوره آزمایشی ۱۴ روزه بدون کارت بانکی فعال می‌شود.'],['می‌توانم پلن را بعداً تغییر دهم؟','بله، هر زمان می‌توانی ارتقا یا تنزل بدهی؛ هزینه به‌صورت نسبی محاسبه می‌شود.'],['راه‌اندازی چقدر طول می‌کشد؟','اغلب رستوران‌ها کمتر از یک روز منوی خود را کامل و منتشر می‌کنند.'],['آیا از چند شعبه پشتیبانی می‌شود؟','بله، در پلن زنجیره‌ای مدیریت چند شعبه از یک حساب امکان‌پذیر است.']];
+    const pricing=(m)=>R('div',{style:{width:'100%',background:'#fff'}}, nav(m,2),
+      R('div',{style:{padding:m?'44px 22px 30px':'72px 56px 40px',textAlign:'center',display:'flex',flexDirection:'column',alignItems:'center',gap:16,background:'#F7F8F7'}},
+        R('span',{style:{fontSize:14,fontWeight:500,color:'#328C3D'}},'تعرفه‌ها'),
+        R('h1',{style:{margin:0,fontSize:m?30:48,fontWeight:800}},'پلنی مناسب هر اندازه کسب‌وکار'),
+        R('p',{style:{margin:0,fontSize:m?15:18,fontWeight:300,color:'#777',maxWidth:540,lineHeight:2}},'بدون هزینه پنهان. هر زمان خواستی ارتقا بده یا لغو کن.'),
+        R('div',{style:{display:'inline-flex',background:'#fff',border:'1px solid #E7E7E7',borderRadius:14,padding:5,marginTop:8}},['ماهانه','سالانه (۲۰٪ تخفیف)'].map((t,i)=>R('span',{key:i,style:{height:40,padding:'0 22px',display:'flex',alignItems:'center',borderRadius:10,fontSize:14,fontWeight:i===0?500:400,background:i===0?'#328C3D':'transparent',color:i===0?'#fff':'#777',cursor:'pointer'}},t)))),
+      R('div',{style:{padding:m?'20px 22px 40px':'40px 56px 60px',background:'#F7F8F7'}},R('div',{style:{display:'flex',flexDirection:m?'column':'row',gap:m?18:24,alignItems:'stretch'}},plans.map(p=>planCard(p,m)))),
+      R('div',{style:{padding:m?'44px 22px':'80px 56px',maxWidth:900,margin:'0 auto',width:'100%'}},
+        R('h2',{style:{margin:'0 0 32px',fontSize:m?24:34,fontWeight:700,textAlign:'center'}},'سوالات متداول'),
+        R('div',{style:{display:'flex',flexDirection:'column',gap:14}},faqs.map((q,i)=>R('div',{key:i,style:{background:'#fff',border:'1px solid #EEE',borderRadius:18,padding:'22px 26px',textAlign:'right'}},
+          R('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between'}},R('span',{style:{fontSize:16,fontWeight:600}},q[0]),I('M6 9l6 6 6-6',20,'#9A9A9A')),
+          R('p',{style:{margin:'12px 0 0',fontSize:14,fontWeight:300,lineHeight:2,color:'#666'}},q[1]))))),
+      cta(m), footer(m));
+
+    const V=(label,el)=>({label,el});
+    return { frames: [
+      {tag:'جدید',title:'صفحه خانه (لندینگ)',note:'هیرو، امکانات، سه‌قدم، شوکیس پنل، نظرات، CTA، فوتر',views:[V('MOBILE · 390',phoneFrame(home(true))),V('DESKTOP · 1440',deskFrame(home(false)))]},
+      {tag:'جدید',title:'صفحه تعرفه‌ها',note:'سه پلن (رایگان/حرفه‌ای/زنجیره‌ای)، سوییچ ماهانه‌سالانه، FAQ',views:[V('MOBILE · 390',phoneFrame(pricing(true))),V('DESKTOP · 1440',deskFrame(pricing(false)))]},
+    ]};
+  }
+}
+</script>
+</body>
+</html>
