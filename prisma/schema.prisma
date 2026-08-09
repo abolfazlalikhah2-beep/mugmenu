@@ -36,6 +36,15 @@ model Business {
   qrShowInfo             Boolean  @default(true)
   qrShowHours            Boolean  @default(true)
   qrShowLogo             Boolean  @default(true)
+  // No real SMS provider chosen yet (phase 3, see CLAUDE.md) — see
+  // lib/sms/sms-provider.ts. smsConnected/smsCreditCount are set by the
+  // mock provider's "save and test connection" action.
+  smsProvider            String?
+  smsUsername            String?
+  smsApiKey              String?
+  smsSenderNumber        String?
+  smsConnected           Boolean  @default(false)
+  smsCreditCount         Int?
   // No payment gateway yet (phase 3, see CLAUDE.md) — these describe the
   // plan every business currently starts on, not a self-service purchase.
   planName               String   @default("اشتراک حرفه‌ای")
@@ -53,6 +62,8 @@ model Business {
   reviews    Review[]
   discounts  Discount[]
   printers   Printer[]
+  contacts    Contact[]
+  smsMessages SmsMessage[]
 }
 
 enum UserRole {
@@ -220,6 +231,52 @@ model Printer {
   isConnected    Boolean               @default(false)
   lastTestedAt   DateTime?
   createdAt      DateTime              @default(now())
+
+  @@index([businessId])
+}
+
+// SMS phonebook entry for the admin messages panel (features/dashboard,
+// "پیام‌ها"). Distinct from Order.customerPhone — this is a manually
+// curated list, not derived from order history (see aggregate-customers.ts
+// for the derived "audience" segments used by bulk send).
+model Contact {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id])
+  name       String
+  phone      String
+  createdAt  DateTime @default(now())
+
+  @@unique([businessId, phone])
+  @@index([businessId])
+}
+
+enum SmsAudience {
+  ALL_CONTACTS
+  LOYAL_CUSTOMERS
+  RECENT_ORDERS
+  MANUAL
+}
+
+enum SmsMessageStatus {
+  SENT
+  PARTIAL
+  FAILED
+  QUEUED
+}
+
+// One row per single or bulk send from the admin messages panel — the
+// send history log, not a delivery queue (sending is synchronous through
+// the mock provider for now, see lib/sms/sms-provider.ts).
+model SmsMessage {
+  id             String            @id @default(cuid())
+  businessId     String
+  business       Business          @relation(fields: [businessId], references: [id])
+  text           String
+  audience       SmsAudience?
+  recipientCount Int
+  status         SmsMessageStatus
+  createdAt      DateTime          @default(now())
 
   @@index([businessId])
 }

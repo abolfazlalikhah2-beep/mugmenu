@@ -6,6 +6,8 @@ import type {
   DiscountType,
   DiscountScope,
   PrinterConnectionType,
+  SmsAudience,
+  SmsMessageStatus,
 } from "@/lib/generated/prisma/enums";
 
 // ---------- Business ----------
@@ -323,6 +325,66 @@ export function setPrinterTestResult(id: string, isConnected: boolean) {
   return prisma.printer.update({
     where: { id },
     data: { isConnected, lastTestedAt: new Date() },
+  });
+}
+
+// ---------- Contacts (SMS phonebook) ----------
+
+export function getContacts(businessId: string, search?: string) {
+  return prisma.contact.findMany({
+    where: {
+      businessId,
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search, mode: "insensitive" } },
+              { phone: { contains: search } },
+            ],
+          }
+        : {}),
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export function getContactsByIds(businessId: string, ids: string[]) {
+  return prisma.contact.findMany({ where: { id: { in: ids }, businessId } });
+}
+
+export function findContactByPhone(businessId: string, phone: string) {
+  return prisma.contact.findUnique({ where: { businessId_phone: { businessId, phone } } });
+}
+
+export function createContact(data: { businessId: string; name: string; phone: string }) {
+  return prisma.contact.create({ data });
+}
+
+export function getContactForDelete(id: string) {
+  return prisma.contact.findUnique({ where: { id } });
+}
+
+export function deleteContact(id: string) {
+  return prisma.contact.delete({ where: { id } });
+}
+
+// ---------- SMS messages ----------
+
+export interface CreateSmsMessageData {
+  businessId: string;
+  text: string;
+  audience?: SmsAudience;
+  recipientCount: number;
+  status: SmsMessageStatus;
+}
+
+export function createSmsMessage(data: CreateSmsMessageData) {
+  return prisma.smsMessage.create({ data });
+}
+
+export function getSmsMessages(businessId: string, status?: SmsMessageStatus) {
+  return prisma.smsMessage.findMany({
+    where: { businessId, ...(status ? { status } : {}) },
+    orderBy: { createdAt: "desc" },
   });
 }
 

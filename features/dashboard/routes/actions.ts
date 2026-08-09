@@ -8,6 +8,9 @@ import * as onboardingService from "@/features/dashboard/services/onboarding-ser
 import * as settingsService from "@/features/dashboard/services/settings-service";
 import * as orderMgmtService from "@/features/dashboard/services/order-mgmt-service";
 import * as printerService from "@/features/dashboard/services/printer-service";
+import * as smsSettingsService from "@/features/dashboard/services/sms-settings-service";
+import * as contactService from "@/features/dashboard/services/contact-service";
+import * as smsService from "@/features/dashboard/services/sms-service";
 import * as productService from "@/features/dashboard/services/product-service";
 import * as categoryService from "@/features/dashboard/services/category-service";
 import * as discountService from "@/features/dashboard/services/discount-service";
@@ -160,6 +163,77 @@ export async function testPrinterAction(printerId: string) {
   const result = await printerService.testPrinter(businessId, printerId);
   revalidatePath("/dashboard/settings");
   return result;
+}
+
+export async function updateSmsSettingsAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await smsSettingsService.updateSmsSettings(businessId, {
+    smsProvider: String(formData.get("smsProvider") ?? ""),
+    smsUsername: String(formData.get("smsUsername") ?? ""),
+    smsApiKey: String(formData.get("smsApiKey") ?? ""),
+    smsSenderNumber: String(formData.get("smsSenderNumber") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/messages");
+  return { ok: true };
+}
+
+export async function createContactAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await contactService.createContact(businessId, {
+    name: String(formData.get("name") ?? ""),
+    phone: String(formData.get("phone") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/messages");
+  return { ok: true };
+}
+
+export async function deleteContactAction(contactId: string) {
+  const { businessId } = await requireBusinessOwner();
+  const result = await contactService.deleteContact(businessId, contactId);
+  revalidatePath("/dashboard/messages");
+  return result;
+}
+
+export interface SendSmsActionState extends ActionState {
+  sent?: number;
+  failed?: number;
+}
+
+export async function sendSingleSmsAction(
+  _prevState: SendSmsActionState,
+  formData: FormData
+): Promise<SendSmsActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await smsService.sendSingleSms(businessId, {
+    phone: String(formData.get("phone") ?? ""),
+    text: String(formData.get("text") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/messages");
+  return { ok: true, sent: result.sent, failed: result.failed };
+}
+
+export async function sendBulkSmsAction(
+  _prevState: SendSmsActionState,
+  formData: FormData
+): Promise<SendSmsActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await smsService.sendBulkSms(businessId, {
+    audience: String(formData.get("audience") ?? ""),
+    manualContactIds: formData.getAll("manualContactIds").map(String),
+    text: String(formData.get("text") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/messages");
+  return { ok: true, sent: result.sent, failed: result.failed };
 }
 
 export async function updateOrderStatusAction(orderId: string, status: string) {

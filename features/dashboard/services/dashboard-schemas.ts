@@ -151,3 +151,27 @@ export const autoDiscountSchema = z
     message: "یک محصول را انتخاب کنید.",
     path: ["productId"],
   });
+
+export const smsSettingsSchema = z.object({
+  smsProvider: z.string().trim().min(1, "سرویس‌دهنده را انتخاب کنید."),
+  smsUsername: z.string().trim().max(80).optional(),
+  // Blank means "keep the existing key" — see sms-settings-service.ts.
+  smsApiKey: z.string().trim().max(200).optional(),
+  smsSenderNumber: z.string().trim().max(20).optional(),
+});
+
+export const contactSchema = z.object({
+  name: z.string().trim().min(2, "نام مخاطب را کامل وارد کنید.").max(80),
+  phone: z.string().trim().min(10, "شماره موبایل معتبر نیست.").max(20),
+});
+
+export const singleSmsSchema = z.object({
+  phone: z.string().trim().min(10, "شماره گیرنده معتبر نیست.").max(20),
+  text: z.string().trim().min(1, "متن پیام را وارد کنید.").max(670, "متن پیام بیش از حد مجاز طولانی است."),
+});
+
+export const bulkSmsSchema = z.object({
+  audience: z.enum(["ALL_CONTACTS", "LOYAL_CUSTOMERS", "RECENT_ORDERS", "MANUAL"]),
+  manualContactIds: z.array(z.string().min(1)).optional().default([]),
+  text: z.string().trim().min(1, "متن پیام را وارد کنید.").max(670, "متن پیام بیش از حد مجاز طولانی است."),
+});
