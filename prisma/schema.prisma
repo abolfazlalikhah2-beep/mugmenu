@@ -52,6 +52,9 @@ model Business {
   planMaxUsers           Int      @default(5)
   planStartedAt          DateTime @default(now())
   planExpiresAt          DateTime @default(dbgenerated("(now() + interval '30 days')"))
+  // Set from the super admin panel (تعلیق پنل) — enforced in
+  // requireBusinessOwner(), not just a UI flag.
+  isSuspended            Boolean  @default(false)
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 
@@ -62,9 +65,10 @@ model Business {
   reviews    Review[]
   discounts  Discount[]
   printers   Printer[]
-  contacts    Contact[]
-  smsMessages SmsMessage[]
-  tickets     Ticket[]
+  contacts     Contact[]
+  smsMessages  SmsMessage[]
+  tickets      Ticket[]
+  transactions Transaction[]
 }
 
 enum UserRole {
@@ -73,19 +77,44 @@ enum UserRole {
   CASHIER
 }
 
+// ماگ‌منو internal staff role (super admin), orthogonal to the
+// business-scoped UserRole above. Only set when isSuperAdmin is true.
+enum PlatformRole {
+  OWNER
+  ADMIN
+  SUPPORT
+  FINANCE
+  VIEWER
+}
+
 // Restaurant owner / staff login (see lib/auth). A freshly self-registered
 // user defaults to OWNER (they become the owner once /onboarding creates
 // their business); staff added later from /dashboard/users get an explicit
 // role and are linked to businessId at creation, skipping onboarding.
+//
+// isSuperAdmin/platformRole/platformTeam are for ماگ‌منو's own internal
+// staff (features/superadmin, "پنل داخلی ماگ‌منو") — those rows have
+// businessId null and never go through onboarding. There is no separate
+// super-admin login: it's the same phone/password session, gated by
+// requireSuperAdmin() instead of requireBusinessOwner(). No self-service
+// signup for this — accounts are bootstrapped via prisma/seed.ts or
+// invited from the super-admin Team Users page (see team-service.ts).
 model User {
-  id           String   @id @default(cuid())
-  phone        String   @unique
-  passwordHash String
-  fullName     String
-  businessId   String?
-  business     Business? @relation(fields: [businessId], references: [id])
-  role         UserRole  @default(OWNER)
-  createdAt    DateTime @default(now())
+  id            String        @id @default(cuid())
+  phone         String        @unique
+  passwordHash  String
+  fullName      String
+  businessId    String?
+  business      Business?     @relation(fields: [businessId], references: [id])
+  role          UserRole      @default(OWNER)
+  isActive      Boolean       @default(true)
+  lastLoginAt   DateTime?
+  isSuperAdmin  Boolean       @default(false)
+  platformRole  PlatformRole?
+  platformTeam  String?
+  createdAt     DateTime      @default(now())
+
+  assignedTickets Ticket[] @relation("TicketAssignedAgent")
 }
 
 model Category {
@@ -306,16 +335,25 @@ enum TicketAuthorType {
 // see CLAUDE.md) so in practice every message today is authorType OWNER —
 // the AGENT side is modeled so a future support panel can post replies
 // without a schema change.
+enum TicketPriority {
+  HIGH
+  MID
+  LOW
+}
+
 model Ticket {
-  id           String         @id @default(cuid())
-  businessId   String
-  business     Business       @relation(fields: [businessId], references: [id])
-  ticketNumber Int            @unique @default(autoincrement())
-  subject      String
-  category     TicketCategory
-  status       TicketStatus   @default(OPEN)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id                 String         @id @default(cuid())
+  businessId         String
+  business           Business       @relation(fields: [businessId], references: [id])
+  ticketNumber       Int            @unique @default(autoincrement())
+  subject            String
+  category           TicketCategory
+  priority           TicketPriority @default(MID)
+  status             TicketStatus   @default(OPEN)
+  assignedAgentUserId String?
+  assignedAgent      User?          @relation("TicketAssignedAgent", fields: [assignedAgentUserId], references: [id])
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
 
   messages TicketMessage[]
 
@@ -334,6 +372,45 @@ model TicketMessage {
   createdAt      DateTime         @default(now())
 
   @@index([ticketId])
+}
+
+enum TransactionStatus {
+  PAID
+  PENDING
+  FAILED
+  REFUNDED
+}
+
+// One row per subscription charge. Nothing writes PENDING/FAILED yet — no
+// real payment gateway is connected (phase 3, see CLAUDE.md and
+// lib/payments/payment-gateway.ts), so today every row comes from a super
+// admin's manual renewal (features/superadmin, always PAID). The finance
+// page's revenue stats are computed from these rows, not fabricated.
+model Transaction {
+  id         String            @id @default(cuid())
+  businessId String
+  business   Business          @relation(fields: [businessId], references: [id])
+  amount     Int
+  planName   String
+  status     TransactionStatus
+  createdAt  DateTime          @default(now())
+
+  @@index([businessId])
+}
+
+// Single-row platform-wide settings (payment gateway credentials for
+// collecting subscription fees). Not per-business — see
+// features/superadmin/repositories/superadmin-repository.ts for the
+// get-or-create-singleton helper.
+model PlatformSettings {
+  id                   String   @id @default(cuid())
+  gatewayEnabled       Boolean  @default(true)
+  zarinpalMerchantId   String?
+  zarinpalApiKey       String?
+  zarinpalCallbackUrl  String?
+  zarinpalSandbox      Boolean  @default(true)
+  zarinpalConnected    Boolean  @default(false)
+  updatedAt            DateTime @updatedAt
 }
 
 // Item-level (productId set) or restaurant-level (productId null) review.

@@ -7,5 +7,6 @@ export default async function Home() {
   if (!session) redirect("/style-guide");
 
   const user = await findUserByPhone(session.phone);
+  if (user?.isSuperAdmin) redirect("/superadmin");
   redirect(user?.businessId ? "/dashboard" : "/onboarding");
 }

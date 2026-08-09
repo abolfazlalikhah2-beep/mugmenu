@@ -14,6 +14,10 @@ export function updatePasswordByPhone(phone: string, passwordHash: string) {
   return prisma.user.update({ where: { phone }, data: { passwordHash } });
 }
 
+export function recordLogin(phone: string) {
+  return prisma.user.update({ where: { phone }, data: { lastLoginAt: new Date() } });
+}
+
 // ---------- Staff management (owner adding/editing team members) ----------
 
 export function getUsersForBusiness(businessId: string) {

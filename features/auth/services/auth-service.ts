@@ -33,8 +33,13 @@ export async function login(input: unknown): Promise<ServiceResult> {
     logger.info("auth.login_failed", { phone });
     return { ok: false, error: "شماره تلفن یا رمز عبور اشتباه است." };
   }
+  if (!user.isActive) {
+    logger.info("auth.login_blocked_inactive", { phone });
+    return { ok: false, error: "این حساب غیرفعال شده است." };
+  }
 
   await createSession(user.phone);
+  await userRepository.recordLogin(user.phone);
   logger.info("auth.login_succeeded", { phone });
   return { ok: true };
 }

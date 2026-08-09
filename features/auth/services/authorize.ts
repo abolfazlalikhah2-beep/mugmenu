@@ -2,6 +2,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getSession, type Session } from "@/features/auth/services/session-service";
+import type { PlatformRole } from "@/lib/generated/prisma/enums";
 
 /** Authentication only — any logged-in user. */
 export async function requireSession(): Promise<Session> {
@@ -14,12 +15,36 @@ export async function requireSession(): Promise<Session> {
  * Authorization, not just authentication: the caller must be signed in AND
  * own a business. Every dashboard route should call this (or scope a query
  * by the returned businessId) rather than only checking "is logged in".
+ * Also enforces the two ways a session can be revoked mid-lifetime (the
+ * JWT itself stays valid for 30 days): deactivation and business
+ * suspension (تعلیق پنل, set from the super admin panel).
  */
 export async function requireBusinessOwner(): Promise<{ session: Session; businessId: string }> {
   const session = await requireSession();
   const user = await prisma.user.findUnique({ where: { phone: session.phone } });
-  if (!user?.businessId) redirect("/onboarding");
+  if (!user || !user.isActive) redirect("/login");
+  if (!user.businessId) redirect("/onboarding");
+
+  const business = await prisma.business.findUnique({ where: { id: user.businessId } });
+  if (business?.isSuspended) redirect("/suspended");
+
   return { session, businessId: user.businessId };
+}
+
+/**
+ * ماگ‌منو internal staff only (پنل داخلی / super admin) — see the User
+ * model comment for why this reuses the same login/session instead of a
+ * separate auth path.
+ */
+export async function requireSuperAdmin(): Promise<{
+  session: Session;
+  userId: string;
+  platformRole: PlatformRole;
+}> {
+  const session = await requireSession();
+  const user = await prisma.user.findUnique({ where: { phone: session.phone } });
+  if (!user || !user.isActive || !user.isSuperAdmin) redirect("/login");
+  return { session, userId: user.id, platformRole: user.platformRole! };
 }
 
 /**
