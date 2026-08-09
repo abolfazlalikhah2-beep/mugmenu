@@ -175,3 +175,33 @@ export const bulkSmsSchema = z.object({
   manualContactIds: z.array(z.string().min(1)).optional().default([]),
   text: z.string().trim().min(1, "متن پیام را وارد کنید.").max(670, "متن پیام بیش از حد مجاز طولانی است."),
 });
+
+const optionalAttachmentUrl = z
+  .string()
+  .trim()
+  .max(500)
+  .optional()
+  .or(z.literal(""))
+  .transform((v) => (v ? v : undefined));
+
+const optionalAttachmentName = z
+  .string()
+  .trim()
+  .max(200)
+  .optional()
+  .or(z.literal(""))
+  .transform((v) => (v ? v : undefined));
+
+export const ticketSchema = z.object({
+  subject: z.string().trim().min(3, "موضوع را کامل وارد کنید.").max(150),
+  category: z.enum(["TECHNICAL", "PAYMENT", "BILLING", "GENERAL"]),
+  text: z.string().trim().min(5, "متن پیام را کامل وارد کنید.").max(4000),
+  attachmentUrl: optionalAttachmentUrl,
+  attachmentName: optionalAttachmentName,
+});
+
+export const ticketMessageSchema = z.object({
+  text: z.string().trim().min(1, "متن پیام را وارد کنید.").max(4000),
+  attachmentUrl: optionalAttachmentUrl,
+  attachmentName: optionalAttachmentName,
+});

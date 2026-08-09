@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Home, Package, LayoutGrid, Tag, Receipt, MessageCircle, Contact, ChartLine, Users, Settings, LogOut } from "lucide-react";
+import { Home, Package, LayoutGrid, Tag, Receipt, MessageCircle, Contact, ChartLine, Users, LifeBuoy, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/features/auth/routes/actions";
 
@@ -17,6 +17,7 @@ const NAV = [
   { href: "/dashboard/customers", label: "مشتریان", icon: Contact },
   { href: "/dashboard/reports", label: "گزارش‌ها", icon: ChartLine },
   { href: "/dashboard/users", label: "کاربران", icon: Users },
+  { href: "/dashboard/support", label: "پشتیبانی", icon: LifeBuoy },
   { href: "/dashboard/settings", label: "تنظیمات", icon: Settings },
 ];
 

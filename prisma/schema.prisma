@@ -64,6 +64,7 @@ model Business {
   printers   Printer[]
   contacts    Contact[]
   smsMessages SmsMessage[]
+  tickets     Ticket[]
 }
 
 enum UserRole {
@@ -279,6 +280,60 @@ model SmsMessage {
   createdAt      DateTime          @default(now())
 
   @@index([businessId])
+}
+
+enum TicketStatus {
+  OPEN
+  PENDING
+  ANSWERED
+  CLOSED
+}
+
+enum TicketCategory {
+  TECHNICAL
+  PAYMENT
+  BILLING
+  GENERAL
+}
+
+enum TicketAuthorType {
+  OWNER
+  AGENT
+}
+
+// Support ticket filed by a business (any staff member, see
+// requireBusinessOwner). No superadmin/agent panel exists yet (phase 3,
+// see CLAUDE.md) so in practice every message today is authorType OWNER —
+// the AGENT side is modeled so a future support panel can post replies
+// without a schema change.
+model Ticket {
+  id           String         @id @default(cuid())
+  businessId   String
+  business     Business       @relation(fields: [businessId], references: [id])
+  ticketNumber Int            @unique @default(autoincrement())
+  subject      String
+  category     TicketCategory
+  status       TicketStatus   @default(OPEN)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  messages TicketMessage[]
+
+  @@index([businessId])
+}
+
+model TicketMessage {
+  id             String           @id @default(cuid())
+  ticketId       String
+  ticket         Ticket           @relation(fields: [ticketId], references: [id])
+  authorType     TicketAuthorType
+  authorName     String
+  text           String
+  attachmentUrl  String?
+  attachmentName String?
+  createdAt      DateTime         @default(now())
+
+  @@index([ticketId])
 }
 
 // Item-level (productId set) or restaurant-level (productId null) review.

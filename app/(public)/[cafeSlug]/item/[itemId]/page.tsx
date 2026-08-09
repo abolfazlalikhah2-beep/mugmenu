@@ -5,7 +5,7 @@ import { getItemDetailData } from "@/features/menu/services/menu-service";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { MenuImage } from "@/components/menu/menu-image";
 import { StarIcon } from "@/components/ui/rating";
-import { formatToman } from "@/features/menu/utils/money";
+import { formatToman, computeDiscountedPrice } from "@/features/menu/utils/money";
 import { AddToCartControl } from "@/components/menu/add-to-cart-control";
 import { CartFab } from "@/components/menu/cart-fab";
 
@@ -18,6 +18,8 @@ export default async function ItemDetailPage({
   const data = await getItemDetailData(itemId);
   if (!data) notFound();
   const { product, rating } = data;
+  const hasDiscount = !!product.discountPercent;
+  const finalPrice = computeDiscountedPrice(product.price, product.discountPercent);
 
   return (
     <MenuPageShell>
@@ -48,8 +50,18 @@ export default async function ItemDetailPage({
             </Link>
           )}
         </div>
-        <div className="text-[15px] font-semibold text-brand">
-          {formatToman(product.price)} تومان
+        <div className="flex flex-wrap items-baseline gap-2 text-[15px] font-semibold text-brand">
+          <span>{formatToman(finalPrice)} تومان</span>
+          {hasDiscount && (
+            <>
+              <span className="text-xs font-light text-[#B0B0B0] line-through">
+                {formatToman(product.price)}
+              </span>
+              <span className="rounded-lg bg-[#E5484D] px-2.5 py-[3px] text-[11px] font-semibold text-white">
+                {product.discountPercent!.toLocaleString("fa-IR")}٪ تخفیف
+              </span>
+            </>
+          )}
         </div>
         {product.description && (
           <p className="m-0 text-justify text-sm leading-[2] font-light text-text-1">
@@ -61,7 +73,7 @@ export default async function ItemDetailPage({
           slug={cafeSlug}
           productId={product.id}
           name={product.name}
-          price={product.price}
+          price={finalPrice}
           imageUrl={product.imageUrl}
         />
       </div>

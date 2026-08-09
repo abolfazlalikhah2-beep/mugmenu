@@ -8,6 +8,8 @@ import type {
   PrinterConnectionType,
   SmsAudience,
   SmsMessageStatus,
+  TicketCategory,
+  TicketAuthorType,
 } from "@/lib/generated/prisma/enums";
 
 // ---------- Business ----------
@@ -386,6 +388,60 @@ export function getSmsMessages(businessId: string, status?: SmsMessageStatus) {
     where: { businessId, ...(status ? { status } : {}) },
     orderBy: { createdAt: "desc" },
   });
+}
+
+// ---------- Support tickets ----------
+
+export function getTickets(businessId: string) {
+  return prisma.ticket.findMany({
+    where: { businessId },
+    orderBy: { updatedAt: "desc" },
+  });
+}
+
+export function getTicketWithMessages(id: string) {
+  return prisma.ticket.findUnique({
+    where: { id },
+    include: { messages: { orderBy: { createdAt: "asc" } } },
+  });
+}
+
+export interface CreateTicketData {
+  businessId: string;
+  subject: string;
+  category: TicketCategory;
+  authorType: TicketAuthorType;
+  authorName: string;
+  text: string;
+  attachmentUrl?: string;
+  attachmentName?: string;
+}
+
+export function createTicketWithMessage(data: CreateTicketData) {
+  const { text, attachmentUrl, attachmentName, authorType, authorName, ...ticketFields } = data;
+  return prisma.ticket.create({
+    data: {
+      ...ticketFields,
+      messages: { create: { authorType, authorName, text, attachmentUrl, attachmentName } },
+    },
+  });
+}
+
+export interface AddTicketMessageData {
+  ticketId: string;
+  authorType: TicketAuthorType;
+  authorName: string;
+  text: string;
+  attachmentUrl?: string;
+  attachmentName?: string;
+}
+
+export function addTicketMessage(data: AddTicketMessageData) {
+  const { ticketId, ...messageFields } = data;
+  return prisma.$transaction([
+    prisma.ticketMessage.create({ data: { ticketId, ...messageFields } }),
+    prisma.ticket.update({ where: { id: ticketId }, data: { updatedAt: new Date() } }),
+  ]);
 }
 
 // ---------- Reports ----------

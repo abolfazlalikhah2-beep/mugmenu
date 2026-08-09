@@ -11,6 +11,7 @@ import * as printerService from "@/features/dashboard/services/printer-service";
 import * as smsSettingsService from "@/features/dashboard/services/sms-settings-service";
 import * as contactService from "@/features/dashboard/services/contact-service";
 import * as smsService from "@/features/dashboard/services/sms-service";
+import * as supportService from "@/features/dashboard/services/support-service";
 import * as productService from "@/features/dashboard/services/product-service";
 import * as categoryService from "@/features/dashboard/services/category-service";
 import * as discountService from "@/features/dashboard/services/discount-service";
@@ -234,6 +235,39 @@ export async function sendBulkSmsAction(
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/messages");
   return { ok: true, sent: result.sent, failed: result.failed };
+}
+
+export async function createTicketAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId, session } = await requireBusinessOwner();
+  const result = await supportService.createTicket(businessId, session, {
+    subject: String(formData.get("subject") ?? ""),
+    category: String(formData.get("category") ?? ""),
+    text: String(formData.get("text") ?? ""),
+    attachmentUrl: String(formData.get("attachmentUrl") ?? ""),
+    attachmentName: String(formData.get("attachmentName") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/support");
+  redirect(`/dashboard/support/${result.ticketId}`);
+}
+
+export async function addTicketMessageAction(
+  ticketId: string,
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId, session } = await requireBusinessOwner();
+  const result = await supportService.addTicketMessage(businessId, session, ticketId, {
+    text: String(formData.get("text") ?? ""),
+    attachmentUrl: String(formData.get("attachmentUrl") ?? ""),
+    attachmentName: String(formData.get("attachmentName") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath(`/dashboard/support/${ticketId}`);
+  return { ok: true };
 }
 
 export async function updateOrderStatusAction(orderId: string, status: string) {

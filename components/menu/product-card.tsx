@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { MenuImage } from "@/components/menu/menu-image";
-import { formatToman } from "@/features/menu/utils/money";
+import { formatToman, computeDiscountedPrice } from "@/features/menu/utils/money";
 import { useCart } from "@/features/menu/client/cart-context";
 
 export interface ProductCardData {
@@ -12,6 +12,7 @@ export interface ProductCardData {
   description: string | null;
   price: number;
   imageUrl: string | null;
+  discountPercent?: number | null;
 }
 
 export function ProductCard({
@@ -22,6 +23,8 @@ export function ProductCard({
   product: ProductCardData;
 }) {
   const { addItem } = useCart();
+  const hasDiscount = !!product.discountPercent;
+  const finalPrice = computeDiscountedPrice(product.price, product.discountPercent);
 
   return (
     <div className="flex flex-col overflow-hidden rounded-card-sm border border-[#EEEEEE] bg-card">
@@ -43,16 +46,21 @@ export function ProductCard({
           </p>
         )}
         <div className="mt-0.5 flex items-center justify-between">
-          <div className="text-sm font-semibold md:text-base">
-            {formatToman(product.price)}
-            <span className="mr-1 text-[10px] font-light text-text-3">تومان</span>
+          <div className="flex items-baseline gap-1.5 text-sm font-semibold md:text-base">
+            <span>{formatToman(finalPrice)}</span>
+            <span className="text-[10px] font-light text-text-3">تومان</span>
+            {hasDiscount && (
+              <span className="text-[10px] font-light text-[#B0B0B0] line-through">
+                {formatToman(product.price)}
+              </span>
+            )}
           </div>
           <button
             onClick={() =>
               addItem({
                 productId: product.id,
                 name: product.name,
-                price: product.price,
+                price: finalPrice,
                 imageUrl: product.imageUrl,
               })
             }
