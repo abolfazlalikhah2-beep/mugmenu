@@ -122,6 +122,33 @@ export async function updateOrderStatusAction(orderId: string, status: string) {
   return result;
 }
 
+export async function createManualOrderAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+
+  let items: unknown = [];
+  try {
+    items = JSON.parse(String(formData.get("items") ?? "[]"));
+  } catch {
+    items = [];
+  }
+
+  const result = await orderMgmtService.createManualOrder(businessId, {
+    type: String(formData.get("type") ?? ""),
+    customerName: String(formData.get("customerName") ?? ""),
+    customerPhone: String(formData.get("customerPhone") ?? ""),
+    tableNumber: String(formData.get("tableNumber") ?? ""),
+    address: String(formData.get("address") ?? ""),
+    items,
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/orders");
+  revalidatePath("/dashboard/customers");
+  return { ok: true };
+}
+
 export async function createProductAction(
   _prevState: ActionState,
   formData: FormData

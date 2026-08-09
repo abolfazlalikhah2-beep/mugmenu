@@ -1,7 +1,8 @@
 import "server-only";
 import { logger } from "@/lib/logger";
 import * as repo from "@/features/dashboard/repositories/dashboard-repository";
-import { orderStatusSchema } from "@/features/dashboard/services/dashboard-schemas";
+import { manualOrderSchema, orderStatusSchema } from "@/features/dashboard/services/dashboard-schemas";
+import { validateOrderDraft, computeTotal } from "@/features/menu/services/order-flow";
 import type { OrderStatus } from "@/lib/generated/prisma/enums";
 
 export function getOrders(businessId: string, filter: { status?: OrderStatus; search?: string }) {
@@ -36,4 +37,42 @@ export async function updateOrderStatus(businessId: string, input: unknown): Pro
     status: parsed.data.status,
   });
   return { ok: true };
+}
+
+export type CreateManualOrderResult = { ok: true; orderId: string } | { ok: false; error: string };
+
+export async function createManualOrder(businessId: string, input: unknown): Promise<CreateManualOrderResult> {
+  const parsed = manualOrderSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+  const data = parsed.data;
+
+  const fieldError = validateOrderDraft(data.type, data);
+  if (fieldError) return { ok: false, error: fieldError };
+
+  const productIds = [...new Set(data.items.map((i) => i.productId))];
+  const products = await repo.getProductsByIds(businessId, productIds);
+  if (products.length !== productIds.length) {
+    return { ok: false, error: "یکی از آیتم‌های انتخاب‌شده معتبر نیست." };
+  }
+
+  const priceMap = new Map(products.map((p) => [p.id, p.price]));
+  const totalPrice = computeTotal(data.items, priceMap);
+
+  const order = await repo.createManualOrder({
+    businessId,
+    type: data.type,
+    customerName: data.customerName,
+    customerPhone: data.customerPhone,
+    tableNumber: data.tableNumber,
+    address: data.address,
+    totalPrice,
+    items: data.items.map((i) => ({
+      productId: i.productId,
+      quantity: i.quantity,
+      unitPrice: priceMap.get(i.productId) ?? 0,
+    })),
+  });
+
+  logger.info("dashboard.manual_order_created", { businessId, orderId: order.id, type: data.type });
+  return { ok: true, orderId: order.id };
 }

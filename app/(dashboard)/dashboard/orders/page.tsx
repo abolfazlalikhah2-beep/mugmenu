@@ -3,9 +3,11 @@ import { Search } from "lucide-react";
 import { requireBusinessOwner } from "@/features/auth/services/authorize";
 import { getBusiness } from "@/features/dashboard/services/settings-service";
 import { getOrders } from "@/features/dashboard/services/order-mgmt-service";
+import { getProducts } from "@/features/dashboard/services/product-service";
 import { Topbar } from "@/components/dashboard/topbar";
 import { PanelContent } from "@/components/dashboard/panel-content";
 import { OrdersTable } from "@/components/dashboard/orders-table";
+import { ManualOrderTrigger } from "@/components/dashboard/manual-order-trigger";
 import { cn } from "@/lib/utils";
 import type { OrderStatus } from "@/lib/generated/prisma/enums";
 
@@ -23,15 +25,23 @@ export default async function OrdersPage({
 }) {
   const { status, q } = await searchParams;
   const { businessId } = await requireBusinessOwner();
-  const business = await getBusiness(businessId);
+  const [business, products] = await Promise.all([getBusiness(businessId), getProducts(businessId)]);
   if (!business) return null;
 
   const activeStatus = TABS.some((t) => t.status === status) ? (status as OrderStatus) : undefined;
   const orders = await getOrders(businessId, { status: activeStatus, search: q?.trim() || undefined });
+  const manualOrderProducts = products
+    .filter((p) => p.isActive)
+    .map((p) => ({ id: p.id, name: p.name, price: p.price, imageUrl: p.imageUrl }));
 
   return (
     <>
-      <Topbar title="سفارشات" businessName={business.name} isAcceptingOrders={business.isAcceptingOrders} />
+      <Topbar
+        title="سفارشات"
+        businessName={business.name}
+        isAcceptingOrders={business.isAcceptingOrders}
+        action={<ManualOrderTrigger products={manualOrderProducts} />}
+      />
       <PanelContent className="flex flex-col gap-[22px]">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2.5">

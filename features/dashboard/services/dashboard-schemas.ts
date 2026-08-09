@@ -81,6 +81,20 @@ export const orderStatusSchema = z.object({
   status: z.enum(["NEW", "PREPARING", "READY", "DELIVERED", "CANCELED"]),
 });
 
+export const manualOrderItemSchema = z.object({
+  productId: z.string().min(1),
+  quantity: z.number().int().positive().max(50),
+});
+
+export const manualOrderSchema = z.object({
+  type: z.enum(["DINE_IN", "TAKEAWAY", "DELIVERY"]),
+  customerName: z.string().trim().min(1, "نام مشتری را وارد کنید.").max(120),
+  customerPhone: z.string().trim().min(1, "شماره موبایل را وارد کنید.").max(20),
+  tableNumber: z.string().trim().max(20).optional(),
+  address: z.string().trim().max(500).optional(),
+  items: z.array(manualOrderItemSchema).min(1, "حداقل یک آیتم انتخاب کنید."),
+});
+
 const optionalDate = z
   .string()
   .trim()

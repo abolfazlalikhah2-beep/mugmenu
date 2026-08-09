@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db";
-import type { OrderStatus, DiscountType, DiscountScope } from "@/lib/generated/prisma/enums";
+import type { OrderStatus, OrderType, DiscountType, DiscountScope } from "@/lib/generated/prisma/enums";
 
 // ---------- Business ----------
 
@@ -110,6 +110,43 @@ export function updateOrderStatus(id: string, status: OrderStatus) {
   return prisma.order.update({ where: { id }, data: { status } });
 }
 
+export interface CreateManualOrderData {
+  businessId: string;
+  type: OrderType;
+  customerName: string;
+  customerPhone: string;
+  tableNumber?: string;
+  address?: string;
+  totalPrice: number;
+  items: { productId: string; quantity: number; unitPrice: number }[];
+}
+
+export function createManualOrder(data: CreateManualOrderData) {
+  const { items, ...rest } = data;
+  return prisma.order.create({ data: { ...rest, items: { create: items } } });
+}
+
+// ---------- Customers ----------
+
+/** Raw order rows aggregated into per-customer summaries in the service layer. */
+export function getCustomerOrders(businessId: string, search?: string) {
+  return prisma.order.findMany({
+    where: {
+      businessId,
+      ...(search
+        ? {
+            OR: [
+              { customerName: { contains: search, mode: "insensitive" } },
+              { customerPhone: { contains: search } },
+            ],
+          }
+        : {}),
+    },
+    select: { customerName: true, customerPhone: true, createdAt: true },
+    orderBy: { createdAt: "asc" },
+  });
+}
+
 // ---------- Products ----------
 
 export function getProducts(businessId: string) {
@@ -122,6 +159,10 @@ export function getProducts(businessId: string) {
 
 export function getProductForEdit(id: string) {
   return prisma.product.findUnique({ where: { id } });
+}
+
+export function getProductsByIds(businessId: string, ids: string[]) {
+  return prisma.product.findMany({ where: { id: { in: ids }, businessId } });
 }
 
 export function createProduct(data: {
