@@ -52,6 +52,7 @@ model Business {
   orders     Order[]
   reviews    Review[]
   discounts  Discount[]
+  printers   Printer[]
 }
 
 enum UserRole {
@@ -193,6 +194,33 @@ model Discount {
   createdAt   DateTime       @default(now())
 
   @@unique([businessId, code])
+  @@index([businessId])
+}
+
+enum PrinterConnectionType {
+  NETWORK
+  USB
+  BLUETOOTH
+}
+
+// Receipt printer registered by the business. Connection is device
+// metadata only — actual printing goes through lib/printing (mocked
+// until a real driver/agent is wired up in phase 3, see CLAUDE.md).
+model Printer {
+  id             String                @id @default(cuid())
+  businessId     String
+  business       Business              @relation(fields: [businessId], references: [id])
+  name           String
+  model          String?
+  connectionType PrinterConnectionType @default(NETWORK)
+  ipAddress      String?
+  port           String?
+  paperSize      String                @default("80mm")
+  copies         Int                   @default(1)
+  isConnected    Boolean               @default(false)
+  lastTestedAt   DateTime?
+  createdAt      DateTime              @default(now())
+
   @@index([businessId])
 }
 

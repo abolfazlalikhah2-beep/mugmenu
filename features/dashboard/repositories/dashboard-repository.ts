@@ -1,6 +1,12 @@
 import "server-only";
 import { prisma } from "@/lib/db";
-import type { OrderStatus, OrderType, DiscountType, DiscountScope } from "@/lib/generated/prisma/enums";
+import type {
+  OrderStatus,
+  OrderType,
+  DiscountType,
+  DiscountScope,
+  PrinterConnectionType,
+} from "@/lib/generated/prisma/enums";
 
 // ---------- Business ----------
 
@@ -279,6 +285,45 @@ export function updateDiscount(id: string, data: Record<string, unknown>) {
 
 export function deleteDiscount(id: string) {
   return prisma.discount.delete({ where: { id } });
+}
+
+// ---------- Printers ----------
+
+export function getPrinters(businessId: string) {
+  return prisma.printer.findMany({
+    where: { businessId },
+    orderBy: { createdAt: "asc" },
+  });
+}
+
+export function getPrinterForEdit(id: string) {
+  return prisma.printer.findUnique({ where: { id } });
+}
+
+export interface PrinterInput {
+  businessId: string;
+  name: string;
+  model?: string;
+  connectionType: PrinterConnectionType;
+  ipAddress?: string;
+  port?: string;
+  paperSize: string;
+  copies: number;
+}
+
+export function createPrinter(data: PrinterInput) {
+  return prisma.printer.create({ data });
+}
+
+export function updatePrinter(id: string, data: Omit<PrinterInput, "businessId">) {
+  return prisma.printer.update({ where: { id }, data });
+}
+
+export function setPrinterTestResult(id: string, isConnected: boolean) {
+  return prisma.printer.update({
+    where: { id },
+    data: { isConnected, lastTestedAt: new Date() },
+  });
 }
 
 // ---------- Reports ----------

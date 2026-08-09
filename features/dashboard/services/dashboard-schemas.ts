@@ -81,6 +81,20 @@ export const orderStatusSchema = z.object({
   status: z.enum(["NEW", "PREPARING", "READY", "DELIVERED", "CANCELED"]),
 });
 
+export const printerSchema = z.object({
+  name: z.string().trim().min(2, "نام دستگاه را کامل وارد کنید.").max(80),
+  model: z.string().trim().max(80).optional(),
+  connectionType: z.enum(["NETWORK", "USB", "BLUETOOTH"]),
+  ipAddress: z.string().trim().max(120).optional(),
+  port: z.string().trim().max(20).optional(),
+  paperSize: z.enum(["58mm", "80mm"]),
+  copies: z.coerce
+    .number()
+    .int()
+    .min(1, "تعداد کپی باید حداقل ۱ باشد.")
+    .max(5, "تعداد کپی نمی‌تواند بیشتر از ۵ باشد."),
+});
+
 export const manualOrderItemSchema = z.object({
   productId: z.string().min(1),
   quantity: z.number().int().positive().max(50),

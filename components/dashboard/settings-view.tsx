@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 import { BusinessInfoTab } from "@/components/dashboard/business-info-tab";
 import { OrderSettingsTab } from "@/components/dashboard/order-settings-tab";
 import { QrSettingsTab } from "@/components/dashboard/qr-settings-tab";
+import { PrinterSettingsTab } from "@/components/dashboard/printer-settings-tab";
 import { PaymentTab } from "@/components/dashboard/payment-tab";
+import type { PrinterFormValue } from "@/components/dashboard/printer-modal";
 
 export interface SettingsFormValue {
   slug: string;
@@ -29,9 +31,15 @@ export interface SettingsFormValue {
   packagingFee: number;
 }
 
-const TABS = ["اطلاعات فروشگاه", "تنظیمات سفارش", "QR Code", "پرداخت"] as const;
+const TABS = ["اطلاعات فروشگاه", "تنظیمات سفارش", "QR Code", "پرینتر", "پرداخت"] as const;
 
-export function SettingsView({ business }: { business: SettingsFormValue }) {
+export function SettingsView({
+  business,
+  printers,
+}: {
+  business: SettingsFormValue;
+  printers: PrinterFormValue[];
+}) {
   const [tab, setTab] = useState(0);
 
   return (
@@ -56,7 +64,8 @@ export function SettingsView({ business }: { business: SettingsFormValue }) {
         {tab === 0 && <BusinessInfoTab business={business} />}
         {tab === 1 && <OrderSettingsTab business={business} />}
         {tab === 2 && <QrSettingsTab business={business} />}
-        {tab === 3 && <PaymentTab business={business} />}
+        {tab === 3 && <PrinterSettingsTab printers={printers} />}
+        {tab === 4 && <PaymentTab business={business} />}
       </div>
     </div>
   );

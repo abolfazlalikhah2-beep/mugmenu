@@ -7,6 +7,7 @@ import { findUserByPhone } from "@/features/auth/repositories/user-repository";
 import * as onboardingService from "@/features/dashboard/services/onboarding-service";
 import * as settingsService from "@/features/dashboard/services/settings-service";
 import * as orderMgmtService from "@/features/dashboard/services/order-mgmt-service";
+import * as printerService from "@/features/dashboard/services/printer-service";
 import * as productService from "@/features/dashboard/services/product-service";
 import * as categoryService from "@/features/dashboard/services/category-service";
 import * as discountService from "@/features/dashboard/services/discount-service";
@@ -113,6 +114,52 @@ export async function updatePaymentSettingsAction(
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/settings");
   return { ok: true };
+}
+
+export async function createPrinterAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await printerService.createPrinter(businessId, {
+    name: String(formData.get("name") ?? ""),
+    model: String(formData.get("model") ?? ""),
+    connectionType: String(formData.get("connectionType") ?? ""),
+    ipAddress: String(formData.get("ipAddress") ?? ""),
+    port: String(formData.get("port") ?? ""),
+    paperSize: String(formData.get("paperSize") ?? ""),
+    copies: String(formData.get("copies") ?? "1"),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/settings");
+  return { ok: true };
+}
+
+export async function updatePrinterAction(
+  printerId: string,
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await printerService.updatePrinter(businessId, printerId, {
+    name: String(formData.get("name") ?? ""),
+    model: String(formData.get("model") ?? ""),
+    connectionType: String(formData.get("connectionType") ?? ""),
+    ipAddress: String(formData.get("ipAddress") ?? ""),
+    port: String(formData.get("port") ?? ""),
+    paperSize: String(formData.get("paperSize") ?? ""),
+    copies: String(formData.get("copies") ?? "1"),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/settings");
+  return { ok: true };
+}
+
+export async function testPrinterAction(printerId: string) {
+  const { businessId } = await requireBusinessOwner();
+  const result = await printerService.testPrinter(businessId, printerId);
+  revalidatePath("/dashboard/settings");
+  return result;
 }
 
 export async function updateOrderStatusAction(orderId: string, status: string) {
