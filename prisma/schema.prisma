@@ -13,62 +13,63 @@ datasource db {
 // A cafe/restaurant tenant, published at /{slug}. See CLAUDE.md's
 // multi-tenant note.
 model Business {
-  id                     String   @id @default(cuid())
-  slug                   String   @unique
-  name                   String
-  nameEn                 String?
-  logoUrl                String?
-  address                String?
-  phone                  String?
-  description            String?
-  isAcceptingOrders      Boolean  @default(true)
-  openingHoursStart      String?
-  openingHoursEnd        String?
-  acceptsDineIn          Boolean  @default(true)
-  acceptsTakeaway        Boolean  @default(true)
-  acceptsDelivery        Boolean  @default(false)
-  acceptsOnlinePayment   Boolean  @default(false)
-  acceptsCashPayment     Boolean  @default(true)
-  packagingFee           Int      @default(12000)
-  prepTimeDineIn         Int      @default(15)
-  prepTimeTakeaway       Int      @default(20)
-  prepTimeDelivery       Int      @default(45)
-  qrShowInfo             Boolean  @default(true)
-  qrShowHours            Boolean  @default(true)
-  qrShowLogo             Boolean  @default(true)
+  id                   String   @id @default(cuid())
+  slug                 String   @unique
+  name                 String
+  nameEn               String?
+  logoUrl              String?
+  address              String?
+  phone                String?
+  description          String?
+  isAcceptingOrders    Boolean  @default(true)
+  openingHoursStart    String?
+  openingHoursEnd      String?
+  acceptsDineIn        Boolean  @default(true)
+  acceptsTakeaway      Boolean  @default(true)
+  acceptsDelivery      Boolean  @default(false)
+  acceptsOnlinePayment Boolean  @default(false)
+  acceptsCashPayment   Boolean  @default(true)
+  packagingFee         Int      @default(12000)
+  prepTimeDineIn       Int      @default(15)
+  prepTimeTakeaway     Int      @default(20)
+  prepTimeDelivery     Int      @default(45)
+  qrShowInfo           Boolean  @default(true)
+  qrShowHours          Boolean  @default(true)
+  qrShowLogo           Boolean  @default(true)
   // No real SMS provider chosen yet (phase 3, see CLAUDE.md) — see
   // lib/sms/sms-provider.ts. smsConnected/smsCreditCount are set by the
   // mock provider's "save and test connection" action.
-  smsProvider            String?
-  smsUsername            String?
-  smsApiKey              String?
-  smsSenderNumber        String?
-  smsConnected           Boolean  @default(false)
-  smsCreditCount         Int?
+  smsProvider          String?
+  smsUsername          String?
+  smsApiKey            String?
+  smsSenderNumber      String?
+  smsConnected         Boolean  @default(false)
+  smsCreditCount       Int?
   // No payment gateway yet (phase 3, see CLAUDE.md) — these describe the
   // plan every business currently starts on, not a self-service purchase.
-  planName               String   @default("اشتراک حرفه‌ای")
-  planPriceToman         Int      @default(390000)
-  planMaxUsers           Int      @default(5)
-  planStartedAt          DateTime @default(now())
-  planExpiresAt          DateTime @default(dbgenerated("(now() + interval '30 days')"))
+  planName             String   @default("اشتراک حرفه‌ای")
+  planPriceToman       Int      @default(390000)
+  planMaxUsers         Int      @default(5)
+  planStartedAt        DateTime @default(now())
+  planExpiresAt        DateTime @default(dbgenerated("(now() + interval '30 days')"))
   // Set from the super admin panel (تعلیق پنل) — enforced in
   // requireBusinessOwner(), not just a UI flag.
-  isSuspended            Boolean  @default(false)
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  isSuspended          Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
-  owners     User[]
-  categories Category[]
-  products   Product[]
-  orders     Order[]
-  reviews    Review[]
-  discounts  Discount[]
-  printers   Printer[]
+  owners       User[]
+  categories   Category[]
+  products     Product[]
+  orders       Order[]
+  reviews      Review[]
+  discounts    Discount[]
+  printers     Printer[]
   contacts     Contact[]
   smsMessages  SmsMessage[]
   tickets      Ticket[]
   transactions Transaction[]
+  customers    CustomerAccount[]
 }
 
 enum UserRole {
@@ -100,32 +101,32 @@ enum PlatformRole {
 // signup for this — accounts are bootstrapped via prisma/seed.ts or
 // invited from the super-admin Team Users page (see team-service.ts).
 model User {
-  id            String        @id @default(cuid())
-  phone         String        @unique
-  passwordHash  String
-  fullName      String
-  businessId    String?
-  business      Business?     @relation(fields: [businessId], references: [id])
-  role          UserRole      @default(OWNER)
-  isActive      Boolean       @default(true)
-  lastLoginAt   DateTime?
-  isSuperAdmin  Boolean       @default(false)
-  platformRole  PlatformRole?
-  platformTeam  String?
-  createdAt     DateTime      @default(now())
+  id           String        @id @default(cuid())
+  phone        String        @unique
+  passwordHash String
+  fullName     String
+  businessId   String?
+  business     Business?     @relation(fields: [businessId], references: [id])
+  role         UserRole      @default(OWNER)
+  isActive     Boolean       @default(true)
+  lastLoginAt  DateTime?
+  isSuperAdmin Boolean       @default(false)
+  platformRole PlatformRole?
+  platformTeam String?
+  createdAt    DateTime      @default(now())
 
   assignedTickets Ticket[] @relation("TicketAssignedAgent")
 }
 
 model Category {
-  id         String  @id @default(cuid())
+  id         String   @id @default(cuid())
   businessId String
   business   Business @relation(fields: [businessId], references: [id])
   name       String
   icon       String?
   imageUrl   String?
-  sortOrder  Int     @default(0)
-  isActive   Boolean @default(true)
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
 
   products Product[]
 
@@ -171,23 +172,90 @@ enum OrderStatus {
 }
 
 model Order {
-  id             String      @id @default(cuid())
-  businessId     String
-  business       Business    @relation(fields: [businessId], references: [id])
-  type           OrderType
-  status         OrderStatus @default(NEW)
-  customerName   String
-  customerPhone  String
-  tableNumber    String?
-  address        String?
-  location       String?
-  estimatedTime  String?
-  totalPrice     Int
-  createdAt      DateTime    @default(now())
+  id                String           @id @default(cuid())
+  businessId        String
+  business          Business         @relation(fields: [businessId], references: [id])
+  type              OrderType
+  status            OrderStatus      @default(NEW)
+  customerName      String
+  customerPhone     String
+  tableNumber       String?
+  address           String?
+  location          String?
+  estimatedTime     String?
+  totalPrice        Int
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  // Set when the order was placed while the customer was logged in to their
+  // account for this business (see features/customer). Null for guest
+  // checkout, which is still fully supported — logging in is additive.
+  customerAccountId String?
+  customerAccount   CustomerAccount? @relation(fields: [customerAccountId], references: [id])
 
-  items OrderItem[]
+  items              OrderItem[]
+  walletTransactions WalletTransaction[]
 
   @@index([businessId])
+  @@index([customerAccountId])
+}
+
+// End-customer identity for the public menu (phone + OTP, see
+// features/customer) — scoped per business: the same phone number at two
+// different restaurants is two separate accounts/wallets, since each
+// restaurant's cashback/loyalty program is its own. Distinct from User
+// (staff, phone+password login) — there is no overlap between the two.
+model CustomerAccount {
+  id            String   @id @default(cuid())
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id])
+  phone         String
+  fullName      String
+  walletBalance Int      @default(0)
+  loyaltyPoints Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  addresses          CustomerAddress[]
+  walletTransactions WalletTransaction[]
+  orders             Order[]
+
+  @@unique([businessId, phone])
+  @@index([businessId])
+}
+
+model CustomerAddress {
+  id                String          @id @default(cuid())
+  customerAccountId String
+  customerAccount   CustomerAccount @relation(fields: [customerAccountId], references: [id])
+  title             String
+  text              String
+  phone             String
+  isDefault         Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+
+  @@index([customerAccountId])
+}
+
+enum WalletTransactionType {
+  CASHBACK_EARNED
+  ADJUSTMENT
+}
+
+// Wallet ledger — currently credit-only (cashback earned when an order is
+// placed while logged in). Spending the balance to reduce an order's total
+// at checkout is future work — see features/customer/README.md — so this
+// never subtracts from Order.totalPrice today.
+model WalletTransaction {
+  id                String                @id @default(cuid())
+  customerAccountId String
+  customerAccount   CustomerAccount       @relation(fields: [customerAccountId], references: [id])
+  orderId           String?
+  order             Order?                @relation(fields: [orderId], references: [id])
+  type              WalletTransactionType
+  amount            Int
+  note              String?
+  createdAt         DateTime              @default(now())
+
+  @@index([customerAccountId])
 }
 
 model OrderItem {
@@ -299,14 +367,14 @@ enum SmsMessageStatus {
 // send history log, not a delivery queue (sending is synchronous through
 // the mock provider for now, see lib/sms/sms-provider.ts).
 model SmsMessage {
-  id             String            @id @default(cuid())
+  id             String           @id @default(cuid())
   businessId     String
-  business       Business          @relation(fields: [businessId], references: [id])
+  business       Business         @relation(fields: [businessId], references: [id])
   text           String
   audience       SmsAudience?
   recipientCount Int
   status         SmsMessageStatus
-  createdAt      DateTime          @default(now())
+  createdAt      DateTime         @default(now())
 
   @@index([businessId])
 }
@@ -342,18 +410,18 @@ enum TicketPriority {
 }
 
 model Ticket {
-  id                 String         @id @default(cuid())
-  businessId         String
-  business           Business       @relation(fields: [businessId], references: [id])
-  ticketNumber       Int            @unique @default(autoincrement())
-  subject            String
-  category           TicketCategory
-  priority           TicketPriority @default(MID)
-  status             TicketStatus   @default(OPEN)
+  id                  String         @id @default(cuid())
+  businessId          String
+  business            Business       @relation(fields: [businessId], references: [id])
+  ticketNumber        Int            @unique @default(autoincrement())
+  subject             String
+  category            TicketCategory
+  priority            TicketPriority @default(MID)
+  status              TicketStatus   @default(OPEN)
   assignedAgentUserId String?
-  assignedAgent      User?          @relation("TicketAssignedAgent", fields: [assignedAgentUserId], references: [id])
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  assignedAgent       User?          @relation("TicketAssignedAgent", fields: [assignedAgentUserId], references: [id])
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
 
   messages TicketMessage[]
 
@@ -403,14 +471,14 @@ model Transaction {
 // features/superadmin/repositories/superadmin-repository.ts for the
 // get-or-create-singleton helper.
 model PlatformSettings {
-  id                   String   @id @default(cuid())
-  gatewayEnabled       Boolean  @default(true)
-  zarinpalMerchantId   String?
-  zarinpalApiKey       String?
-  zarinpalCallbackUrl  String?
-  zarinpalSandbox      Boolean  @default(true)
-  zarinpalConnected    Boolean  @default(false)
-  updatedAt            DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  gatewayEnabled      Boolean  @default(true)
+  zarinpalMerchantId  String?
+  zarinpalApiKey      String?
+  zarinpalCallbackUrl String?
+  zarinpalSandbox     Boolean  @default(true)
+  zarinpalConnected   Boolean  @default(false)
+  updatedAt           DateTime @updatedAt
 }
 
 // Item-level (productId set) or restaurant-level (productId null) review.

@@ -79,6 +79,8 @@ export interface CreateOrderData {
   address?: string;
   estimatedTime?: string;
   totalPrice: number;
+  /** Set when placed while logged in to a customer account — see features/customer. */
+  customerAccountId?: string;
   items: { productId: string; quantity: number; unitPrice: number }[];
 }
 

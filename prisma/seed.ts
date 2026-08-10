@@ -211,6 +211,95 @@ async function main() {
     });
   }
 
+  // ---- Demo customer account (کیف پول کش‌بک, باشگاه مشتریان) ----
+  const jojehId = products["جوجه‌کباب زعفرانی"];
+  const doughId = products["دوغ سنتی"];
+
+  const customer = await prisma.customerAccount.upsert({
+    where: { businessId_phone: { businessId: business.id, phone: "09190001234" } },
+    update: {},
+    create: { businessId: business.id, phone: "09190001234", fullName: "سمانه رضایی" },
+  });
+
+  await prisma.customerAddress.upsert({
+    where: { id: `${customer.id}-home` }, // stable synthetic id, see note below
+    update: {},
+    create: {
+      id: `${customer.id}-home`,
+      customerAccountId: customer.id,
+      title: "خانه",
+      text: "تبریز، ولیعصر، پروین اعتصامی، کوچه گلستان، پلاک ۱۲، واحد ۳",
+      phone: "0912 345 6789",
+      isDefault: true,
+    },
+  });
+
+  const existingCustomerOrders = await prisma.order.count({ where: { customerAccountId: customer.id } });
+  if (existingCustomerOrders === 0 && jojehId && vaziriId && doughId) {
+    const now = new Date();
+    const twelveDaysAgo = new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000);
+
+    const deliveredOrder = await prisma.order.create({
+      data: {
+        businessId: business.id,
+        customerAccountId: customer.id,
+        type: "TAKEAWAY",
+        status: "DELIVERED",
+        customerName: customer.fullName,
+        customerPhone: customer.phone,
+        totalPrice: 295000 * 2 + business.packagingFee,
+        createdAt: twelveDaysAgo,
+        updatedAt: twelveDaysAgo,
+        items: { create: [{ productId: jojehId, quantity: 2, unitPrice: 295000 }] },
+      },
+    });
+
+    const activeOrder = await prisma.order.create({
+      data: {
+        businessId: business.id,
+        customerAccountId: customer.id,
+        type: "DINE_IN",
+        status: "NEW",
+        customerName: customer.fullName,
+        customerPhone: customer.phone,
+        tableNumber: "7",
+        totalPrice: 385000 + 45000 + business.packagingFee,
+        items: {
+          create: [
+            { productId: vaziriId, quantity: 1, unitPrice: 385000 },
+            { productId: doughId, quantity: 1, unitPrice: 45000 },
+          ],
+        },
+      },
+    });
+
+    const { computeCashback, computeLoyaltyPointsEarned } = await import(
+      "../features/customer/services/loyalty"
+    );
+    let walletBalance = 0;
+    let loyaltyPoints = 0;
+    for (const order of [deliveredOrder, activeOrder]) {
+      const cashback = computeCashback(order.totalPrice);
+      const points = computeLoyaltyPointsEarned(order.totalPrice);
+      await prisma.walletTransaction.create({
+        data: {
+          customerAccountId: customer.id,
+          orderId: order.id,
+          type: "CASHBACK_EARNED",
+          amount: cashback,
+          note: "کش‌بک سفارش",
+          createdAt: order.createdAt,
+        },
+      });
+      walletBalance += cashback;
+      loyaltyPoints += points;
+    }
+    await prisma.customerAccount.update({
+      where: { id: customer.id },
+      data: { walletBalance: { increment: walletBalance }, loyaltyPoints: { increment: loyaltyPoints } },
+    });
+  }
+
   // ---- Super admin bootstrap account (پنل داخلی ماگ‌منو) ----
   const superAdminPasswordHash = await bcrypt.hash("admin1234", 10);
   await prisma.user.upsert({
