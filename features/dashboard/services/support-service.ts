@@ -60,6 +60,10 @@ export async function addTicketMessage(
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
 
   const authorName = await resolveAuthorName(session);
+  // An owner replying to a ticket the support team already answered (or
+  // closed) puts it back in the support queue instead of leaving it stuck
+  // on ANSWERED/CLOSED forever.
+  const reopenStatus = existing.status === "ANSWERED" || existing.status === "CLOSED" ? "OPEN" : undefined;
   await repo.addTicketMessage({
     ticketId,
     authorType: "OWNER",
@@ -67,6 +71,7 @@ export async function addTicketMessage(
     text: parsed.data.text,
     attachmentUrl: parsed.data.attachmentUrl,
     attachmentName: parsed.data.attachmentName,
+    reopenStatus,
   });
 
   logger.info("dashboard.ticket_message_added", { businessId, ticketId });

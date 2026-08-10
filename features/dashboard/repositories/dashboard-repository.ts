@@ -10,6 +10,7 @@ import type {
   SmsMessageStatus,
   TicketCategory,
   TicketAuthorType,
+  TicketStatus,
 } from "@/lib/generated/prisma/enums";
 
 // ---------- Business ----------
@@ -434,13 +435,18 @@ export interface AddTicketMessageData {
   text: string;
   attachmentUrl?: string;
   attachmentName?: string;
+  /** Reopen an ANSWERED/CLOSED ticket back to OPEN — see support-service.ts. */
+  reopenStatus?: TicketStatus;
 }
 
 export function addTicketMessage(data: AddTicketMessageData) {
-  const { ticketId, ...messageFields } = data;
+  const { ticketId, reopenStatus, ...messageFields } = data;
   return prisma.$transaction([
     prisma.ticketMessage.create({ data: { ticketId, ...messageFields } }),
-    prisma.ticket.update({ where: { id: ticketId }, data: { updatedAt: new Date() } }),
+    prisma.ticket.update({
+      where: { id: ticketId },
+      data: { updatedAt: new Date(), ...(reopenStatus ? { status: reopenStatus } : {}) },
+    }),
   ]);
 }
 

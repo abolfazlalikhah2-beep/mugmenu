@@ -211,7 +211,60 @@ async function main() {
     });
   }
 
+  // ---- Super admin bootstrap account (پنل داخلی ماگ‌منو) ----
+  const superAdminPasswordHash = await bcrypt.hash("admin1234", 10);
+  await prisma.user.upsert({
+    where: { phone: "09120000010" },
+    update: {},
+    create: {
+      phone: "09120000010",
+      fullName: "سارا محمودی",
+      passwordHash: superAdminPasswordHash,
+      isSuperAdmin: true,
+      platformRole: "OWNER",
+      platformTeam: "مدیریت محصول",
+    },
+  });
+
+  // ---- Demo subscription payment history (so the finance page isn't empty) ----
+  const existingTransactions = await prisma.transaction.count({ where: { businessId: business.id } });
+  if (existingTransactions === 0) {
+    const now = new Date();
+    const monthsAgo = (n: number) => new Date(now.getFullYear(), now.getMonth() - n, 15);
+    await prisma.transaction.createMany({
+      data: [
+        { businessId: business.id, amount: business.planPriceToman, planName: business.planName, status: "PAID", createdAt: monthsAgo(0) },
+        { businessId: business.id, amount: business.planPriceToman, planName: business.planName, status: "PAID", createdAt: monthsAgo(1) },
+        { businessId: business.id, amount: business.planPriceToman, planName: business.planName, status: "PAID", createdAt: monthsAgo(2) },
+      ],
+    });
+  }
+
+  // ---- Demo support ticket (so the super-admin tickets queue isn't empty) ----
+  const demoTicketSubject = "مشکل در چاپ QR کد روی میز";
+  const existingTicket = await prisma.ticket.findFirst({
+    where: { businessId: business.id, subject: demoTicketSubject },
+  });
+  if (!existingTicket) {
+    await prisma.ticket.create({
+      data: {
+        businessId: business.id,
+        subject: demoTicketSubject,
+        category: "TECHNICAL",
+        priority: "HIGH",
+        messages: {
+          create: {
+            authorType: "OWNER",
+            authorName: "علیرضا محمدی",
+            text: "سلام، QR کد روی میز شماره ۳ درست چاپ نمی‌شه و کدر شده. می‌شه بررسی کنید؟",
+          },
+        },
+      },
+    });
+  }
+
   console.log("Seeded business:", business.slug);
+  console.log("Seeded super admin login: 09120000010 / admin1234");
 }
 
 main()

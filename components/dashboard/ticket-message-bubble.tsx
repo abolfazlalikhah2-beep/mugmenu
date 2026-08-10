@@ -15,8 +15,15 @@ function timeLabel(d: Date) {
   return d.toLocaleString("fa-IR", { dateStyle: "short", timeStyle: "short" });
 }
 
-export function TicketMessageBubble({ message }: { message: TicketMessageData }) {
-  const mine = message.authorType === "OWNER";
+export function TicketMessageBubble({
+  message,
+  mine: mineOverride,
+}: {
+  message: TicketMessageData;
+  /** Which side is "mine" (right-aligned, brand color) depends on the viewer — the owner's own dashboard defaults to OWNER, the super-admin agent view passes AGENT explicitly. */
+  mine?: boolean;
+}) {
+  const mine = mineOverride ?? message.authorType === "OWNER";
 
   return (
     <div className={cn("flex flex-col gap-1.5", mine ? "items-end" : "items-start")}>
