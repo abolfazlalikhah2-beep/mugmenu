@@ -4,22 +4,26 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, Pencil } from "lucide-react";
 import { ProfileEditModal } from "@/components/customer-account/profile-edit-modal";
+import { menuCopy, type MenuLang } from "@/features/menu/utils/menu-language";
 
 export function AccountHeroHeader({
   slug,
   fullName,
   phone,
+  lang = "fa",
 }: {
   slug: string;
   fullName: string;
   phone: string;
+  lang?: MenuLang;
 }) {
   const [editing, setEditing] = useState(false);
+  const t = menuCopy(lang);
 
   return (
     <div className="bg-gradient-to-br from-brand to-[#245F2B] px-4.5 pt-4.5 pb-[58px] text-white">
       <div className="flex items-center justify-between">
-        <span className="text-[17px] font-medium">حساب من</span>
+        <span className="text-[17px] font-medium">{t.myAccount}</span>
         <Link
           href={`/${slug}`}
           className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/16"
@@ -43,10 +47,10 @@ export function AccountHeroHeader({
           className="mr-auto flex items-center gap-1.5 rounded-xl bg-white/16 px-3 py-1.5"
         >
           <Pencil size={16} />
-          <span className="text-[12.5px]">ویرایش</span>
+          <span className="text-[12.5px]">{t.editProfile}</span>
         </button>
       </div>
-      {editing && <ProfileEditModal slug={slug} fullName={fullName} onClose={() => setEditing(false)} />}
+      {editing && <ProfileEditModal slug={slug} fullName={fullName} onClose={() => setEditing(false)} lang={lang} />}
     </div>
   );
 }

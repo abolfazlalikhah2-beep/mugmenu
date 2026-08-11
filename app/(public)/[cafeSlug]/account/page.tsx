@@ -3,6 +3,8 @@ import { requireCustomerSession } from "@/features/customer/services/customer-se
 import { getAccountProfile } from "@/features/customer/services/customer-auth-service";
 import { getWalletAndLoyaltySummary } from "@/features/customer/services/wallet-service";
 import { getOrders } from "@/features/customer/services/order-history-service";
+import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
+import { menuCopy } from "@/features/menu/utils/menu-language";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { AccountHeroHeader } from "@/components/customer-account/account-hero-header";
 import { WalletCard } from "@/components/customer-account/wallet-card";
@@ -19,33 +21,40 @@ export default async function CustomerAccountPage({
 }) {
   const { cafeSlug } = await params;
   const { customerAccountId } = await requireCustomerSession(cafeSlug);
+  const lang = (await getMenuLangCookie(cafeSlug)) ?? "fa";
+  const t = menuCopy(lang);
 
   const [account, walletSummary, orders] = await Promise.all([
     getAccountProfile(customerAccountId),
     getWalletAndLoyaltySummary(customerAccountId),
-    getOrders(customerAccountId),
+    getOrders(customerAccountId, lang),
   ]);
   if (!account || !walletSummary) notFound();
 
   return (
-    <MenuPageShell>
+    <MenuPageShell dir={t.dir}>
       <div className="bg-[#F7F8F7]">
-        <AccountHeroHeader slug={cafeSlug} fullName={account.fullName} phone={account.phone} />
+        <AccountHeroHeader slug={cafeSlug} fullName={account.fullName} phone={account.phone} lang={lang} />
         <div className="-mt-[42px] flex flex-col gap-3.5 p-4">
-          <WalletCard slug={cafeSlug} balance={walletSummary.walletBalance} />
-          <LoyaltyCard points={walletSummary.loyaltyPoints} tier={walletSummary.tier} rewards={walletSummary.rewards} />
-          <RecentOrdersCard slug={cafeSlug} orders={orders} />
+          <WalletCard slug={cafeSlug} balance={walletSummary.walletBalance} lang={lang} />
+          <LoyaltyCard
+            points={walletSummary.loyaltyPoints}
+            tier={walletSummary.tier}
+            rewards={walletSummary.rewards}
+            lang={lang}
+          />
+          <RecentOrdersCard slug={cafeSlug} orders={orders} lang={lang} />
           <Link
             href={`/${cafeSlug}/account/addresses`}
             className="flex items-center justify-between rounded-card-sm bg-card p-4.5 shadow-float"
           >
             <div className="flex items-center gap-2.5">
               <MapPin size={18} className="text-text-2" />
-              <span className="text-sm">آدرس‌های من</span>
+              <span className="text-sm">{t.myAddresses}</span>
             </div>
             <ChevronLeft size={18} className="text-[#C7C7C7]" />
           </Link>
-          <LogoutButton slug={cafeSlug} />
+          <LogoutButton slug={cafeSlug} lang={lang} />
         </div>
       </div>
     </MenuPageShell>

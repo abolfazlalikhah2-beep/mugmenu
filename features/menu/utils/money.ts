@@ -1,9 +1,11 @@
-export function formatToman(n: number) {
-  return n.toLocaleString("fa-IR");
+import type { MenuLang } from "@/features/menu/utils/menu-language";
+
+export function formatToman(n: number, lang: MenuLang = "fa") {
+  return n.toLocaleString(lang === "en" ? "en-US" : "fa-IR");
 }
 
-export function toPersianDigits(n: number) {
-  return n.toLocaleString("fa-IR");
+export function toPersianDigits(n: number, lang: MenuLang = "fa") {
+  return n.toLocaleString(lang === "en" ? "en-US" : "fa-IR");
 }
 
 /** Applies a product's discountPercent (if any) to its price, rounded to the nearest toman. */

@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { getCategoryBrowserData } from "@/features/menu/services/menu-service";
+import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
+import { menuCopy } from "@/features/menu/utils/menu-language";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { TopBar } from "@/components/menu/top-bar";
 import { CategoryBrowser } from "@/components/menu/category-browser";
@@ -18,11 +20,14 @@ export default async function CategoryListPage({
   const data = await getCategoryBrowserData(cafeSlug);
   if (!data) notFound();
 
+  const lang = (await getMenuLangCookie(cafeSlug)) ?? "fa";
+  const t = menuCopy(lang);
+
   return (
-    <MenuPageShell>
+    <MenuPageShell dir={t.dir}>
       <OrderTypeSync type={type} />
-      <TopBar title="منو" backHref={`/${cafeSlug}`} />
-      <CategoryBrowser slug={cafeSlug} categories={data.categories} products={data.products} />
+      <TopBar title={t.menuTitle} backHref={`/${cafeSlug}`} />
+      <CategoryBrowser slug={cafeSlug} categories={data.categories} products={data.products} lang={lang} />
       <CartFab slug={cafeSlug} />
     </MenuPageShell>
   );

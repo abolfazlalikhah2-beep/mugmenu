@@ -2,12 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { getItemDetailData } from "@/features/menu/services/menu-service";
+import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { MenuImage } from "@/components/menu/menu-image";
 import { StarIcon } from "@/components/ui/rating";
 import { formatToman, computeDiscountedPrice } from "@/features/menu/utils/money";
 import { AddToCartControl } from "@/components/menu/add-to-cart-control";
 import { CartFab } from "@/components/menu/cart-fab";
+import { localizedName, localizedText, menuCopy, discountLabel } from "@/features/menu/utils/menu-language";
 
 export default async function ItemDetailPage({
   params,
@@ -21,13 +23,19 @@ export default async function ItemDetailPage({
   const hasDiscount = !!product.discountPercent;
   const finalPrice = computeDiscountedPrice(product.price, product.discountPercent);
 
+  const lang = (await getMenuLangCookie(cafeSlug)) ?? "fa";
+  const t = menuCopy(lang);
+  const name = localizedName(lang, product.name, product.nameEn);
+  const description = localizedText(lang, product.description, product.descriptionEn);
+  const align = lang === "en" ? "text-left" : "text-right";
+
   return (
-    <MenuPageShell>
+    <MenuPageShell dir={t.dir}>
       <div className="relative h-[230px] w-full md:h-[280px]">
         <MenuImage
           imageUrl={product.imageUrl}
-          alt={product.name}
-          label="عکس بزرگ آیتم"
+          alt={name}
+          label={t.itemPhoto}
           className="h-full w-full"
         />
         <Link
@@ -37,9 +45,9 @@ export default async function ItemDetailPage({
           <ChevronRight size={22} />
         </Link>
       </div>
-      <div className="flex flex-col gap-4 p-5 text-right md:p-10">
+      <div className={`flex flex-col gap-4 p-5 md:p-10 ${align}`}>
         <div className="flex items-center justify-between gap-3">
-          <span className="text-[22px] font-semibold md:text-[26px]">{product.name}</span>
+          <span className="text-[22px] font-semibold md:text-[26px]">{name}</span>
           {rating && (
             <Link
               href={`/${cafeSlug}/item/${itemId}/reviews`}
@@ -51,30 +59,33 @@ export default async function ItemDetailPage({
           )}
         </div>
         <div className="flex flex-wrap items-baseline gap-2 text-[15px] font-semibold text-brand">
-          <span>{formatToman(finalPrice)} تومان</span>
+          <span>
+            {formatToman(finalPrice, lang)} {t.toman}
+          </span>
           {hasDiscount && (
             <>
               <span className="text-xs font-light text-[#B0B0B0] line-through">
-                {formatToman(product.price)}
+                {formatToman(product.price, lang)}
               </span>
               <span className="rounded-lg bg-[#E5484D] px-2.5 py-[3px] text-[11px] font-semibold text-white">
-                {product.discountPercent!.toLocaleString("fa-IR")}٪ تخفیف
+                {discountLabel(lang, product.discountPercent!)}
               </span>
             </>
           )}
         </div>
-        {product.description && (
+        {description && (
           <p className="m-0 text-justify text-sm leading-[2] font-light text-text-1">
-            {product.description}
+            {description}
           </p>
         )}
         <div className="h-px bg-[#F0F0F0]" />
         <AddToCartControl
           slug={cafeSlug}
           productId={product.id}
-          name={product.name}
+          name={name}
           price={finalPrice}
           imageUrl={product.imageUrl}
+          lang={lang}
         />
       </div>
       <CartFab slug={cafeSlug} />

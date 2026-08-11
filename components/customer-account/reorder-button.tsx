@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCart } from "@/features/menu/client/cart-context";
+import { menuCopy, type MenuLang } from "@/features/menu/utils/menu-language";
 
 export interface ReorderItem {
   productId: string;
@@ -11,9 +12,18 @@ export interface ReorderItem {
   quantity: number;
 }
 
-export function ReorderButton({ slug, items }: { slug: string; items: ReorderItem[] }) {
+export function ReorderButton({
+  slug,
+  items,
+  lang = "fa",
+}: {
+  slug: string;
+  items: ReorderItem[];
+  lang?: MenuLang;
+}) {
   const router = useRouter();
   const { addItem } = useCart();
+  const t = menuCopy(lang);
 
   function handleReorder() {
     for (const item of items) {
@@ -28,7 +38,7 @@ export function ReorderButton({ slug, items }: { slug: string; items: ReorderIte
       onClick={handleReorder}
       className="flex h-[50px] flex-1 items-center justify-center rounded-btn bg-brand text-[15px] text-white"
     >
-      سفارش مجدد
+      {t.reorder}
     </button>
   );
 }

@@ -5,20 +5,24 @@ import { MapPin } from "lucide-react";
 import { deleteCustomerAddressAction, setDefaultCustomerAddressAction } from "@/features/customer/routes/actions";
 import { cn } from "@/lib/utils";
 import type { AddressFormValue } from "@/components/customer-account/address-modal";
+import { menuCopy, confirmDeleteAddressLabel, type MenuLang } from "@/features/menu/utils/menu-language";
 
 export function AddressRow({
   slug,
   address,
   onEdit,
+  lang = "fa",
 }: {
   slug: string;
   address: AddressFormValue;
   onEdit: () => void;
+  lang?: MenuLang;
 }) {
   const [pending, startTransition] = useTransition();
+  const t = menuCopy(lang);
 
   function handleDelete() {
-    if (!confirm(`آدرس «${address.title}» حذف شود؟`)) return;
+    if (!confirm(confirmDeleteAddressLabel(lang, address.title))) return;
     startTransition(async () => {
       await deleteCustomerAddressAction(slug, address.id);
     });
@@ -52,7 +56,7 @@ export function AddressRow({
             <div className="flex items-center gap-2">
               <span className="text-[14.5px] font-medium">{address.title}</span>
               {address.isDefault && (
-                <span className="rounded-lg bg-brand/10 px-2 py-1 text-[11px] font-medium text-brand">پیش‌فرض</span>
+                <span className="rounded-lg bg-brand/10 px-2 py-1 text-[11px] font-medium text-brand">{t.defaultBadge}</span>
               )}
             </div>
             <div className="mt-1 text-xs font-light leading-7 text-text-3">{address.text}</div>
@@ -64,7 +68,7 @@ export function AddressRow({
       </div>
       <div className="mt-3 flex gap-2 border-t border-[#F4F4F4] pt-3">
         <button type="button" onClick={onEdit} className="rounded-[10px] border border-[#EAEAEA] px-3.5 py-1.5 text-[12.5px] text-[#5F5F5F]">
-          ویرایش
+          {t.edit}
         </button>
         <button
           type="button"
@@ -72,7 +76,7 @@ export function AddressRow({
           disabled={pending}
           className="rounded-[10px] bg-[#FBECEC] px-3.5 py-1.5 text-[12.5px] text-[#C15656]"
         >
-          حذف
+          {t.delete}
         </button>
         {!address.isDefault && (
           <button
@@ -81,7 +85,7 @@ export function AddressRow({
             disabled={pending}
             className="mr-auto rounded-[10px] bg-brand/10 px-3.5 py-1.5 text-[12.5px] text-brand"
           >
-            انتخاب به‌عنوان پیش‌فرض
+            {t.setDefault}
           </button>
         )}
       </div>

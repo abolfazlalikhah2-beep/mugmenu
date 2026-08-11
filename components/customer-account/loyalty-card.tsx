@@ -1,21 +1,21 @@
 import { Gift, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LoyaltyTierStatus, LoyaltyReward } from "@/features/customer/services/loyalty";
-
-const TIER_LABEL: Record<LoyaltyTierStatus["tier"], string> = {
-  SILVER: "سطح نقره‌ای",
-  GOLD: "سطح طلایی",
-};
+import { menuCopy, localizedNumber, pointsToGoldLabel, rewardLabel, type MenuLang } from "@/features/menu/utils/menu-language";
 
 export function LoyaltyCard({
   points,
   tier,
   rewards,
+  lang = "fa",
 }: {
   points: number;
   tier: LoyaltyTierStatus;
   rewards: (LoyaltyReward & { unlocked: boolean })[];
+  lang?: MenuLang;
 }) {
+  const t = menuCopy(lang);
+  const tierLabel = tier.tier === "GOLD" ? t.goldTier : t.silverTier;
   const progressPercent = tier.nextTierThreshold
     ? Math.min(100, Math.round((points / tier.nextTierThreshold) * 100))
     : 100;
@@ -28,16 +28,14 @@ export function LoyaltyCard({
             <Gift size={20} className="text-[#C79A00]" />
           </div>
           <div>
-            <div className="text-[13px] font-light text-text-3">امتیاز باشگاه مشتریان</div>
+            <div className="text-[13px] font-light text-text-3">{t.loyaltyPointsLabel}</div>
             <div className="mt-0.5 flex items-center gap-1.5">
-              <span className="text-xl font-semibold">{points.toLocaleString("fa-IR")}</span>
+              <span className="text-xl font-semibold">{localizedNumber(lang, points)}</span>
               <Star size={15} className="fill-star text-star" />
             </div>
           </div>
         </div>
-        <span className="rounded-[9px] bg-star/15 px-3 py-1.5 text-xs font-medium text-[#C79A00]">
-          {TIER_LABEL[tier.tier]}
-        </span>
+        <span className="rounded-[9px] bg-star/15 px-3 py-1.5 text-xs font-medium text-[#C79A00]">{tierLabel}</span>
       </div>
       <div className="h-2 overflow-hidden rounded-md bg-[#F0F0F0]">
         <div
@@ -48,10 +46,10 @@ export function LoyaltyCard({
       {tier.nextTierThreshold && (
         <div className="flex justify-between">
           <span className="text-[11.5px] font-light text-text-3">
-            {tier.pointsToNextTier.toLocaleString("fa-IR")} امتیاز تا سطح طلایی
+            {pointsToGoldLabel(lang, tier.pointsToNextTier)}
           </span>
           <span className="text-[11.5px] font-light text-text-3">
-            {tier.nextTierThreshold.toLocaleString("fa-IR")} امتیاز
+            {localizedNumber(lang, tier.nextTierThreshold)} {t.pointsWord}
           </span>
         </div>
       )}
@@ -64,7 +62,7 @@ export function LoyaltyCard({
               r.unlocked ? "text-text-1" : "text-text-3"
             )}
           >
-            {r.label} · {r.cost.toLocaleString("fa-IR")}
+            {rewardLabel(lang, r.label)} · {localizedNumber(lang, r.cost)}
           </span>
         ))}
       </div>

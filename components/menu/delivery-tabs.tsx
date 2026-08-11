@@ -3,31 +3,28 @@
 import { cn } from "@/lib/utils";
 import { useCart } from "@/features/menu/client/cart-context";
 import type { OrderType } from "@/features/menu/services/order-flow";
+import { orderTypeLabel, type MenuLang } from "@/features/menu/utils/menu-language";
 
-const TABS: { value: OrderType; label: string }[] = [
-  { value: "DINE_IN", label: "روی میز" },
-  { value: "TAKEAWAY", label: "بیرون‌بر" },
-  { value: "DELIVERY", label: "ارسال با پیک" },
-];
+const TAB_VALUES: OrderType[] = ["DINE_IN", "TAKEAWAY", "DELIVERY"];
 
-export function DeliveryTabs() {
+export function DeliveryTabs({ lang = "fa" }: { lang?: MenuLang }) {
   const { orderType, setOrderType } = useCart();
 
   return (
     <div className="flex gap-1 rounded-input bg-chip p-1.5">
-      {TABS.map((t) => {
-        const active = t.value === orderType;
+      {TAB_VALUES.map((value) => {
+        const active = value === orderType;
         return (
           <button
-            key={t.value}
+            key={value}
             type="button"
-            onClick={() => setOrderType(t.value)}
+            onClick={() => setOrderType(value)}
             className={cn(
               "flex h-10 flex-1 items-center justify-center rounded-[10px] text-[13px]",
               active ? "bg-card font-medium text-brand shadow-float" : "font-light text-[#8A8A8A]"
             )}
           >
-            {t.label}
+            {orderTypeLabel(lang, value)}
           </button>
         );
       })}
@@ -35,4 +32,4 @@ export function DeliveryTabs() {
   );
 }
 
-export { TABS as DELIVERY_TABS };
+export { TAB_VALUES as DELIVERY_TAB_VALUES };

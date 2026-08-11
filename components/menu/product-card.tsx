@@ -5,11 +5,14 @@ import { Plus } from "lucide-react";
 import { MenuImage } from "@/components/menu/menu-image";
 import { formatToman, computeDiscountedPrice } from "@/features/menu/utils/money";
 import { useCart } from "@/features/menu/client/cart-context";
+import { localizedName, localizedText, menuCopy, addAriaLabel, type MenuLang } from "@/features/menu/utils/menu-language";
 
 export interface ProductCardData {
   id: string;
   name: string;
+  nameEn?: string | null;
   description: string | null;
+  descriptionEn?: string | null;
   price: number;
   imageUrl: string | null;
   discountPercent?: number | null;
@@ -18,40 +21,46 @@ export interface ProductCardData {
 export function ProductCard({
   slug,
   product,
+  lang = "fa",
 }: {
   slug: string;
   product: ProductCardData;
+  lang?: MenuLang;
 }) {
   const { addItem } = useCart();
   const hasDiscount = !!product.discountPercent;
   const finalPrice = computeDiscountedPrice(product.price, product.discountPercent);
+  const t = menuCopy(lang);
+  const name = localizedName(lang, product.name, product.nameEn);
+  const description = localizedText(lang, product.description, product.descriptionEn);
+  const align = lang === "en" ? "text-left" : "text-right";
 
   return (
     <div className="flex flex-col overflow-hidden rounded-card-sm border border-[#EEEEEE] bg-card">
       <Link href={`/${slug}/item/${product.id}`}>
         <MenuImage
           imageUrl={product.imageUrl}
-          alt={product.name}
-          label={product.name}
+          alt={name}
+          label={name}
           className="h-[110px] w-full md:h-[140px]"
         />
       </Link>
-      <div className="flex flex-col gap-2 p-3.5 text-right">
+      <div className={`flex flex-col gap-2 p-3.5 ${align}`}>
         <Link href={`/${slug}/item/${product.id}`} className="text-sm font-medium md:text-base">
-          {product.name}
+          {name}
         </Link>
-        {product.description && (
+        {description && (
           <p className="m-0 h-9 overflow-hidden text-[11px] leading-[1.7] font-light text-text-3">
-            {product.description}
+            {description}
           </p>
         )}
         <div className="mt-0.5 flex items-center justify-between">
           <div className="flex items-baseline gap-1.5 text-sm font-semibold md:text-base">
-            <span>{formatToman(finalPrice)}</span>
-            <span className="text-[10px] font-light text-text-3">تومان</span>
+            <span>{formatToman(finalPrice, lang)}</span>
+            <span className="text-[10px] font-light text-text-3">{t.toman}</span>
             {hasDiscount && (
               <span className="text-[10px] font-light text-[#B0B0B0] line-through">
-                {formatToman(product.price)}
+                {formatToman(product.price, lang)}
               </span>
             )}
           </div>
@@ -59,12 +68,12 @@ export function ProductCard({
             onClick={() =>
               addItem({
                 productId: product.id,
-                name: product.name,
+                name,
                 price: finalPrice,
                 imageUrl: product.imageUrl,
               })
             }
-            aria-label={`افزودن ${product.name}`}
+            aria-label={addAriaLabel(lang, name)}
             className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white"
           >
             <Plus size={22} />

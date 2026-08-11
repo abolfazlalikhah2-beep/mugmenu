@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { getReviewFormData } from "@/features/menu/services/menu-service";
+import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { TopBar } from "@/components/menu/top-bar";
 import { ReviewForm } from "@/components/menu/review-form";
+import { localizedName, menuCopy } from "@/features/menu/utils/menu-language";
 
 export default async function OrderReviewPage({
   params,
@@ -13,19 +15,23 @@ export default async function OrderReviewPage({
   const data = await getReviewFormData(orderId);
   if (!data) notFound();
 
+  const lang = (await getMenuLangCookie(cafeSlug)) ?? "fa";
+  const t = menuCopy(lang);
+
   const items = Array.from(
-    new Map(data.order.items.map((line) => [line.productId, line.product.name])).entries()
-  ).map(([productId, name]) => ({ productId, name }));
+    new Map(data.order.items.map((line) => [line.productId, line.product])).entries()
+  ).map(([productId, product]) => ({ productId, name: localizedName(lang, product.name, product.nameEn) }));
 
   return (
-    <MenuPageShell>
-      <TopBar title="ثبت نظر" backHref={`/${cafeSlug}/receipt/${orderId}`} />
+    <MenuPageShell dir={t.dir}>
+      <TopBar title={t.writeReview} backHref={`/${cafeSlug}/receipt/${orderId}`} />
       <ReviewForm
         slug={cafeSlug}
         orderId={orderId}
         items={items}
         pointsEligible={data.pointsEligible}
         alreadyReviewed={data.alreadyReviewed}
+        lang={lang}
       />
     </MenuPageShell>
   );

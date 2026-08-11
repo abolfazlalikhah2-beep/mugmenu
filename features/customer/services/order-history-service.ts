@@ -2,15 +2,22 @@ import "server-only";
 import * as repo from "@/features/customer/repositories/customer-repository";
 import { formatRelativeDateTime } from "@/features/dashboard/utils/relative-date";
 import { toPersianDigits } from "@/features/menu/utils/money";
+import { localizedName, type MenuLang } from "@/features/menu/utils/menu-language";
 import type { OrderStatus, OrderType } from "@/lib/generated/prisma/enums";
 
 interface OrderItemLike {
   quantity: number;
-  product: { name: string };
+  product: { name: string; nameEn: string | null };
 }
 
-function summarizeItems(items: OrderItemLike[]): string {
-  return items.map((i) => (i.quantity > 1 ? `${i.product.name} ×${toPersianDigits(i.quantity)}` : i.product.name)).join("، ");
+function summarizeItems(items: OrderItemLike[], lang: MenuLang): string {
+  const separator = lang === "en" ? ", " : "، ";
+  return items
+    .map((i) => {
+      const name = localizedName(lang, i.product.name, i.product.nameEn);
+      return i.quantity > 1 ? `${name} ×${toPersianDigits(i.quantity, lang)}` : name;
+    })
+    .join(separator);
 }
 
 function sumCashback(walletTransactions: { amount: number }[]): number {
@@ -28,12 +35,12 @@ export interface CustomerOrderSummary {
   cashbackEarned: number;
 }
 
-export async function getOrders(customerAccountId: string): Promise<CustomerOrderSummary[]> {
+export async function getOrders(customerAccountId: string, lang: MenuLang = "fa"): Promise<CustomerOrderSummary[]> {
   const rows = await repo.getOrdersForCustomer(customerAccountId);
   return rows.map((o) => ({
     id: o.id,
-    itemsSummary: summarizeItems(o.items),
-    dateLabel: formatRelativeDateTime(o.createdAt),
+    itemsSummary: summarizeItems(o.items, lang),
+    dateLabel: formatRelativeDateTime(o.createdAt, new Date(), lang),
     type: o.type,
     tableNumber: o.tableNumber,
     totalPrice: o.totalPrice,
@@ -56,7 +63,11 @@ export interface CustomerOrderDetail {
   items: { id: string; productId: string; name: string; imageUrl: string | null; quantity: number; unitPrice: number }[];
 }
 
-export async function getOrderDetail(customerAccountId: string, orderId: string): Promise<CustomerOrderDetail | null> {
+export async function getOrderDetail(
+  customerAccountId: string,
+  orderId: string,
+  lang: MenuLang = "fa"
+): Promise<CustomerOrderDetail | null> {
   const order = await repo.getOrderForCustomer(orderId, customerAccountId);
   if (!order) return null;
 
@@ -74,7 +85,7 @@ export async function getOrderDetail(customerAccountId: string, orderId: string)
     items: order.items.map((i) => ({
       id: i.id,
       productId: i.productId,
-      name: i.product.name,
+      name: localizedName(lang, i.product.name, i.product.nameEn),
       imageUrl: i.product.imageUrl,
       quantity: i.quantity,
       unitPrice: i.unitPrice,

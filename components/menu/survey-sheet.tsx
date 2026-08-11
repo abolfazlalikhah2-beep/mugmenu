@@ -6,36 +6,31 @@ import { Button } from "@/components/ui/button";
 import { FeedbackChip } from "@/components/menu/feedback-chip";
 import { submitSurveyAction } from "@/features/menu/routes/actions";
 import { TASTE_OPTIONS, SPEED_OPTIONS, PACKAGING_OPTIONS } from "@/features/menu/services/review-schemas";
+import {
+  menuCopy,
+  answeredOfLabel,
+  TASTE_LABEL,
+  SPEED_LABEL,
+  PACKAGING_LABEL,
+  type MenuLang,
+} from "@/features/menu/utils/menu-language";
 
-const TASTE_LABEL: Record<string, string> = { EXCELLENT: "عالی", GOOD: "خوب", AVERAGE: "متوسط", POOR: "ضعیف" };
-const SPEED_LABEL: Record<string, string> = {
-  EARLY: "زودتر از انتظار",
-  ON_TIME: "به‌موقع",
-  LATE: "کمی دیر",
-  VERY_LATE: "خیلی دیر",
-};
-const PACKAGING_LABEL: Record<string, string> = { NEAT: "مرتب و سالم", ACCEPTABLE: "قابل قبول", POOR: "نامناسب" };
-
-const QUESTIONS = [
-  { key: "taste" as const, title: "کیفیت غذا چطور بود؟", options: TASTE_OPTIONS, labels: TASTE_LABEL },
-  { key: "speed" as const, title: "سرعت تحویل چطور بود؟", options: SPEED_OPTIONS, labels: SPEED_LABEL },
-  {
-    key: "packaging" as const,
-    title: "بسته‌بندی سفارش چطور بود؟",
-    options: PACKAGING_OPTIONS,
-    labels: PACKAGING_LABEL,
-  },
-];
-
-type Answers = Partial<Record<(typeof QUESTIONS)[number]["key"], string>>;
+type Answers = Partial<Record<"taste" | "speed" | "packaging", string>>;
 
 /** Dismissible bottom sheet shown on the receipt page right after checkout — Customer Feedback.dc.html's "نظرسنجی کوتاه روی صفحه رسید" frame. */
-export function SurveySheet({ orderId }: { orderId: string }) {
+export function SurveySheet({ orderId, lang = "fa" }: { orderId: string; lang?: MenuLang }) {
   const [open, setOpen] = React.useState(true);
   const [answers, setAnswers] = React.useState<Answers>({});
   const [pending, setPending] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [done, setDone] = React.useState(false);
+  const t = menuCopy(lang);
+
+  const QUESTIONS = [
+    { key: "taste" as const, title: t.tasteQuestion, options: TASTE_OPTIONS, labels: TASTE_LABEL[lang] },
+    { key: "speed" as const, title: t.speedQuestion, options: SPEED_OPTIONS, labels: SPEED_LABEL[lang] },
+    { key: "packaging" as const, title: t.packagingQuestion, options: PACKAGING_OPTIONS, labels: PACKAGING_LABEL[lang] },
+  ];
 
   if (!open || done) return null;
 
@@ -70,13 +65,11 @@ export function SurveySheet({ orderId }: { orderId: string }) {
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-[16.5px] font-semibold">۳ سوال کوتاه، ۲۰ ثانیه</div>
-            <div className="mt-1 text-[12.5px] font-light text-text-3">
-              اختیاری · به بهتر شدن سرویس کمک می‌کند
-            </div>
+            <div className="text-[16.5px] font-semibold">{t.surveyTitle}</div>
+            <div className="mt-1 text-[12.5px] font-light text-text-3">{t.surveySubtitle}</div>
           </div>
           <span className="whitespace-nowrap rounded-lg bg-brand/10 px-2.5 py-1.5 text-xs font-medium text-brand">
-            {answeredCount} از ۳
+            {answeredOfLabel(lang, answeredCount)}
           </span>
         </div>
 
@@ -128,10 +121,10 @@ export function SurveySheet({ orderId }: { orderId: string }) {
             onClick={handleSubmit}
             className="flex-1"
           >
-            {pending ? "در حال ثبت…" : "ثبت پاسخ‌ها"}
+            {pending ? t.submittingReview : t.submitAnswers}
           </Button>
           <Button variant="secondary" onClick={() => setOpen(false)} className="w-[100px]">
-            رد کردن
+            {t.dismiss}
           </Button>
         </div>
       </div>

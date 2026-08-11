@@ -1,28 +1,33 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { OrderStatus } from "@/lib/generated/prisma/enums";
+import { menuCopy, type MenuLang } from "@/features/menu/utils/menu-language";
 
-const STEPS: { key: OrderStatus; label: string }[] = [
-  { key: "NEW", label: "ثبت سفارش" },
-  { key: "PREPARING", label: "در حال آماده‌سازی" },
-  { key: "READY", label: "آماده تحویل" },
-  { key: "DELIVERED", label: "تحویل شد" },
-];
 const ORDER_INDEX: Record<OrderStatus, number> = { NEW: 0, PREPARING: 1, READY: 2, DELIVERED: 3, CANCELED: -1 };
 
 export function OrderStatusTimeline({
   status,
   createdAtLabel,
   updatedAtLabel,
+  lang = "fa",
 }: {
   status: OrderStatus;
   createdAtLabel: string;
   updatedAtLabel: string;
+  lang?: MenuLang;
 }) {
+  const t = menuCopy(lang);
+  const STEPS: { key: OrderStatus; label: string }[] = [
+    { key: "NEW", label: t.stepNew },
+    { key: "PREPARING", label: t.stepPreparing },
+    { key: "READY", label: t.stepReady },
+    { key: "DELIVERED", label: t.stepDelivered },
+  ];
+
   if (status === "CANCELED") {
     return (
       <div className="rounded-2xl border border-[#F0DADA] bg-[#FBECEC] p-4 text-center text-sm text-[#C15656]">
-        این سفارش لغو شده است
+        {t.orderCanceledMsg}
       </div>
     );
   }
