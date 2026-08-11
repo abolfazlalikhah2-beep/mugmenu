@@ -53,10 +53,11 @@ export function ImageUploadField({
     formData.set("file", file);
     try {
       const result = await uploadImageAction(kind, formData);
-      if (result.error) setError(result.error);
-      else if (result.url) {
+      if (result.url) {
         setUrl(result.url);
         onUrlChange?.(result.url);
+      } else {
+        setError(result.error || "آپلود تصویر با خطا مواجه شد. دوباره تلاش کنید.");
       }
     } catch {
       setError("آپلود تصویر با خطا مواجه شد. دوباره تلاش کنید.");

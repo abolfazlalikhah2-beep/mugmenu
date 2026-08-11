@@ -65,6 +65,29 @@ export interface UploadImageInput {
 }
 
 /**
+ * Network-level S3 client failures (e.g. ECONNREFUSED when the endpoint is
+ * unreachable) surface as an `AggregateError` with an empty top-level
+ * `.message` — the real reason is nested one level down in `.errors`. Left
+ * as-is, that empty string makes the failure look silent all the way up
+ * through uploadImageAction and ImageUploadField (both only show an error
+ * when the message is truthy), so this always returns something non-empty.
+ */
+function describeUploadError(e: unknown): string {
+  if (e instanceof Error) {
+    if (e.message) return e.message;
+    const nested = (e as { errors?: unknown[] }).errors;
+    if (Array.isArray(nested) && nested.length > 0) {
+      const first = nested[0];
+      if (first instanceof Error && first.message) return first.message;
+      const code = (first as { code?: string } | undefined)?.code;
+      if (code) return code;
+    }
+    if (e.name) return e.name;
+  }
+  return String(e);
+}
+
+/**
  * Uploads a file and returns its public URL. The bucket itself must be
  * configured for public read (bucket policy / public bucket setting) —
  * this does not set a per-object ACL, since several S3-compatible
@@ -75,14 +98,18 @@ export async function uploadImage(input: UploadImageInput): Promise<string> {
   const s3 = getClient(config);
   const key = `${input.kind}/${input.businessId}/${randomUUID()}.${input.extension}`;
 
-  await s3.send(
-    new PutObjectCommand({
-      Bucket: config.bucket,
-      Key: key,
-      Body: input.buffer,
-      ContentType: input.contentType,
-    })
-  );
+  try {
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: config.bucket,
+        Key: key,
+        Body: input.buffer,
+        ContentType: input.contentType,
+      })
+    );
+  } catch (e) {
+    throw new Error(`آپلود به فضای ذخیره‌سازی S3 با خطا مواجه شد: ${describeUploadError(e)}`);
+  }
 
   const base = config.publicUrl?.replace(/\/$/, "") ?? `${config.endpoint.replace(/\/$/, "")}/${config.bucket}`;
   return `${base}/${key}`;

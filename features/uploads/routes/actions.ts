@@ -40,12 +40,9 @@ export async function uploadImageAction(kind: string, formData: FormData): Promi
     logger.info("uploads.image_uploaded", { businessId, kind: kindParsed.data });
     return { url };
   } catch (e) {
-    logger.error("uploads.image_upload_failed", {
-      businessId,
-      kind: kindParsed.data,
-      error: e instanceof Error ? e.message : String(e),
-    });
-    return { error: e instanceof Error ? e.message : "آپلود تصویر با خطا مواجه شد." };
+    const message = e instanceof Error ? e.message : String(e);
+    logger.error("uploads.image_upload_failed", { businessId, kind: kindParsed.data, error: message });
+    return { error: message || "آپلود تصویر با خطا مواجه شد." };
   }
 }
 
@@ -70,10 +67,8 @@ export async function uploadTicketAttachmentAction(formData: FormData): Promise<
     logger.info("uploads.ticket_attachment_uploaded", { businessId });
     return { url };
   } catch (e) {
-    logger.error("uploads.ticket_attachment_upload_failed", {
-      businessId,
-      error: e instanceof Error ? e.message : String(e),
-    });
-    return { error: e instanceof Error ? e.message : "آپلود فایل با خطا مواجه شد." };
+    const message = e instanceof Error ? e.message : String(e);
+    logger.error("uploads.ticket_attachment_upload_failed", { businessId, error: message });
+    return { error: message || "آپلود فایل با خطا مواجه شد." };
   }
 }
