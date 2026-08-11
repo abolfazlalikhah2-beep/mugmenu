@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const UPLOAD_KINDS = ["products", "categories", "logos", "tickets"] as const;
+export const UPLOAD_KINDS = ["products", "categories", "logos", "hero", "tickets"] as const;
 export type UploadKind = (typeof UPLOAD_KINDS)[number];
 
 export const uploadKindSchema = z.enum(UPLOAD_KINDS);

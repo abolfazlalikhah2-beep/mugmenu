@@ -5,6 +5,8 @@ import { getReceiptData } from "@/features/menu/services/menu-service";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { MenuImage } from "@/components/menu/menu-image";
 import { Button } from "@/components/ui/button";
+import { StarIcon } from "@/components/ui/rating";
+import { SurveySheet } from "@/components/menu/survey-sheet";
 import { formatToman } from "@/features/menu/utils/money";
 
 const TYPE_LABEL: Record<string, string> = {
@@ -88,6 +90,23 @@ export default async function ReceiptPage({
         />
       </div>
 
+      {order.reviews.length === 0 && (
+        <div className="mx-4 mt-3.5 flex items-center justify-between gap-3 rounded-card-sm border border-brand/[0.18] bg-brand/[0.05] p-4 md:mx-10">
+          <div className="flex items-center gap-2.5">
+            <StarIcon size={18} />
+            <div className="text-right">
+              <div className="text-[13.5px] font-medium">تجربه‌تان چطور بود؟</div>
+              <div className="mt-0.5 text-[11.5px] font-light text-text-3">با ثبت نظر امتیاز باشگاه مشتریان بگیرید</div>
+            </div>
+          </div>
+          <Link href={`/${cafeSlug}/receipt/${orderId}/review`}>
+            <Button variant="secondary" className="h-10 shrink-0 px-4 text-sm">
+              ثبت نظر
+            </Button>
+          </Link>
+        </div>
+      )}
+
       <div className="mx-4 my-5 flex flex-col gap-3 md:mx-10 md:flex-row">
         <Link href={`/${cafeSlug}/receipt/${orderId}`} className="flex-1">
           <Button variant="primary" className="w-full">
@@ -100,6 +119,8 @@ export default async function ReceiptPage({
           </Button>
         </Link>
       </div>
+
+      {!order.survey && <SurveySheet orderId={orderId} />}
     </MenuPageShell>
   );
 }

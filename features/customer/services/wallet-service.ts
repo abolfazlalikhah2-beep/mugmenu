@@ -7,6 +7,7 @@ import {
   computeLoyaltyTier,
   isRewardUnlocked,
   LOYALTY_REWARDS,
+  REVIEW_LOYALTY_POINTS,
 } from "@/features/customer/services/loyalty";
 
 export async function getWalletAndLoyaltySummary(customerAccountId: string) {
@@ -47,4 +48,15 @@ export async function creditCashbackForOrder(customerAccountId: string, orderId:
 
   logger.info("customer.cashback_credited", { customerAccountId, orderId, cashback, points });
   return { cashback, points };
+}
+
+/** Flat loyalty-point award for submitting a review (features/menu's review-service). No wallet ledger entry — this isn't cashback. */
+export async function awardReviewPoints(customerAccountId: string, orderId: string) {
+  await repo.incrementLoyaltyPoints(customerAccountId, REVIEW_LOYALTY_POINTS);
+  logger.info("customer.review_points_awarded", {
+    customerAccountId,
+    orderId,
+    points: REVIEW_LOYALTY_POINTS,
+  });
+  return REVIEW_LOYALTY_POINTS;
 }

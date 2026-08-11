@@ -15,6 +15,7 @@ export interface RestaurantHeaderProps {
   isAcceptingOrders: boolean;
   rating: string | null;
   reviews: { customerName: string; rating: number; comment: string | null }[];
+  logoUrl?: string | null;
 }
 
 export function RestaurantHeader({
@@ -25,6 +26,7 @@ export function RestaurantHeader({
   isAcceptingOrders,
   rating,
   reviews,
+  logoUrl,
 }: RestaurantHeaderProps) {
   const [infoOpen, setInfoOpen] = React.useState(false);
 
@@ -32,7 +34,7 @@ export function RestaurantHeader({
     <>
       <div className="flex flex-wrap items-start justify-between gap-3 px-4.5 pt-4 pb-1 md:px-6.5 md:pt-5.5">
         <div className="flex items-start gap-3.5">
-          <LogoBox size={54} />
+          <LogoBox size={54} logoUrl={logoUrl} />
           <div className="flex flex-col gap-1.5 text-right">
             <span className="text-[17px] font-normal md:text-xl">{name}</span>
             <AcceptingOrdersLine isAcceptingOrders={isAcceptingOrders} />
@@ -65,6 +67,7 @@ export function RestaurantHeader({
         openingHours={openingHours}
         isAcceptingOrders={isAcceptingOrders}
         reviews={reviews}
+        logoUrl={logoUrl}
       />
     </>
   );

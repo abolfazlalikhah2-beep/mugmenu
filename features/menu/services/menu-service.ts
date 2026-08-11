@@ -25,6 +25,11 @@ export async function getMenuEntryData(slug: string) {
   };
 }
 
+export async function getBusinessAccentColor(slug: string) {
+  const business = await repo.getBusinessAccentColor(slug);
+  return business?.accentColor ?? null;
+}
+
 export async function getCategoryBrowserData(slug: string) {
   const business = await repo.getBusiness(slug);
   if (!business) return null;
@@ -55,4 +60,14 @@ export async function getItemReviewsData(productId: string) {
 
 export function getReceiptData(orderId: string) {
   return repo.getOrder(orderId);
+}
+
+export async function getReviewFormData(orderId: string) {
+  const order = await repo.getOrder(orderId);
+  if (!order) return null;
+  return {
+    order,
+    alreadyReviewed: order.reviews.length > 0,
+    pointsEligible: order.customerAccountId !== null,
+  };
 }

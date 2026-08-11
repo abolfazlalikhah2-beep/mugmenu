@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { HERO_BG_KEYS } from "@/features/menu/utils/hero-background";
 
 const optionalImageUrl = z
   .string()
@@ -39,6 +40,18 @@ export const orderSettingsSchema = z.object({
   prepTimeDineIn: z.coerce.number().int().min(1, "زمان آماده‌سازی باید حداقل ۱ دقیقه باشد.").max(240),
   prepTimeTakeaway: z.coerce.number().int().min(1, "زمان آماده‌سازی باید حداقل ۱ دقیقه باشد.").max(240),
   prepTimeDelivery: z.coerce.number().int().min(1, "زمان آماده‌سازی باید حداقل ۱ دقیقه باشد.").max(240),
+});
+
+export const menuAppearanceSchema = z.object({
+  accentColor: z
+    .string()
+    .trim()
+    .regex(/^#[0-9A-Fa-f]{6}$/, "کد رنگ معتبر نیست.")
+    .transform((v) => v.toUpperCase()),
+  logoUrl: optionalImageUrl,
+  heroBgKey: z.enum(HERO_BG_KEYS),
+  heroImageUrl: optionalImageUrl,
+  heroOverlayOpacity: z.coerce.number().int().min(0).max(100),
 });
 
 export const qrSettingsSchema = z.object({

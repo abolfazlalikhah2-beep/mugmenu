@@ -120,6 +120,23 @@ export async function updatePaymentSettingsAction(
   return { ok: true };
 }
 
+export async function updateMenuAppearanceAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await settingsService.updateMenuAppearance(businessId, {
+    accentColor: String(formData.get("accentColor") ?? ""),
+    logoUrl: String(formData.get("logoUrl") ?? ""),
+    heroBgKey: String(formData.get("heroBgKey") ?? ""),
+    heroImageUrl: String(formData.get("heroImageUrl") ?? ""),
+    heroOverlayOpacity: String(formData.get("heroOverlayOpacity") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/settings");
+  return { ok: true };
+}
+
 export async function createPrinterAction(
   _prevState: ActionState,
   formData: FormData

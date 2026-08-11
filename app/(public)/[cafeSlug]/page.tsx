@@ -4,8 +4,9 @@ import { getMenuEntryData } from "@/features/menu/services/menu-service";
 import { getCustomerSession } from "@/features/customer/services/customer-session-service";
 import { getAccountProfile } from "@/features/customer/services/customer-auth-service";
 import { getWalletAndLoyaltySummary } from "@/features/customer/services/wallet-service";
+import { resolveHeroBackground } from "@/features/menu/utils/hero-background";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
-import { MenuImage } from "@/components/menu/menu-image";
+import { MenuHero } from "@/components/menu/menu-hero";
 import { RestaurantHeader } from "@/components/menu/restaurant-header";
 import { OrderTypeRow } from "@/components/menu/order-type-row";
 import { FooterBrand } from "@/components/menu/footer-brand";
@@ -33,10 +34,16 @@ export default async function MenuEntryPage({
       ])
     : [null, null];
 
+  const heroBackground = resolveHeroBackground(business);
+
   return (
     <MenuPageShell>
       <div className="relative">
-        <MenuImage label="بنر فضای رستوران" className="h-[200px] w-full md:h-[210px]" />
+        <MenuHero
+          background={heroBackground}
+          overlayOpacity={business.heroOverlayOpacity}
+          className="h-[200px] w-full md:h-[210px]"
+        />
         <MenuEntryBadge slug={cafeSlug} loggedIn={Boolean(account)} initial={account?.fullName.slice(0, 1)} />
       </div>
       <RestaurantHeader
@@ -47,6 +54,7 @@ export default async function MenuEntryPage({
         isAcceptingOrders={business.isAcceptingOrders}
         rating={rating}
         reviews={recentReviews}
+        logoUrl={business.logoUrl}
       />
       {walletSummary ? (
         <MenuWalletTeaser slug={cafeSlug} walletBalance={walletSummary.walletBalance} loyaltyPoints={walletSummary.loyaltyPoints} />

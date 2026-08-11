@@ -15,6 +15,7 @@ export interface BusinessInfoModalProps {
   openingHours: string | null;
   isAcceptingOrders: boolean;
   reviews: { customerName: string; rating: number; comment: string | null }[];
+  logoUrl?: string | null;
 }
 
 function InfoRow({
@@ -50,6 +51,7 @@ export function BusinessInfoModal({
   openingHours,
   isAcceptingOrders,
   reviews,
+  logoUrl,
 }: BusinessInfoModalProps) {
   if (!open) return null;
 
@@ -67,7 +69,7 @@ export function BusinessInfoModal({
 
           <div className="flex flex-wrap items-start justify-between gap-3.5">
             <div className="flex gap-3.5">
-              <LogoBox size={64} />
+              <LogoBox size={64} logoUrl={logoUrl} />
               <div className="flex flex-col gap-1.5 text-right">
                 <div className="text-lg font-normal">{name}</div>
                 {address && (

@@ -9,6 +9,8 @@
 export const CASHBACK_PERCENT = 5;
 const TOMAN_PER_LOYALTY_POINT = 1000;
 const GOLD_TIER_THRESHOLD = 2000;
+/** Flat award for submitting a post-order review (Customer Feedback.dc.html), unrelated to order-total-based points above. */
+export const REVIEW_LOYALTY_POINTS = 50;
 
 export function computeCashback(orderTotal: number): number {
   return Math.round((orderTotal * CASHBACK_PERCENT) / 100);

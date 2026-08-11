@@ -6,6 +6,11 @@ export function getBusiness(slug: string) {
   return prisma.business.findUnique({ where: { slug } });
 }
 
+/** Just the accent color, for the per-business CSS var theming in CafeLayout. */
+export function getBusinessAccentColor(slug: string) {
+  return prisma.business.findUnique({ where: { slug }, select: { accentColor: true } });
+}
+
 export function getCategories(businessId: string) {
   return prisma.category.findMany({
     where: { businessId, isActive: true },
@@ -66,7 +71,7 @@ export function getProductRatingAggregate(productId: string) {
 export function getOrder(id: string) {
   return prisma.order.findUnique({
     where: { id },
-    include: { items: { include: { product: true } }, business: true },
+    include: { items: { include: { product: true } }, business: true, reviews: true, survey: true },
   });
 }
 
@@ -88,5 +93,39 @@ export function createOrder(data: CreateOrderData) {
   const { items, ...rest } = data;
   return prisma.order.create({
     data: { ...rest, items: { create: items } },
+  });
+}
+
+export interface CreateReviewData {
+  businessId: string;
+  orderId: string;
+  customerName: string;
+  anonymous: boolean;
+  rating: number;
+  comment?: string;
+  tags: string[];
+  /** One Review row is created per product id; an empty list creates a single business-level review (productId null). */
+  productIds: string[];
+}
+
+export function createReviews(data: CreateReviewData) {
+  const { productIds, ...rest } = data;
+  const targets = productIds.length > 0 ? productIds : [null];
+  return prisma.$transaction(
+    targets.map((productId) => prisma.review.create({ data: { ...rest, productId } }))
+  );
+}
+
+export function upsertOrderSurvey(data: {
+  orderId: string;
+  taste: string;
+  speed: string;
+  packaging: string;
+}) {
+  const { orderId, ...answers } = data;
+  return prisma.orderSurvey.upsert({
+    where: { orderId },
+    create: { orderId, ...answers },
+    update: answers,
   });
 }

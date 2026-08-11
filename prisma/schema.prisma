@@ -36,6 +36,15 @@ model Business {
   qrShowInfo           Boolean  @default(true)
   qrShowHours          Boolean  @default(true)
   qrShowLogo           Boolean  @default(true)
+  // Menu Appearance (dashboard "ظاهر منو" tab, from Admin Menu Appearance
+  // dc.html) — accentColor overrides --color-brand for this business's
+  // whole public menu (see app/(public)/[cafeSlug]/layout.tsx). heroBgKey
+  // is one of features/menu/utils/hero-background.ts's HERO_BG_KEYS
+  // ("photo" uses heroImageUrl, the rest are fixed gradient presets).
+  accentColor          String   @default("#328C3D")
+  heroBgKey            String   @default("g1")
+  heroImageUrl         String?
+  heroOverlayOpacity   Int      @default(45)
   // No real SMS provider chosen yet (phase 3, see CLAUDE.md) — see
   // lib/sms/sms-provider.ts. smsConnected/smsCreditCount are set by the
   // mock provider's "save and test connection" action.
@@ -194,6 +203,8 @@ model Order {
 
   items              OrderItem[]
   walletTransactions WalletTransaction[]
+  reviews            Review[]
+  survey             OrderSurvey?
 
   @@index([businessId])
   @@index([customerAccountId])
@@ -488,12 +499,45 @@ model Review {
   business     Business @relation(fields: [businessId], references: [id])
   productId    String?
   product      Product? @relation(fields: [productId], references: [id])
+  // Set when submitted from the post-order review flow (see
+  // features/menu/services/review-service.ts). Null for reviews without a
+  // known order (none exist yet outside seed data, but the field stays
+  // optional rather than backfilling a fake order).
+  orderId      String?
+  order        Order?   @relation(fields: [orderId], references: [id])
   customerName String
+  // Hides customerName in customer-facing review lists; the name is still
+  // stored (needed for the existing @@unique constraint below and for the
+  // admin panel), just not displayed. Set from the review form's "ثبت
+  // به‌صورت ناشناس" toggle.
+  anonymous    Boolean  @default(false)
   rating       Int
   comment      String?
+  // Fixed quick-pick chips from the review form (see TAG_OPTIONS in
+  // review-schemas.ts) — free text, not an enum, since they're display-only
+  // and not used for filtering/reporting yet.
+  tags         String[] @default([])
   createdAt    DateTime @default(now())
 
   @@unique([productId, customerName])
   @@index([businessId])
   @@index([productId])
+  @@index([orderId])
+}
+
+// The optional 3-question quick survey shown as a bottom sheet on the
+// receipt page right after an order (see Customer Feedback.dc.html) —
+// deliberately separate from Review: it's about the order/delivery
+// experience, not a specific product, and has its own fixed answer sets.
+model OrderSurvey {
+  id        String   @id @default(cuid())
+  orderId   String   @unique
+  order     Order    @relation(fields: [orderId], references: [id])
+  // English keys validated by review-schemas.ts's TASTE/SPEED/PACKAGING
+  // option lists; mapped to Persian labels in the UI, same convention as
+  // OrderType/TYPE_LABEL.
+  taste     String
+  speed     String
+  packaging String
+  createdAt DateTime @default(now())
 }

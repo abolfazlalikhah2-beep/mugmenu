@@ -6,6 +6,7 @@ import {
   orderSettingsSchema,
   qrSettingsSchema,
   paymentSettingsSchema,
+  menuAppearanceSchema,
 } from "@/features/dashboard/services/dashboard-schemas";
 
 export type ServiceResult = { ok: true } | { ok: false; error: string };
@@ -47,6 +48,15 @@ export async function updatePaymentSettings(businessId: string, input: unknown):
 
   await repo.updateBusiness(businessId, parsed.data);
   logger.info("dashboard.payment_settings_updated", { businessId });
+  return { ok: true };
+}
+
+export async function updateMenuAppearance(businessId: string, input: unknown): Promise<ServiceResult> {
+  const parsed = menuAppearanceSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  await repo.updateBusiness(businessId, parsed.data);
+  logger.info("dashboard.menu_appearance_updated", { businessId });
   return { ok: true };
 }
 

@@ -18,6 +18,7 @@ export function ImageUploadField({
   helpText,
   className,
   boxClassName,
+  onUrlChange,
 }: {
   kind: UploadKind;
   name: string;
@@ -26,6 +27,8 @@ export function ImageUploadField({
   helpText?: string;
   className?: string;
   boxClassName?: string;
+  /** Called with the new URL right after a successful upload — for callers that mirror it into a live preview. */
+  onUrlChange?: (url: string) => void;
 }) {
   const [url, setUrl] = React.useState(defaultUrl ?? "");
   const [pending, setPending] = React.useState(false);
@@ -51,7 +54,10 @@ export function ImageUploadField({
     try {
       const result = await uploadImageAction(kind, formData);
       if (result.error) setError(result.error);
-      else if (result.url) setUrl(result.url);
+      else if (result.url) {
+        setUrl(result.url);
+        onUrlChange?.(result.url);
+      }
     } catch {
       setError("آپلود تصویر با خطا مواجه شد. دوباره تلاش کنید.");
     } finally {
