@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { BusinessInfoTab } from "@/components/dashboard/business-info-tab";
 import { OrderSettingsTab } from "@/components/dashboard/order-settings-tab";
 import { MenuAppearanceTab } from "@/components/dashboard/menu-appearance-tab";
+import { LanguageSettingsTab, type ProductTranslationRow } from "@/components/dashboard/language-settings-tab";
 import { QrSettingsTab } from "@/components/dashboard/qr-settings-tab";
 import { PrinterSettingsTab } from "@/components/dashboard/printer-settings-tab";
 import { PaymentTab } from "@/components/dashboard/payment-tab";
@@ -35,16 +36,21 @@ export interface SettingsFormValue {
   heroBgKey: string;
   heroImageUrl: string | null;
   heroOverlayOpacity: number;
+  bilingualMenuEnabled: boolean;
+  askLanguageOnEntry: boolean;
+  rememberCustomerLanguage: boolean;
 }
 
-const TABS = ["اطلاعات فروشگاه", "ظاهر منو", "تنظیمات سفارش", "QR Code", "پرینتر", "پرداخت"] as const;
+const TABS = ["اطلاعات فروشگاه", "ظاهر منو", "زبان", "تنظیمات سفارش", "QR Code", "پرینتر", "پرداخت"] as const;
 
 export function SettingsView({
   business,
   printers,
+  products,
 }: {
   business: SettingsFormValue;
   printers: PrinterFormValue[];
+  products: ProductTranslationRow[];
 }) {
   const [tab, setTab] = useState(0);
 
@@ -69,10 +75,11 @@ export function SettingsView({
       <div className="flex-1 overflow-y-auto pb-6">
         {tab === 0 && <BusinessInfoTab business={business} />}
         {tab === 1 && <MenuAppearanceTab business={business} />}
-        {tab === 2 && <OrderSettingsTab business={business} />}
-        {tab === 3 && <QrSettingsTab business={business} />}
-        {tab === 4 && <PrinterSettingsTab printers={printers} />}
-        {tab === 5 && <PaymentTab business={business} />}
+        {tab === 2 && <LanguageSettingsTab business={business} products={products} />}
+        {tab === 3 && <OrderSettingsTab business={business} />}
+        {tab === 4 && <QrSettingsTab business={business} />}
+        {tab === 5 && <PrinterSettingsTab printers={printers} />}
+        {tab === 6 && <PaymentTab business={business} />}
       </div>
     </div>
   );

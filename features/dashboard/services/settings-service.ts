@@ -7,6 +7,7 @@ import {
   qrSettingsSchema,
   paymentSettingsSchema,
   menuAppearanceSchema,
+  languageSettingsSchema,
 } from "@/features/dashboard/services/dashboard-schemas";
 
 export type ServiceResult = { ok: true } | { ok: false; error: string };
@@ -57,6 +58,15 @@ export async function updateMenuAppearance(businessId: string, input: unknown): 
 
   await repo.updateBusiness(businessId, parsed.data);
   logger.info("dashboard.menu_appearance_updated", { businessId });
+  return { ok: true };
+}
+
+export async function updateLanguageSettings(businessId: string, input: unknown): Promise<ServiceResult> {
+  const parsed = languageSettingsSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  await repo.updateBusiness(businessId, parsed.data);
+  logger.info("dashboard.language_settings_updated", { businessId });
   return { ok: true };
 }
 

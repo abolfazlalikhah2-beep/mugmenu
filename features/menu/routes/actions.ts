@@ -1,10 +1,13 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import * as orderService from "@/features/menu/services/order-service";
 import * as reviewService from "@/features/menu/services/review-service";
 import type { OrderType } from "@/features/menu/services/order-flow";
 import { getCustomerSession } from "@/features/customer/services/customer-session-service";
+import { setMenuLangCookie } from "@/features/menu/services/menu-language-service";
+import { isMenuLang } from "@/features/menu/utils/menu-language";
 
 export interface CreateOrderActionInput {
   slug: string;
@@ -51,4 +54,10 @@ export interface SubmitSurveyActionInput {
 
 export async function submitSurveyAction(input: SubmitSurveyActionInput) {
   return reviewService.submitSurvey(input);
+}
+
+export async function setMenuLanguageAction(slug: string, lang: string) {
+  if (!isMenuLang(lang)) return;
+  await setMenuLangCookie(slug, lang);
+  revalidatePath(`/${slug}`);
 }

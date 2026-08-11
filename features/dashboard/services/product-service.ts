@@ -1,7 +1,7 @@
 import "server-only";
 import { logger } from "@/lib/logger";
 import * as repo from "@/features/dashboard/repositories/dashboard-repository";
-import { productSchema } from "@/features/dashboard/services/dashboard-schemas";
+import { productSchema, productTranslationSchema } from "@/features/dashboard/services/dashboard-schemas";
 
 export type ServiceResult = { ok: true } | { ok: false; error: string };
 
@@ -47,6 +47,22 @@ export async function updateProduct(
 
   await repo.updateProduct(productId, parsed.data);
   logger.info("dashboard.product_updated", { businessId, productId });
+  return { ok: true };
+}
+
+export async function updateProductTranslation(
+  businessId: string,
+  productId: string,
+  input: unknown
+): Promise<ServiceResult> {
+  const existing = await repo.getProductForEdit(productId);
+  if (!existing || existing.businessId !== businessId) {
+    return { ok: false, error: "محصول پیدا نشد." };
+  }
+  const parsed = productTranslationSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  await repo.updateProduct(productId, parsed.data);
   return { ok: true };
 }
 

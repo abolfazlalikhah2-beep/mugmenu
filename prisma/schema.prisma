@@ -45,6 +45,13 @@ model Business {
   heroBgKey            String   @default("g1")
   heroImageUrl         String?
   heroOverlayOpacity   Int      @default(45)
+  // Menu Language (dashboard "زبان" tab, from Menu Language Toggle dc.html).
+  // Only fa (default) / en (secondary) are supported today — see
+  // features/menu/services/menu-language.ts — so there's no stored
+  // default/secondary language pair, just whether the bilingual UI is on.
+  bilingualMenuEnabled     Boolean @default(false)
+  askLanguageOnEntry       Boolean @default(true)
+  rememberCustomerLanguage Boolean @default(true)
   // No real SMS provider chosen yet (phase 3, see CLAUDE.md) — see
   // lib/sms/sms-provider.ts. smsConnected/smsCreditCount are set by the
   // mock provider's "save and test connection" action.
@@ -151,6 +158,11 @@ model Product {
   category        Category @relation(fields: [categoryId], references: [id])
   name            String
   description     String?
+  // English translation for the bilingual customer menu (dashboard "زبان" ›
+  // "ترجمه آیتم‌های منو"). Optional — untranslated items fall back to the
+  // Persian name/description on the public menu (see menu-language.ts).
+  nameEn          String?
+  descriptionEn   String?
   price           Int
   discountPercent Int?
   imageUrl        String?

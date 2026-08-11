@@ -1,7 +1,7 @@
-export function MenuPageShell({ children }: { children: React.ReactNode }) {
+export function MenuPageShell({ children, dir }: { children: React.ReactNode; dir?: "rtl" | "ltr" }) {
   return (
     <div className="min-h-screen bg-[#EDEEED] md:py-10">
-      <div className="mx-auto max-w-[880px] overflow-hidden bg-card md:rounded-card md:shadow-modal">
+      <div dir={dir} className="mx-auto max-w-[880px] overflow-hidden bg-card md:rounded-card md:shadow-modal">
         {children}
       </div>
     </div>

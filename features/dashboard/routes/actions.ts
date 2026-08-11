@@ -137,6 +137,45 @@ export async function updateMenuAppearanceAction(
   return { ok: true };
 }
 
+export async function updateLanguageSettingsAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await settingsService.updateLanguageSettings(businessId, {
+    bilingualMenuEnabled: bool(formData, "bilingualMenuEnabled"),
+    askLanguageOnEntry: bool(formData, "askLanguageOnEntry"),
+    rememberCustomerLanguage: bool(formData, "rememberCustomerLanguage"),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/settings");
+  return { ok: true };
+}
+
+export async function updateProductTranslationsAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+
+  let rows: { productId: string; nameEn?: string; descriptionEn?: string }[] = [];
+  try {
+    rows = JSON.parse(String(formData.get("translations") ?? "[]"));
+  } catch {
+    rows = [];
+  }
+
+  for (const row of rows) {
+    const result = await productService.updateProductTranslation(businessId, row.productId, {
+      nameEn: row.nameEn ?? "",
+      descriptionEn: row.descriptionEn ?? "",
+    });
+    if (!result.ok) return { error: result.error };
+  }
+  revalidatePath("/dashboard/settings");
+  return { ok: true };
+}
+
 export async function createPrinterAction(
   _prevState: ActionState,
   formData: FormData

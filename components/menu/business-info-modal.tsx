@@ -5,6 +5,8 @@ import { LogoBox } from "@/components/menu/logo-box";
 import { AcceptingOrdersLine } from "@/components/menu/status-line";
 import { MenuImage } from "@/components/menu/menu-image";
 import { StarIcon } from "@/components/ui/rating";
+import { menuCopy, type MenuLang } from "@/features/menu/utils/menu-language";
+import { cn } from "@/lib/utils";
 
 export interface BusinessInfoModalProps {
   open: boolean;
@@ -16,6 +18,7 @@ export interface BusinessInfoModalProps {
   isAcceptingOrders: boolean;
   reviews: { customerName: string; rating: number; comment: string | null }[];
   logoUrl?: string | null;
+  lang?: MenuLang;
 }
 
 function InfoRow({
@@ -52,8 +55,11 @@ export function BusinessInfoModal({
   isAcceptingOrders,
   reviews,
   logoUrl,
+  lang = "fa",
 }: BusinessInfoModalProps) {
   if (!open) return null;
+  const t = menuCopy(lang);
+  const align = lang === "en" ? "text-left" : "text-right";
 
   return (
     <div className="fixed inset-0 z-50 flex md:items-center md:justify-center md:bg-black/16">
@@ -61,7 +67,7 @@ export function BusinessInfoModal({
         <div className="flex flex-col gap-4.5 p-6 pt-11 md:p-8">
           <button
             onClick={onClose}
-            aria-label="بستن"
+            aria-label={t.close}
             className="absolute top-6 left-5 text-[#969696] md:top-7 md:left-7"
           >
             <X size={26} strokeWidth={1.6} />
@@ -70,7 +76,7 @@ export function BusinessInfoModal({
           <div className="flex flex-wrap items-start justify-between gap-3.5">
             <div className="flex gap-3.5">
               <LogoBox size={64} logoUrl={logoUrl} />
-              <div className="flex flex-col gap-1.5 text-right">
+              <div className={cn("flex flex-col gap-1.5", align, lang === "en" && "font-mont")}>
                 <div className="text-lg font-normal">{name}</div>
                 {address && (
                   <div className="flex items-center gap-1.5 text-xs font-light text-text-3">
@@ -78,7 +84,7 @@ export function BusinessInfoModal({
                     {address}
                   </div>
                 )}
-                <AcceptingOrdersLine isAcceptingOrders={isAcceptingOrders} />
+                <AcceptingOrdersLine isAcceptingOrders={isAcceptingOrders} lang={lang} />
               </div>
             </div>
             <MenuImage
@@ -89,30 +95,26 @@ export function BusinessInfoModal({
 
           <div className="flex flex-col gap-3">
             {openingHours && (
-              <InfoRow icon={<Clock size={16} className="text-brand" />} label="ساعت کاری" value={openingHours} />
+              <InfoRow icon={<Clock size={16} className="text-brand" />} label={t.infoHours} value={openingHours} />
             )}
             {phone && (
               <InfoRow
                 icon={<Phone size={15} className="text-brand" />}
-                label="شماره تماس"
+                label={t.infoPhone}
                 value={phone}
                 valueDir="ltr"
               />
             )}
           </div>
 
-          <div className="text-right">
-            <div className="mb-2 text-sm">درباره رستوران</div>
-            <p className="m-0 text-justify text-xs leading-[1.9] font-light text-text-1">
-              رستوران ما با الهام از طعم‌های اصیل و مواد اولیه تازه، تلاش می‌کند لحظاتی
-              خوشمزه و به‌یادماندنی برای شما بسازد. غذا فقط یک وعده نیست، بلکه تجربه‌ای
-              دلنشین است که با عشق، کیفیت و احترام همراه است.
-            </p>
+          <div className={cn(align, lang === "en" && "font-mont")}>
+            <div className="mb-2 text-sm">{t.infoAbout}</div>
+            <p className="m-0 text-justify text-xs leading-[1.9] font-light text-text-1">{t.infoAboutText}</p>
           </div>
 
           {reviews.length > 0 && (
             <div className="flex flex-col gap-3 pt-1">
-              <span className="text-sm">نظرات کاربران</span>
+              <span className={cn("text-sm", lang === "en" && "font-mont")}>{t.infoReviews}</span>
               {reviews.slice(0, 2).map((r, i) => (
                 <div key={i} className="flex items-start gap-3.5">
                   <div className="flex shrink-0 flex-col gap-0.5 text-right">

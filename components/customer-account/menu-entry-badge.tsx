@@ -5,10 +5,12 @@ export function MenuEntryBadge({
   slug,
   loggedIn,
   initial,
+  label,
 }: {
   slug: string;
   loggedIn: boolean;
   initial?: string;
+  label?: string;
 }) {
   return (
     <Link
@@ -23,7 +25,7 @@ export function MenuEntryBadge({
         <User size={20} className="text-brand" />
       )}
       <span className={loggedIn ? "text-[13.5px] font-medium text-ink" : "text-[13.5px] font-medium text-brand"}>
-        {loggedIn ? "حساب من" : "ورود / ثبت‌نام"}
+        {label ?? (loggedIn ? "حساب من" : "ورود / ثبت‌نام")}
       </span>
     </Link>
   );

@@ -54,6 +54,17 @@ export const menuAppearanceSchema = z.object({
   heroOverlayOpacity: z.coerce.number().int().min(0).max(100),
 });
 
+export const languageSettingsSchema = z.object({
+  bilingualMenuEnabled: z.boolean(),
+  askLanguageOnEntry: z.boolean(),
+  rememberCustomerLanguage: z.boolean(),
+});
+
+export const productTranslationSchema = z.object({
+  nameEn: z.string().trim().max(120).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  descriptionEn: z.string().trim().max(1000).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+});
+
 export const qrSettingsSchema = z.object({
   qrShowInfo: z.boolean(),
   qrShowHours: z.boolean(),
