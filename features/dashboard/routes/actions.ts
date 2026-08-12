@@ -11,6 +11,7 @@ import * as printerService from "@/features/dashboard/services/printer-service";
 import * as smsSettingsService from "@/features/dashboard/services/sms-settings-service";
 import * as contactService from "@/features/dashboard/services/contact-service";
 import * as smsService from "@/features/dashboard/services/sms-service";
+import * as loyaltyClubService from "@/features/dashboard/services/loyalty-club-service";
 import * as supportService from "@/features/dashboard/services/support-service";
 import * as productService from "@/features/dashboard/services/product-service";
 import * as categoryService from "@/features/dashboard/services/category-service";
@@ -286,10 +287,54 @@ export async function sendBulkSmsAction(
   const result = await smsService.sendBulkSms(businessId, {
     audience: String(formData.get("audience") ?? ""),
     manualContactIds: formData.getAll("manualContactIds").map(String),
+    loyaltyFilter: String(formData.get("loyaltyFilter") ?? "ALL"),
     text: String(formData.get("text") ?? ""),
   });
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/messages");
+  revalidatePath("/dashboard/customers");
+  return { ok: true, sent: result.sent, failed: result.failed };
+}
+
+export async function updateCashbackSettingsAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await loyaltyClubService.updateCashbackSettings(businessId, {
+    cashbackEnabled: bool(formData, "cashbackEnabled"),
+    cashbackPercent: String(formData.get("cashbackPercent") ?? ""),
+    cashbackCapPerOrder: String(formData.get("cashbackCapPerOrder") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/customers");
+  return { ok: true };
+}
+
+export async function updateBirthdaySettingsAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await loyaltyClubService.updateBirthdaySettings(businessId, {
+    birthdayMessageEnabled: bool(formData, "birthdayMessageEnabled"),
+    birthdayMessageText: String(formData.get("birthdayMessageText") ?? ""),
+    birthdayGiftAmount: String(formData.get("birthdayGiftAmount") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/customers");
+  return { ok: true };
+}
+
+export async function sendBirthdayTestAction(
+  _prevState: SendSmsActionState,
+  formData: FormData
+): Promise<SendSmsActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await loyaltyClubService.sendBirthdayTestMessage(businessId, {
+    phone: String(formData.get("phone") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
   return { ok: true, sent: result.sent, failed: result.failed };
 }
 

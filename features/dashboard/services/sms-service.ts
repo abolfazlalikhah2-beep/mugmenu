@@ -4,13 +4,13 @@ import * as repo from "@/features/dashboard/repositories/dashboard-repository";
 import { singleSmsSchema, bulkSmsSchema } from "@/features/dashboard/services/dashboard-schemas";
 import { aggregateCustomers, type CustomerOrderRecord } from "@/features/dashboard/utils/aggregate-customers";
 import { renderSmsTemplate } from "@/features/dashboard/utils/sms-template";
+import { applyLoyaltyFilter, toLoyaltyMemberRow, type LoyaltyFilter } from "@/features/dashboard/services/loyalty-club-aggregation";
 import { getSmsProvider } from "@/lib/sms/sms-provider";
 import type { SmsAudience, SmsMessageStatus } from "@/lib/generated/prisma/enums";
 
 export type ServiceResult = { ok: true } | { ok: false; error: string };
 export type SendSmsResult = { ok: true; sent: number; failed: number } | { ok: false; error: string };
 
-const LOYAL_ORDER_THRESHOLD = 3;
 const RECENT_ORDER_DAYS = 30;
 
 export interface AudienceRecipient {
@@ -22,12 +22,6 @@ function recentSince() {
   return new Date(Date.now() - RECENT_ORDER_DAYS * 24 * 60 * 60 * 1000);
 }
 
-function loyalCustomers(orders: CustomerOrderRecord[]): AudienceRecipient[] {
-  return aggregateCustomers(orders)
-    .filter((c) => c.orderCount >= LOYAL_ORDER_THRESHOLD)
-    .map((c) => ({ phone: c.phone, name: c.name }));
-}
-
 function recentCustomers(orders: CustomerOrderRecord[], since: Date): AudienceRecipient[] {
   return aggregateCustomers(orders.filter((o) => o.createdAt >= since)).map((c) => ({
     phone: c.phone,
@@ -35,10 +29,18 @@ function recentCustomers(orders: CustomerOrderRecord[], since: Date): AudienceRe
   }));
 }
 
+/** Real باشگاه مشتریان members (CustomerAccount), optionally narrowed by the Loyalty Club send tab's quick filter — see loyalty-club-aggregation.ts. */
+async function loyaltyMembersAudience(businessId: string, filter: LoyaltyFilter): Promise<AudienceRecipient[]> {
+  const members = await repo.getLoyaltyMembers(businessId);
+  const rows = applyLoyaltyFilter(members.map(toLoyaltyMemberRow), filter);
+  return rows.map((r) => ({ phone: r.phone, name: r.name }));
+}
+
 async function resolveAudience(
   businessId: string,
   audience: SmsAudience,
-  manualContactIds: string[]
+  manualContactIds: string[],
+  loyaltyFilter: LoyaltyFilter
 ): Promise<AudienceRecipient[]> {
   if (audience === "ALL_CONTACTS") {
     const contacts = await repo.getContacts(businessId);
@@ -48,11 +50,21 @@ async function resolveAudience(
     const contacts = await repo.getContactsByIds(businessId, manualContactIds);
     return contacts.map((c) => ({ phone: c.phone, name: c.name }));
   }
+  if (audience === "LOYALTY_MEMBERS") {
+    return loyaltyMembersAudience(businessId, loyaltyFilter);
+  }
 
   const orders = await repo.getCustomerOrders(businessId);
-  return audience === "LOYAL_CUSTOMERS" ? loyalCustomers(orders) : recentCustomers(orders, recentSince());
+  return recentCustomers(orders, recentSince());
 }
 
+/**
+ * Counts for the Messages composer only — ALL_CONTACTS + RECENT_ORDERS,
+ * the two audiences still offered there. LOYAL_CUSTOMERS was dropped from
+ * the picker (superseded by the real LOYALTY_MEMBERS audience owned by the
+ * Loyalty Club tab — see loyalty-club-service.ts's getLoyaltyAudienceCounts
+ * for its counts).
+ */
 export async function getAudienceCounts(businessId: string) {
   const [contacts, orders] = await Promise.all([
     repo.getContacts(businessId),
@@ -60,7 +72,6 @@ export async function getAudienceCounts(businessId: string) {
   ]);
   return {
     ALL_CONTACTS: contacts.length,
-    LOYAL_CUSTOMERS: loyalCustomers(orders).length,
     RECENT_ORDERS: recentCustomers(orders, recentSince()).length,
   };
 }
@@ -93,7 +104,12 @@ export async function sendBulkSms(businessId: string, input: unknown): Promise<S
   const business = await repo.getBusinessById(businessId);
   if (!business) return { ok: false, error: "کسب‌وکار پیدا نشد." };
 
-  const recipients = await resolveAudience(businessId, parsed.data.audience, parsed.data.manualContactIds);
+  const recipients = await resolveAudience(
+    businessId,
+    parsed.data.audience,
+    parsed.data.manualContactIds,
+    parsed.data.loyaltyFilter
+  );
   if (recipients.length === 0) return { ok: false, error: "گیرنده‌ای برای این گروه یافت نشد." };
 
   const provider = getSmsProvider();

@@ -1,10 +1,19 @@
 import Link from "next/link";
 import { Wallet } from "lucide-react";
 import { formatToman } from "@/features/menu/utils/money";
-import { CASHBACK_PERCENT } from "@/features/customer/services/loyalty";
 import { menuCopy, cashbackNoteLabel, type MenuLang } from "@/features/menu/utils/menu-language";
 
-export function WalletCard({ slug, balance, lang = "fa" }: { slug: string; balance: number; lang?: MenuLang }) {
+export function WalletCard({
+  slug,
+  balance,
+  cashbackPercent,
+  lang = "fa",
+}: {
+  slug: string;
+  balance: number;
+  cashbackPercent: number;
+  lang?: MenuLang;
+}) {
   const t = menuCopy(lang);
   return (
     <div className="flex flex-col gap-4 rounded-card-sm bg-card p-4.5 shadow-float">
@@ -31,7 +40,7 @@ export function WalletCard({ slug, balance, lang = "fa" }: { slug: string; balan
       </Link>
       <div className="flex items-center gap-2 rounded-2xl border border-[#F0F0F0] bg-[#FAFBFA] p-3">
         <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-success" />
-        <span className="text-xs font-light text-text-1">{cashbackNoteLabel(lang, CASHBACK_PERCENT)}</span>
+        <span className="text-xs font-light text-text-1">{cashbackNoteLabel(lang, cashbackPercent)}</span>
       </div>
     </div>
   );

@@ -104,7 +104,7 @@ export default async function MenuEntryPage({
           lang={lang}
         />
       ) : (
-        <MenuLoginTeaser slug={cafeSlug} lang={lang} />
+        <MenuLoginTeaser slug={cafeSlug} cashbackPercent={business.cashbackPercent} lang={lang} />
       )}
       <p className={`px-4.5 pt-2.5 text-center text-sm md:px-10 ${lang === "en" ? "font-mont" : ""}`}>{t.lead}</p>
       <div className="flex flex-col gap-3 px-4.5 py-4 md:px-10 md:py-5">

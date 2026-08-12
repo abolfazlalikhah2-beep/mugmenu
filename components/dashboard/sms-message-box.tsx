@@ -4,7 +4,12 @@ import { useRef } from "react";
 import { Plus } from "lucide-react";
 import { countSmsSegments } from "@/features/dashboard/utils/sms-length";
 
-const VARIABLES: { token: string; label: string }[] = [
+export interface SmsTemplateVariable {
+  token: string;
+  label: string;
+}
+
+const DEFAULT_VARIABLES: SmsTemplateVariable[] = [
   { token: "{نام مشتری}", label: "نام مشتری" },
   { token: "{نام مجموعه}", label: "نام مجموعه" },
   { token: "{کد پیگیری}", label: "کد پیگیری" },
@@ -15,11 +20,13 @@ export function SmsMessageBox({
   value,
   onChange,
   placeholder,
+  variables = DEFAULT_VARIABLES,
 }: {
   name: string;
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
+  variables?: SmsTemplateVariable[];
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const { segments, charsPerSegment, length } = countSmsSegments(value);
@@ -64,7 +71,7 @@ export function SmsMessageBox({
         </div>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        {VARIABLES.map((v) => (
+        {variables.map((v) => (
           <button
             key={v.token}
             type="button"

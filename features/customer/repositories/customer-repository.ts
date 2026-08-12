@@ -6,6 +6,13 @@ export function findBusinessBySlug(slug: string) {
   return prisma.business.findUnique({ where: { slug } });
 }
 
+export function getBusinessCashbackSettings(businessId: string) {
+  return prisma.business.findUnique({
+    where: { id: businessId },
+    select: { cashbackEnabled: true, cashbackPercent: true, cashbackCapPerOrder: true },
+  });
+}
+
 // ---------- Accounts ----------
 
 export function findAccountByPhone(businessId: string, phone: string) {

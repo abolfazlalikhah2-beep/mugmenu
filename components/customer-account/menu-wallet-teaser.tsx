@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Wallet } from "lucide-react";
 import { formatToman } from "@/features/menu/utils/money";
-import { CASHBACK_PERCENT } from "@/features/customer/services/loyalty";
 import { menuCopy, type MenuLang } from "@/features/menu/utils/menu-language";
 
 export function MenuWalletTeaser({
@@ -41,7 +40,15 @@ export function MenuWalletTeaser({
   );
 }
 
-export function MenuLoginTeaser({ slug, lang = "fa" }: { slug: string; lang?: MenuLang }) {
+export function MenuLoginTeaser({
+  slug,
+  cashbackPercent,
+  lang = "fa",
+}: {
+  slug: string;
+  cashbackPercent: number;
+  lang?: MenuLang;
+}) {
   const t = menuCopy(lang);
   const align = lang === "en" ? "text-left" : "text-right";
   return (
@@ -51,7 +58,7 @@ export function MenuLoginTeaser({ slug, lang = "fa" }: { slug: string; lang?: Me
     >
       <div className={`${align} ${lang === "en" ? "font-mont" : ""}`}>
         <div className="text-[13.5px] font-medium">
-          {lang === "en" ? `Sign in and get ${CASHBACK_PERCENT}% cashback` : `وارد شوید و ${CASHBACK_PERCENT}٪ کش‌بک بگیرید`}
+          {lang === "en" ? `Sign in and get ${cashbackPercent}% cashback` : `وارد شوید و ${cashbackPercent}٪ کش‌بک بگیرید`}
         </div>
         <div className="mt-0.5 text-[11.5px] font-light text-text-1">{t.loginTeaserSub}</div>
       </div>

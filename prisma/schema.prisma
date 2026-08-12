@@ -71,6 +71,22 @@ model Business {
   // Set from the super admin panel (تعلیق پنل) — enforced in
   // requireBusinessOwner(), not just a UI flag.
   isSuspended          Boolean  @default(false)
+  // Loyalty Club cashback settings (dashboard "باشگاه مشتریان" › "کش‌بک"
+  // tab) — drives features/customer/services/loyalty.ts's computeCashback,
+  // replacing what used to be a hardcoded 5% constant. Redemption (spending
+  // wallet balance at checkout) and earned-credit expiry are still out of
+  // scope — see features/customer/README.md's existing "spending not
+  // built" cut; expiry would need a cron scheduler this app doesn't have.
+  cashbackEnabled          Boolean  @default(true)
+  cashbackPercent          Int      @default(5)
+  cashbackCapPerOrder      Int      @default(50000)
+  // Birthday message template (dashboard "باشگاه مشتریان" › "پیام تولد"
+  // tab). Settings + manual test-send only — no birthDate field exists on
+  // CustomerAccount and there's no cron scheduler in this app, so automatic
+  // daily sending isn't built (same category as the mock SMS provider).
+  birthdayMessageEnabled   Boolean  @default(false)
+  birthdayMessageText      String?
+  birthdayGiftAmount       Int      @default(50000)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
@@ -376,9 +392,16 @@ model Contact {
 
 enum SmsAudience {
   ALL_CONTACTS
+  // Kept for historical SmsMessage rows already sent with this audience —
+  // no longer offered in the Messages composer (superseded by
+  // LOYALTY_MEMBERS, a real CustomerAccount-based audience owned by the
+  // Loyalty Club tab; see dashboard-schemas.ts's bulkSmsSchema).
   LOYAL_CUSTOMERS
   RECENT_ORDERS
   MANUAL
+  // Real باشگاه مشتریان members (CustomerAccount rows), sent from the
+  // Loyalty Club "ارسال پیام" tab — see loyalty-club-service.ts.
+  LOYALTY_MEMBERS
 }
 
 enum SmsMessageStatus {

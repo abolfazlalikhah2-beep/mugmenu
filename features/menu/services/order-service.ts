@@ -44,7 +44,7 @@ export async function createOrder(input: unknown, customerAccountId?: string): P
     })),
   });
 
-  if (customerAccountId) await creditCashbackForOrder(customerAccountId, order.id, totalPrice);
+  if (customerAccountId) await creditCashbackForOrder(customerAccountId, business.id, order.id, totalPrice);
 
   logger.info("order.created", {
     orderId: order.id,

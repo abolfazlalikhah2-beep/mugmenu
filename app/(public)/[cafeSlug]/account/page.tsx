@@ -36,7 +36,12 @@ export default async function CustomerAccountPage({
       <div className="bg-[#F7F8F7]">
         <AccountHeroHeader slug={cafeSlug} fullName={account.fullName} phone={account.phone} lang={lang} />
         <div className="-mt-[42px] flex flex-col gap-3.5 p-4">
-          <WalletCard slug={cafeSlug} balance={walletSummary.walletBalance} lang={lang} />
+          <WalletCard
+            slug={cafeSlug}
+            balance={walletSummary.walletBalance}
+            cashbackPercent={walletSummary.cashbackPercent}
+            lang={lang}
+          />
           <LoyaltyCard
             points={walletSummary.loyaltyPoints}
             tier={walletSummary.tier}

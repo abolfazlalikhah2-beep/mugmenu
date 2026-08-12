@@ -1,19 +1,35 @@
 /**
- * Pure — no I/O — wallet/loyalty math, so it's trivial to unit test. Rates
- * mirror what Customer Account.dc.html shows (۵٪ cashback, ۲٬۰۰۰ points to
- * the gold tier); there's no admin control for these yet (see
- * features/customer/README.md), same simplification already made for the
- * hardcoded subscription plan defaults on Business.
+ * Pure — no I/O — wallet/loyalty math, so it's trivial to unit test. Tier
+ * thresholds mirror what Customer Account.dc.html shows (۲٬۰۰۰ points to
+ * gold) and have no admin control (see features/customer/README.md), same
+ * simplification already made for the hardcoded subscription plan defaults
+ * on Business. Cashback rate *is* admin-controlled — see CashbackSettings
+ * below, sourced from Business.cashback* (dashboard "باشگاه مشتریان" ›
+ * "کش‌بک" tab).
  */
 
-export const CASHBACK_PERCENT = 5;
 const TOMAN_PER_LOYALTY_POINT = 1000;
 const GOLD_TIER_THRESHOLD = 2000;
 /** Flat award for submitting a post-order review (Customer Feedback.dc.html), unrelated to order-total-based points above. */
 export const REVIEW_LOYALTY_POINTS = 50;
 
-export function computeCashback(orderTotal: number): number {
-  return Math.round((orderTotal * CASHBACK_PERCENT) / 100);
+export interface CashbackSettings {
+  enabled: boolean;
+  percent: number;
+  capPerOrder: number;
+}
+
+/** Matches Business's column defaults — used when a settings row can't be loaded and by existing tests/call sites that don't care about admin overrides. */
+export const DEFAULT_CASHBACK_SETTINGS: CashbackSettings = {
+  enabled: true,
+  percent: 5,
+  capPerOrder: 50000,
+};
+
+export function computeCashback(orderTotal: number, settings: CashbackSettings = DEFAULT_CASHBACK_SETTINGS): number {
+  if (!settings.enabled) return 0;
+  const raw = Math.round((orderTotal * settings.percent) / 100);
+  return Math.min(raw, settings.capPerOrder);
 }
 
 export function computeLoyaltyPointsEarned(orderTotal: number): number {

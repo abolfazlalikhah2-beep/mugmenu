@@ -25,4 +25,8 @@ describe("renderSmsTemplate", () => {
   it("leaves text without any tokens untouched", () => {
     expect(renderSmsTemplate("پیام ساده بدون متغیر", { customerName: "علی" })).toBe("پیام ساده بدون متغیر");
   });
+
+  it("substitutes the credit amount with fa-IR grouping", () => {
+    expect(renderSmsTemplate("{مبلغ اعتبار} تومان هدیه گرفتید", { creditAmount: 50000 })).toBe("۵۰٬۰۰۰ تومان هدیه گرفتید");
+  });
 });

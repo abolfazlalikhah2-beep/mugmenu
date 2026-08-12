@@ -490,3 +490,25 @@ export function getMenuItemViews(businessId: string, since: Date) {
     },
   });
 }
+
+// ---------- Loyalty club (dashboard "مشتریان" › "باشگاه مشتریان") ----------
+
+/** Real باشگاه مشتریان members — CustomerAccount rows, not the guest-order-derived list on the "لیست مشتریان" tab. Order count + last order date for the members table and send-audience filters. */
+export function getLoyaltyMembers(businessId: string) {
+  return prisma.customerAccount.findMany({
+    where: { businessId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      _count: { select: { orders: true } },
+      orders: { orderBy: { createdAt: "desc" }, take: 1, select: { createdAt: true } },
+    },
+  });
+}
+
+/** Cashback ledger entries across all of this business's members, for the growth/trend chart on the loyalty dashboard. */
+export function getCashbackLedger(businessId: string, since: Date) {
+  return prisma.walletTransaction.findMany({
+    where: { type: "CASHBACK_EARNED", createdAt: { gte: since }, customerAccount: { businessId } },
+    select: { amount: true, createdAt: true },
+  });
+}

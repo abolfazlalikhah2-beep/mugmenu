@@ -195,9 +195,35 @@ export const singleSmsSchema = z.object({
 });
 
 export const bulkSmsSchema = z.object({
-  audience: z.enum(["ALL_CONTACTS", "LOYAL_CUSTOMERS", "RECENT_ORDERS", "MANUAL"]),
+  // LOYAL_CUSTOMERS intentionally omitted — superseded by LOYALTY_MEMBERS
+  // (a real CustomerAccount-based audience, see loyalty-club-service.ts).
+  // The enum value still exists on SmsAudience for historical SmsMessage
+  // rows, it's just no longer a choosable target for new sends.
+  audience: z.enum(["ALL_CONTACTS", "RECENT_ORDERS", "MANUAL", "LOYALTY_MEMBERS"]),
   manualContactIds: z.array(z.string().min(1)).optional().default([]),
+  // Only meaningful when audience is LOYALTY_MEMBERS — see applyLoyaltyFilter.
+  loyaltyFilter: z.enum(["ALL", "INACTIVE_30", "INACTIVE_90", "GOLD", "WALLET_100K"]).optional().default("ALL"),
   text: z.string().trim().min(1, "متن پیام را وارد کنید.").max(670, "متن پیام بیش از حد مجاز طولانی است."),
+});
+
+export const cashbackSettingsSchema = z.object({
+  cashbackEnabled: z.boolean(),
+  cashbackPercent: z.coerce
+    .number()
+    .int()
+    .min(0, "درصد کش‌بک نمی‌تواند منفی باشد.")
+    .max(20, "درصد کش‌بک نمی‌تواند بیش از ۲۰٪ باشد."),
+  cashbackCapPerOrder: z.coerce.number().int().min(0, "سقف کش‌بک نمی‌تواند منفی باشد."),
+});
+
+export const birthdaySettingsSchema = z.object({
+  birthdayMessageEnabled: z.boolean(),
+  birthdayMessageText: z.string().trim().max(670, "متن پیام بیش از حد مجاز طولانی است.").optional(),
+  birthdayGiftAmount: z.coerce.number().int().min(0, "مبلغ هدیه نمی‌تواند منفی باشد."),
+});
+
+export const birthdayTestSendSchema = z.object({
+  phone: z.string().trim().min(10, "شماره گیرنده معتبر نیست.").max(20),
 });
 
 const optionalAttachmentUrl = z

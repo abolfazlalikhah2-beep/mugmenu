@@ -5,13 +5,30 @@ import {
   computeLoyaltyTier,
   isRewardUnlocked,
   LOYALTY_REWARDS,
+  DEFAULT_CASHBACK_SETTINGS,
+  type CashbackSettings,
 } from "./loyalty";
 
 describe("computeCashback", () => {
-  it("rounds 5% of the order total to the nearest toman", () => {
+  it("rounds 5% of the order total to the nearest toman, using the default settings", () => {
     expect(computeCashback(590000)).toBe(29500);
     expect(computeCashback(1)).toBe(0);
     expect(computeCashback(10)).toBe(1);
+  });
+
+  it("returns 0 when cashback is disabled", () => {
+    const settings: CashbackSettings = { ...DEFAULT_CASHBACK_SETTINGS, enabled: false };
+    expect(computeCashback(590000, settings)).toBe(0);
+  });
+
+  it("uses the configured percent instead of the default", () => {
+    const settings: CashbackSettings = { ...DEFAULT_CASHBACK_SETTINGS, percent: 10 };
+    expect(computeCashback(100000, settings)).toBe(10000);
+  });
+
+  it("caps the earned amount at capPerOrder", () => {
+    const settings: CashbackSettings = { enabled: true, percent: 10, capPerOrder: 20000 };
+    expect(computeCashback(1000000, settings)).toBe(20000);
   });
 });
 
