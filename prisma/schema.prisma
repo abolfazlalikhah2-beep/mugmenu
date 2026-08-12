@@ -82,6 +82,7 @@ model Business {
   discounts    Discount[]
   printers     Printer[]
   contacts     Contact[]
+  menuVisits   MenuVisit[]
   smsMessages  SmsMessage[]
   tickets      Ticket[]
   transactions Transaction[]
@@ -172,6 +173,7 @@ model Product {
   orderItems OrderItem[]
   reviews    Review[]
   discounts  Discount[]
+  menuVisits MenuVisit[]
 
   @@unique([businessId, name])
   @@index([businessId])
@@ -552,4 +554,32 @@ model OrderSurvey {
   speed     String
   packaging String
   createdAt DateTime @default(now())
+}
+
+// Traffic source for a menu-entry visit, resolved in
+// features/menu/services/visit-source.ts from a ?src=qr link convention
+// (table QR codes) vs. the HTTP referer (external link vs. no referer =
+// typed/bookmarked direct visit). Null on item-detail-view rows (productId
+// set) — source is only meaningful for the entry landing, not sub-navigation.
+enum VisitSource {
+  QR
+  LINK
+  DIRECT
+}
+
+// One row per public menu visit — see Admin Menu Analytics (dashboard
+// "گزارش‌ها" › "آمار بازدید منو" tab). productId null + source set = a menu
+// entry-page landing; productId set + source null = an item detail-page
+// view (counted toward "پرطرفدارترین آیتم‌ها", not the source breakdown).
+model MenuVisit {
+  id         String       @id @default(cuid())
+  businessId String
+  business   Business     @relation(fields: [businessId], references: [id])
+  productId  String?
+  product    Product?     @relation(fields: [productId], references: [id])
+  source     VisitSource?
+  createdAt  DateTime     @default(now())
+
+  @@index([businessId, createdAt])
+  @@index([businessId, productId, createdAt])
 }

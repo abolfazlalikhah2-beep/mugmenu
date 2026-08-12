@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { after } from "next/server";
 import { ChevronRight } from "lucide-react";
 import { getItemDetailData } from "@/features/menu/services/menu-service";
 import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
+import { logItemView } from "@/features/menu/services/visit-service";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { MenuImage } from "@/components/menu/menu-image";
 import { StarIcon } from "@/components/ui/rating";
@@ -20,6 +22,7 @@ export default async function ItemDetailPage({
   const data = await getItemDetailData(itemId);
   if (!data) notFound();
   const { product, rating } = data;
+  after(() => logItemView(product.businessId, product.id));
   const hasDiscount = !!product.discountPercent;
   const finalPrice = computeDiscountedPrice(product.price, product.discountPercent);
 

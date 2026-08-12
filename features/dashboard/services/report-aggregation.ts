@@ -1,4 +1,5 @@
 import { computeDelta, type StatDelta } from "@/features/dashboard/services/stat-delta";
+import { startOfDay, addDays, startOfMonth, addMonths } from "@/features/dashboard/services/date-utils";
 
 export type ReportRange = "daily" | "weekly" | "monthly";
 
@@ -45,26 +46,6 @@ export const RANGE_DELTA_LABEL: Record<ReportRange, string> = {
 };
 
 const BUCKET_COUNT: Record<ReportRange, number> = { daily: 7, weekly: 8, monthly: 6 };
-
-function startOfDay(d: Date): Date {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-}
-
-function addDays(d: Date, n: number): Date {
-  const x = new Date(d);
-  x.setDate(x.getDate() + n);
-  return x;
-}
-
-function startOfMonth(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), 1);
-}
-
-function addMonths(d: Date, n: number): Date {
-  return new Date(d.getFullYear(), d.getMonth() + n, 1);
-}
 
 interface Window {
   start: Date;

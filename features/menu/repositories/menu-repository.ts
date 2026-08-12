@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db";
-import type { OrderType } from "@/lib/generated/prisma/enums";
+import type { OrderType, VisitSource } from "@/lib/generated/prisma/enums";
 
 export function getBusiness(slug: string) {
   return prisma.business.findUnique({ where: { slug } });
@@ -128,4 +128,14 @@ export function upsertOrderSurvey(data: {
     create: { orderId, ...answers },
     update: answers,
   });
+}
+
+// ---------- Menu visits (analytics) ----------
+
+export function createMenuEntryVisit(businessId: string, source: VisitSource) {
+  return prisma.menuVisit.create({ data: { businessId, source } });
+}
+
+export function createItemView(businessId: string, productId: string) {
+  return prisma.menuVisit.create({ data: { businessId, productId } });
 }

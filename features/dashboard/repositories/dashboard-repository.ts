@@ -470,3 +470,23 @@ export function getOrderItemsForReport(businessId: string, since: Date) {
     },
   });
 }
+
+// ---------- Menu analytics (menu visits) ----------
+
+export function getMenuEntryVisits(businessId: string, since: Date) {
+  return prisma.menuVisit.findMany({
+    where: { businessId, productId: null, createdAt: { gte: since } },
+    select: { createdAt: true, source: true },
+  });
+}
+
+export function getMenuItemViews(businessId: string, since: Date) {
+  return prisma.menuVisit.findMany({
+    where: { businessId, productId: { not: null }, createdAt: { gte: since } },
+    select: {
+      createdAt: true,
+      productId: true,
+      product: { select: { name: true, imageUrl: true, category: { select: { name: true } } } },
+    },
+  });
+}

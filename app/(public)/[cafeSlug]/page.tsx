@@ -1,10 +1,13 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
+import { after } from "next/server";
 import { UtensilsCrossed, ScrollText, Package } from "lucide-react";
 import { getMenuEntryData } from "@/features/menu/services/menu-service";
 import { getCustomerSession } from "@/features/customer/services/customer-session-service";
 import { getAccountProfile } from "@/features/customer/services/customer-auth-service";
 import { getWalletAndLoyaltySummary } from "@/features/customer/services/wallet-service";
 import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
+import { logMenuVisit } from "@/features/menu/services/visit-service";
 import { resolveHeroBackground } from "@/features/menu/utils/hero-background";
 import { menuCopy, localizedName } from "@/features/menu/utils/menu-language";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
@@ -20,8 +23,10 @@ import { MenuWalletTeaser, MenuLoginTeaser } from "@/components/customer-account
 
 export default async function MenuEntryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ cafeSlug: string }>;
+  searchParams: Promise<{ src?: string }>;
 }) {
   const { cafeSlug } = await params;
   const [data, customerSession] = await Promise.all([
@@ -30,6 +35,13 @@ export default async function MenuEntryPage({
   ]);
   if (!data) notFound();
   const { business, rating, recentReviews } = data;
+
+  const { src } = await searchParams;
+  const h = await headers();
+  const referer = h.get("referer");
+  const host = h.get("host");
+  const ownOrigin = host ? `${h.get("x-forwarded-proto") ?? "https"}://${host}` : null;
+  after(() => logMenuVisit(business.id, { srcParam: src, referer, ownOrigin }));
 
   const savedLang = business.bilingualMenuEnabled ? await getMenuLangCookie(cafeSlug) : null;
   const showGate = business.bilingualMenuEnabled && business.askLanguageOnEntry && savedLang === null;
