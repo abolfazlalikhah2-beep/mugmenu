@@ -3,6 +3,7 @@ import { z } from "zod";
 export const orderLineSchema = z.object({
   productId: z.string().min(1),
   quantity: z.number().int().positive().max(50),
+  selectedOptionIds: z.array(z.string().min(1)).optional().default([]),
 });
 
 export const createOrderSchema = z.object({

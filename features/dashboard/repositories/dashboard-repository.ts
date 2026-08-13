@@ -160,20 +160,49 @@ export function getCustomerOrders(businessId: string, search?: string) {
 
 // ---------- Products ----------
 
+const optionGroupsInclude = {
+  optionGroups: {
+    orderBy: { sortOrder: "asc" as const },
+    include: { options: { orderBy: { sortOrder: "asc" as const } } },
+  },
+};
+
 export function getProducts(businessId: string) {
   return prisma.product.findMany({
     where: { businessId },
-    include: { category: true },
+    include: { category: true, ...optionGroupsInclude },
     orderBy: { createdAt: "desc" },
   });
 }
 
 export function getProductForEdit(id: string) {
-  return prisma.product.findUnique({ where: { id } });
+  return prisma.product.findUnique({ where: { id }, include: optionGroupsInclude });
 }
 
 export function getProductsByIds(businessId: string, ids: string[]) {
   return prisma.product.findMany({ where: { id: { in: ids }, businessId } });
+}
+
+export interface ProductOptionGroupInput {
+  name: string;
+  required: boolean;
+  options: { name: string; extraPrice: number; isDefault: boolean }[];
+}
+
+function optionGroupsCreateData(groups: ProductOptionGroupInput[]) {
+  return groups.map((g, i) => ({
+    name: g.name,
+    required: g.required,
+    sortOrder: i,
+    options: {
+      create: g.options.map((o, j) => ({
+        name: o.name,
+        extraPrice: o.extraPrice,
+        isDefault: o.isDefault,
+        sortOrder: j,
+      })),
+    },
+  }));
 }
 
 export function createProduct(data: {
@@ -184,12 +213,37 @@ export function createProduct(data: {
   price: number;
   discountPercent?: number;
   imageUrl?: string;
+  optionGroups?: ProductOptionGroupInput[];
 }) {
-  return prisma.product.create({ data });
+  const { optionGroups, ...rest } = data;
+  return prisma.product.create({
+    data: {
+      ...rest,
+      ...(optionGroups && optionGroups.length > 0
+        ? { optionGroups: { create: optionGroupsCreateData(optionGroups) } }
+        : {}),
+    },
+  });
 }
 
-export function updateProduct(id: string, data: Record<string, unknown>) {
-  return prisma.product.update({ where: { id }, data });
+export function updateProduct(
+  id: string,
+  data: Record<string, unknown> & { optionGroups?: ProductOptionGroupInput[] }
+) {
+  const { optionGroups, ...rest } = data;
+  return prisma.product.update({
+    where: { id },
+    data: {
+      ...rest,
+      // Nested groups/options are replaced wholesale on every save — simpler
+      // and safer than diffing, and cheap since a product has at most a
+      // handful of option groups. ON DELETE CASCADE on ProductOption cleans
+      // up options when their group is deleted here.
+      ...(optionGroups
+        ? { optionGroups: { deleteMany: {}, create: optionGroupsCreateData(optionGroups) } }
+        : {}),
+    },
+  });
 }
 
 export function deleteProduct(id: string) {

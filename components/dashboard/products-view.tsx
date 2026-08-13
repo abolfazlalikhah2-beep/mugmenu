@@ -101,6 +101,7 @@ export function ProductsView({
             categoryId: editingProduct.categoryId,
             isActive: editingProduct.isActive,
             imageUrl: editingProduct.imageUrl,
+            optionGroups: editingProduct.optionGroups,
           }}
           onClose={() => setModal("closed")}
         />

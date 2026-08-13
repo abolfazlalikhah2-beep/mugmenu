@@ -88,6 +88,7 @@ export default async function ItemDetailPage({
           name={name}
           price={finalPrice}
           imageUrl={product.imageUrl}
+          optionGroups={product.optionGroups}
           lang={lang}
         />
       </div>

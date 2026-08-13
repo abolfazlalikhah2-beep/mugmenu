@@ -70,7 +70,11 @@ export function CartPageClient({ lang = "fa" }: { lang?: MenuLang }) {
         customerPhone,
         tableNumber: orderType === "DINE_IN" ? tableNumber : undefined,
         address: orderType === "DELIVERY" ? address : undefined,
-        items: items.map((i) => ({ productId: i.productId, quantity: i.qty })),
+        items: items.map((i) => ({
+          productId: i.productId,
+          quantity: i.qty,
+          selectedOptionIds: (i.selectedOptions ?? []).map((o) => o.optionId),
+        })),
       });
       if (result.error) {
         setError(result.error);

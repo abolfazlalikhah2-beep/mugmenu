@@ -4,6 +4,8 @@ import {
   validateOrderDraft,
   computeTotal,
   estimatedTimeFor,
+  computeOptionsExtra,
+  summarizeSelectedOptions,
 } from "./order-flow";
 
 describe("requiredFieldsFor", () => {
@@ -107,6 +109,36 @@ describe("computeTotal", () => {
 
   it("returns 0 for an empty cart", () => {
     expect(computeTotal([], new Map())).toBe(0);
+  });
+});
+
+describe("computeOptionsExtra", () => {
+  it("sums extraPrice across selected options", () => {
+    expect(
+      computeOptionsExtra([
+        { groupName: "سایز", optionName: "بزرگ", extraPrice: 45000 },
+        { groupName: "نوع نان", optionName: "سنگک", extraPrice: 8000 },
+      ])
+    ).toBe(53000);
+  });
+
+  it("returns 0 when nothing was selected", () => {
+    expect(computeOptionsExtra([])).toBe(0);
+  });
+});
+
+describe("summarizeSelectedOptions", () => {
+  it("joins group/option pairs into a single readable string", () => {
+    expect(
+      summarizeSelectedOptions([
+        { groupName: "سایز", optionName: "بزرگ", extraPrice: 45000 },
+        { groupName: "نوع نان", optionName: "سنگک", extraPrice: 8000 },
+      ])
+    ).toBe("سایز: بزرگ، نوع نان: سنگک");
+  });
+
+  it("returns undefined when nothing was selected", () => {
+    expect(summarizeSelectedOptions([])).toBeUndefined();
   });
 });
 

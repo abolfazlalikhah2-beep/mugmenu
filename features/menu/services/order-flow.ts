@@ -66,6 +66,23 @@ export function computeTotal(lines: OrderLine[], priceByProductId: Map<string, n
   return lines.reduce((sum, l) => sum + (priceByProductId.get(l.productId) ?? 0) * l.quantity, 0);
 }
 
+/** A product option selected on a cart line, resolved server-side (see order-service.ts) — never trust a client-sent price. */
+export interface SelectedProductOption {
+  groupName: string;
+  optionName: string;
+  extraPrice: number;
+}
+
+export function computeOptionsExtra(selected: SelectedProductOption[]): number {
+  return selected.reduce((sum, o) => sum + o.extraPrice, 0);
+}
+
+/** Human-readable snapshot stored on OrderItem.selectedOptionsSummary, e.g. "سایز: بزرگ، نوع نان: سنگک". Undefined when nothing was selected. */
+export function summarizeSelectedOptions(selected: SelectedProductOption[]): string | undefined {
+  if (selected.length === 0) return undefined;
+  return selected.map((o) => `${o.groupName}: ${o.optionName}`).join("، ");
+}
+
 /** System-shown estimate per type — not user-editable (see the cart UI). Defaults to Persian (see order-flow.test.ts). */
 export function estimatedTimeFor(type: OrderType, lang: MenuLang = "fa"): string | undefined {
   if (lang === "en") {

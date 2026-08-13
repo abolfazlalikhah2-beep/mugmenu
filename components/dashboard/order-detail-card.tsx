@@ -19,7 +19,13 @@ export interface OrderDetail {
   estimatedTime: string | null;
   totalPrice: number;
   createdAt: Date;
-  items: { id: string; quantity: number; unitPrice: number; product: { name: string } }[];
+  items: {
+    id: string;
+    quantity: number;
+    unitPrice: number;
+    selectedOptionsSummary: string | null;
+    product: { name: string };
+  }[];
 }
 
 function typeContext(order: OrderDetail) {
@@ -97,7 +103,12 @@ export function OrderDetailCard({ order }: { order: OrderDetail }) {
               <span className="flex h-[26px] w-[26px] items-center justify-center rounded-lg bg-[#EAF3EB] text-[13px] font-semibold text-brand">
                 {line.quantity.toLocaleString("fa-IR")}
               </span>
-              <span className="text-[15px]">{line.product.name}</span>
+              <div>
+                <span className="text-[15px]">{line.product.name}</span>
+                {line.selectedOptionsSummary && (
+                  <div className="mt-0.5 text-xs font-light text-text-3">{line.selectedOptionsSummary}</div>
+                )}
+              </div>
             </div>
             <span className="text-sm font-semibold text-brand">{formatToman(line.quantity * line.unitPrice)} ت</span>
           </div>

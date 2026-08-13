@@ -28,6 +28,7 @@ export async function createProduct(businessId: string, input: unknown): Promise
     price: data.price,
     discountPercent: data.discountPercent,
     imageUrl: data.imageUrl,
+    optionGroups: data.optionGroups,
   });
   logger.info("dashboard.product_created", { businessId, name: data.name });
   return { ok: true };

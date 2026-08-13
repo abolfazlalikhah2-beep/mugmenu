@@ -73,6 +73,9 @@ export default async function ReceiptPage({
             />
             <div className={`flex-1 ${align}`}>
               <div className="text-[15px] font-medium">{localizedName(lang, line.product.name, line.product.nameEn)}</div>
+              {line.selectedOptionsSummary && (
+                <div className="mt-0.5 text-xs font-light text-text-3">{line.selectedOptionsSummary}</div>
+              )}
               <div className="mt-1 text-[13px] font-semibold text-brand">
                 {formatToman(line.unitPrice, lang)} {t.toman} × {line.quantity.toLocaleString(lang === "en" ? "en-US" : "fa-IR")}
               </div>

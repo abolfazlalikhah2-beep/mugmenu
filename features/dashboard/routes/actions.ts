@@ -405,6 +405,14 @@ export async function createManualOrderAction(
   return { ok: true };
 }
 
+function parseOptionGroups(formData: FormData) {
+  try {
+    return JSON.parse(String(formData.get("optionGroups") ?? "[]"));
+  } catch {
+    return [];
+  }
+}
+
 export async function createProductAction(
   _prevState: ActionState,
   formData: FormData
@@ -417,6 +425,7 @@ export async function createProductAction(
     price: String(formData.get("price") ?? ""),
     discountPercent: String(formData.get("discountPercent") ?? "0"),
     isActive: bool(formData, "isActive"),
+    optionGroups: parseOptionGroups(formData),
   });
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/products");
@@ -436,6 +445,7 @@ export async function updateProductAction(
     price: String(formData.get("price") ?? ""),
     discountPercent: String(formData.get("discountPercent") ?? "0"),
     isActive: bool(formData, "isActive"),
+    optionGroups: parseOptionGroups(formData),
   });
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/products");

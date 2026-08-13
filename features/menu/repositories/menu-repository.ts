@@ -28,12 +28,26 @@ export function getProducts(businessId: string) {
 export function getProduct(id: string) {
   return prisma.product.findUnique({
     where: { id },
-    include: { category: true },
+    include: {
+      category: true,
+      optionGroups: {
+        orderBy: { sortOrder: "asc" },
+        include: { options: { orderBy: { sortOrder: "asc" } } },
+      },
+    },
   });
 }
 
 export function findProductsByIds(ids: string[]) {
   return prisma.product.findMany({ where: { id: { in: ids } } });
+}
+
+/** Options selected in a cart line, looked up server-side so the client can never dictate its own price (see order-service.ts). */
+export function findOptionsByIds(ids: string[]) {
+  return prisma.productOption.findMany({
+    where: { id: { in: ids } },
+    include: { group: { select: { id: true, name: true, productId: true, required: true } } },
+  });
 }
 
 export function getProductReviews(productId: string) {
@@ -86,7 +100,7 @@ export interface CreateOrderData {
   totalPrice: number;
   /** Set when placed while logged in to a customer account — see features/customer. */
   customerAccountId?: string;
-  items: { productId: string; quantity: number; unitPrice: number }[];
+  items: { productId: string; quantity: number; unitPrice: number; selectedOptionsSummary?: string }[];
 }
 
 export function createOrder(data: CreateOrderData) {

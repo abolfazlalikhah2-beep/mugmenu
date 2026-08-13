@@ -68,6 +68,10 @@ export const MENU_LANG_COPY = {
     addToCart: "افزودن به سبد",
     mostRelevant: "مرتبط ترین",
     newest: "جدیدترین",
+    optionRequired: "الزامی",
+    optionOptional: "اختیاری",
+    chooseOneOption: "یک گزینه انتخاب کنید",
+    noExtraCost: "بدون هزینه",
 
     // ===== cart =====
     cartEmpty: "سبد شما خالی است",
@@ -256,6 +260,10 @@ export const MENU_LANG_COPY = {
     addToCart: "Add to cart",
     mostRelevant: "Most relevant",
     newest: "Newest",
+    optionRequired: "Required",
+    optionOptional: "Optional",
+    chooseOneOption: "Choose one option",
+    noExtraCost: "No extra cost",
 
     // ===== cart =====
     cartEmpty: "Your cart is empty",

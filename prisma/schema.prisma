@@ -186,14 +186,43 @@ model Product {
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
 
-  orderItems OrderItem[]
-  reviews    Review[]
-  discounts  Discount[]
-  menuVisits MenuVisit[]
+  orderItems   OrderItem[]
+  reviews      Review[]
+  discounts    Discount[]
+  menuVisits   MenuVisit[]
+  optionGroups ProductOptionGroup[]
 
   @@unique([businessId, name])
   @@index([businessId])
   @@index([categoryId])
+}
+
+// Admin-authored variant groups on a product (e.g. سایز، نوع نان، نوع برنج).
+// Single-select per group on the public menu; required groups force a
+// selection (a default option, when set, pre-selects it).
+model ProductOptionGroup {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String
+  required  Boolean  @default(false)
+  sortOrder Int      @default(0)
+
+  options ProductOption[]
+
+  @@index([productId])
+}
+
+model ProductOption {
+  id         String             @id @default(cuid())
+  groupId    String
+  group      ProductOptionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  name       String
+  extraPrice Int                @default(0)
+  isDefault  Boolean            @default(false)
+  sortOrder  Int                @default(0)
+
+  @@index([groupId])
 }
 
 enum OrderType {
@@ -307,6 +336,11 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
   unitPrice Int
+  // Human-readable snapshot of the selected product options at order time
+  // (e.g. "سایز: بزرگ، نوع نان: سنگک") — a snapshot rather than a relation
+  // to ProductOption so it stays correct even if the option is later
+  // renamed/repriced/deleted.
+  selectedOptionsSummary String?
 
   @@index([orderId])
 }

@@ -83,6 +83,18 @@ export const paymentSettingsSchema = z.object({
   packagingFee: z.coerce.number().int().min(0, "هزینه بسته‌بندی نمی‌تواند منفی باشد."),
 });
 
+export const productOptionSchema = z.object({
+  name: z.string().trim().min(1, "نام گزینه را وارد کنید.").max(60),
+  extraPrice: z.coerce.number().int().min(0, "قیمت اضافه نمی‌تواند منفی باشد.").default(0),
+  isDefault: z.boolean().default(false),
+});
+
+export const productOptionGroupSchema = z.object({
+  name: z.string().trim().min(1, "نام ویژگی را وارد کنید.").max(60),
+  required: z.boolean().default(false),
+  options: z.array(productOptionSchema).min(1, "حداقل یک گزینه اضافه کنید."),
+});
+
 export const productSchema = z.object({
   categoryId: z.string().min(1, "دسته‌بندی را انتخاب کنید."),
   name: z.string().trim().min(2, "نام محصول را کامل وارد کنید.").max(120),
@@ -91,6 +103,7 @@ export const productSchema = z.object({
   discountPercent: z.coerce.number().int().min(0).max(100).optional(),
   isActive: z.boolean(),
   imageUrl: optionalImageUrl,
+  optionGroups: z.array(productOptionGroupSchema).optional().default([]),
 });
 
 export const categorySchema = z.object({

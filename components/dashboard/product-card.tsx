@@ -17,6 +17,11 @@ export interface ProductCardData {
   isActive: boolean;
   imageUrl: string | null;
   category: { name: string };
+  optionGroups?: {
+    name: string;
+    required: boolean;
+    options: { name: string; extraPrice: number; isDefault: boolean }[];
+  }[];
 }
 
 export function ProductCard({ product, onEdit }: { product: ProductCardData; onEdit: () => void }) {
