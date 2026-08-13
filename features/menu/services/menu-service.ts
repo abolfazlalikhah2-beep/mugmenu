@@ -1,6 +1,8 @@
 import "server-only";
 import * as repo from "@/features/menu/repositories/menu-repository";
 import { formatOpeningHours } from "@/features/menu/utils/business-hours";
+import { getWalletBalance } from "@/features/customer/services/wallet-service";
+import type { AutoDiscountDef } from "@/features/menu/services/order-flow";
 
 function formatRating(avg: number | null): string | null {
   return avg !== null ? avg.toFixed(1) : null;
@@ -60,6 +62,46 @@ export async function getItemReviewsData(productId: string) {
 
 export function getReceiptData(orderId: string) {
   return repo.getOrder(orderId);
+}
+
+export interface CartCheckoutContext {
+  packagingFee: number;
+  serviceFeePercent: number;
+  taxPercent: number;
+  autoDiscounts: AutoDiscountDef[];
+  /** null when checking out as a guest (not logged in) — no wallet to redeem from. */
+  walletBalance: number | null;
+}
+
+/** Fee/discount/wallet context the cart page needs to preview a bill before submitting — order-service.ts recomputes all of this itself at checkout, this is display-only. */
+export async function getCartCheckoutContext(
+  slug: string,
+  customerAccountId?: string
+): Promise<CartCheckoutContext | null> {
+  const business = await repo.getBusiness(slug);
+  if (!business) return null;
+
+  const [autoDiscounts, walletBalance] = await Promise.all([
+    repo.getActiveAutoDiscounts(business.id),
+    customerAccountId ? getWalletBalance(customerAccountId) : Promise.resolve(null),
+  ]);
+
+  return {
+    packagingFee: business.packagingFee,
+    serviceFeePercent: business.serviceFeePercent,
+    taxPercent: business.taxPercent,
+    autoDiscounts: autoDiscounts.map(
+      (d): AutoDiscountDef => ({
+        id: d.id,
+        name: d.name,
+        percent: d.percent ?? 0,
+        scope: d.scope ?? "ALL_MENU",
+        categoryIds: d.categoryIds,
+        productId: d.productId,
+      })
+    ),
+    walletBalance,
+  };
 }
 
 export async function getReviewFormData(orderId: string) {

@@ -30,6 +30,11 @@ model Business {
   acceptsOnlinePayment Boolean  @default(false)
   acceptsCashPayment   Boolean  @default(true)
   packagingFee         Int      @default(12000)
+  // Applied to every order's subtotal at checkout (see order-flow.ts's
+  // computeServiceFee/computeTax) — independent percentages, both 0 by
+  // default so existing businesses see no change until configured.
+  serviceFeePercent    Int      @default(0)
+  taxPercent           Int      @default(0)
   prepTimeDineIn       Int      @default(15)
   prepTimeTakeaway     Int      @default(20)
   prepTimeDelivery     Int      @default(45)
@@ -73,10 +78,10 @@ model Business {
   isSuspended          Boolean  @default(false)
   // Loyalty Club cashback settings (dashboard "باشگاه مشتریان" › "کش‌بک"
   // tab) — drives features/customer/services/loyalty.ts's computeCashback,
-  // replacing what used to be a hardcoded 5% constant. Redemption (spending
-  // wallet balance at checkout) and earned-credit expiry are still out of
-  // scope — see features/customer/README.md's existing "spending not
-  // built" cut; expiry would need a cron scheduler this app doesn't have.
+  // replacing what used to be a hardcoded 5% constant. Wallet redemption at
+  // checkout is order-service.ts's own step (features/customer/wallet-service
+  // just debits the ledger). Earned-credit expiry is still out of scope —
+  // would need a cron scheduler this app doesn't have.
   cashbackEnabled          Boolean  @default(true)
   cashbackPercent          Int      @default(5)
   cashbackCapPerOrder      Int      @default(50000)
@@ -252,6 +257,19 @@ model Order {
   location          String?
   estimatedTime     String?
   totalPrice        Int
+  // Bill breakdown, snapshotted at checkout so it survives later changes to
+  // Business.serviceFeePercent/taxPercent/packagingFee or to the discount
+  // that applied. Nullable and left unset on orders placed before this
+  // breakdown existed — UI code must treat serviceFeeAmount === null as
+  // "no breakdown recorded" and fall back to the old combined display,
+  // never as "zero fee was charged".
+  subtotal             Int?
+  packagingFeeAmount   Int?
+  serviceFeeAmount     Int?
+  taxAmount            Int?
+  discountAmount       Int?
+  discountName         String?
+  walletRedeemedAmount Int?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   // Set when the order was placed while the customer was logged in to their
@@ -308,12 +326,13 @@ model CustomerAddress {
 enum WalletTransactionType {
   CASHBACK_EARNED
   ADJUSTMENT
+  // Spent at checkout to reduce a new order's total — see
+  // order-service.ts's wallet redemption step and Order.walletRedeemedAmount.
+  REDEEMED
 }
 
-// Wallet ledger — currently credit-only (cashback earned when an order is
-// placed while logged in). Spending the balance to reduce an order's total
-// at checkout is future work — see features/customer/README.md — so this
-// never subtracts from Order.totalPrice today.
+// Wallet ledger. CASHBACK_EARNED/REDEEMED are order-linked credits/debits;
+// ADJUSTMENT is a manual admin correction.
 model WalletTransaction {
   id                String                @id @default(cuid())
   customerAccountId String
@@ -336,13 +355,26 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
   unitPrice Int
-  // Human-readable snapshot of the selected product options at order time
-  // (e.g. "سایز: بزرگ، نوع نان: سنگک") — a snapshot rather than a relation
-  // to ProductOption so it stays correct even if the option is later
-  // renamed/repriced/deleted.
-  selectedOptionsSummary String?
+  // Customer-entered free-text note for this line (e.g. "کباب کم‌نمک باشد").
+  note      String?
+
+  options OrderItemOption[]
 
   @@index([orderId])
+}
+
+// Snapshot of a selected product option at order time — a snapshot rather
+// than a relation to ProductOption so it stays correct even if the option
+// is later renamed/repriced/deleted.
+model OrderItemOption {
+  id          String    @id @default(cuid())
+  orderItemId String
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  groupName   String
+  optionName  String
+  extraPrice  Int
+
+  @@index([orderItemId])
 }
 
 enum DiscountType {

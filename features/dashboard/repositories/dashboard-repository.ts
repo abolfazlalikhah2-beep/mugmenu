@@ -113,7 +113,7 @@ export function getOrders(
 export function getOrderWithItems(id: string) {
   return prisma.order.findUnique({
     where: { id },
-    include: { items: { include: { product: true } } },
+    include: { items: { include: { product: true, options: true } } },
   });
 }
 

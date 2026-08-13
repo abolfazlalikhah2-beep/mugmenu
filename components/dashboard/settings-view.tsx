@@ -31,6 +31,8 @@ export interface SettingsFormValue {
   acceptsOnlinePayment: boolean;
   acceptsCashPayment: boolean;
   packagingFee: number;
+  serviceFeePercent: number;
+  taxPercent: number;
   accentColor: string;
   logoUrl: string | null;
   heroBgKey: string;

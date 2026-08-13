@@ -2,6 +2,20 @@ import "server-only";
 import { prisma } from "@/lib/db";
 import type { OrderType, VisitSource } from "@/lib/generated/prisma/enums";
 
+/** Active AUTOMATIC discounts for a business, within their date window (open-ended start/end allowed) — see order-service.ts's checkout discount step. */
+export function getActiveAutoDiscounts(businessId: string) {
+  const now = new Date();
+  return prisma.discount.findMany({
+    where: {
+      businessId,
+      type: "AUTOMATIC",
+      isActive: true,
+      OR: [{ startDate: null }, { startDate: { lte: now } }],
+      AND: [{ OR: [{ endDate: null }, { endDate: { gte: now } }] }],
+    },
+  });
+}
+
 export function getBusiness(slug: string) {
   return prisma.business.findUnique({ where: { slug } });
 }
@@ -85,8 +99,21 @@ export function getProductRatingAggregate(productId: string) {
 export function getOrder(id: string) {
   return prisma.order.findUnique({
     where: { id },
-    include: { items: { include: { product: true } }, business: true, reviews: true, survey: true },
+    include: {
+      items: { include: { product: true, options: true } },
+      business: true,
+      reviews: true,
+      survey: true,
+    },
   });
+}
+
+export interface CreateOrderItemData {
+  productId: string;
+  quantity: number;
+  unitPrice: number;
+  note?: string;
+  options: { groupName: string; optionName: string; extraPrice: number }[];
 }
 
 export interface CreateOrderData {
@@ -98,15 +125,34 @@ export interface CreateOrderData {
   address?: string;
   estimatedTime?: string;
   totalPrice: number;
+  /** Bill breakdown snapshot — see Order's schema comment. */
+  subtotal: number;
+  packagingFeeAmount: number;
+  serviceFeeAmount: number;
+  taxAmount: number;
+  discountAmount?: number;
+  discountName?: string;
+  walletRedeemedAmount?: number;
   /** Set when placed while logged in to a customer account — see features/customer. */
   customerAccountId?: string;
-  items: { productId: string; quantity: number; unitPrice: number; selectedOptionsSummary?: string }[];
+  items: CreateOrderItemData[];
 }
 
 export function createOrder(data: CreateOrderData) {
   const { items, ...rest } = data;
   return prisma.order.create({
-    data: { ...rest, items: { create: items } },
+    data: {
+      ...rest,
+      items: {
+        create: items.map((i) => ({
+          productId: i.productId,
+          quantity: i.quantity,
+          unitPrice: i.unitPrice,
+          note: i.note,
+          options: { create: i.options },
+        })),
+      },
+    },
   });
 }
 

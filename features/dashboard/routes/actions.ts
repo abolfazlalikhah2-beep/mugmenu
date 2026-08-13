@@ -115,6 +115,8 @@ export async function updatePaymentSettingsAction(
     acceptsOnlinePayment: bool(formData, "acceptsOnlinePayment"),
     acceptsCashPayment: bool(formData, "acceptsCashPayment"),
     packagingFee: String(formData.get("packagingFee") ?? ""),
+    serviceFeePercent: String(formData.get("serviceFeePercent") ?? "0"),
+    taxPercent: String(formData.get("taxPercent") ?? "0"),
   });
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/settings");

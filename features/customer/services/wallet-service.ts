@@ -70,6 +70,29 @@ export async function creditCashbackForOrder(
   return { cashback, points };
 }
 
+/** Live balance check right before applying a checkout redemption — see order-service.ts's clampRedeemAmount. */
+export async function getWalletBalance(customerAccountId: string): Promise<number> {
+  const account = await repo.getAccountById(customerAccountId);
+  return account?.walletBalance ?? 0;
+}
+
+/**
+ * Debits the wallet for an amount the caller (order-service.ts) has already
+ * clamped against the live balance — spent at checkout to reduce a new
+ * order's total. Called after the order is created, mirroring
+ * creditCashbackForOrder's placement in the flow.
+ */
+export async function redeemWalletForOrder(customerAccountId: string, orderId: string, amount: number) {
+  await repo.creditWallet({
+    customerAccountId,
+    orderId,
+    type: "REDEEMED",
+    amount: -amount,
+    note: "استفاده در سفارش",
+  });
+  logger.info("customer.wallet_redeemed", { customerAccountId, orderId, amount });
+}
+
 /** Flat loyalty-point award for submitting a review (features/menu's review-service). No wallet ledger entry — this isn't cashback. */
 export async function awardReviewPoints(customerAccountId: string, orderId: string) {
   await repo.incrementLoyaltyPoints(customerAccountId, REVIEW_LOYALTY_POINTS);

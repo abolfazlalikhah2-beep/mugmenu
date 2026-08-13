@@ -16,7 +16,8 @@ export interface CreateOrderActionInput {
   customerPhone: string;
   tableNumber?: string;
   address?: string;
-  items: { productId: string; quantity: number; selectedOptionIds?: string[] }[];
+  items: { productId: string; quantity: number; selectedOptionIds?: string[]; note?: string }[];
+  redeemAmount?: number;
 }
 
 export interface CreateOrderActionState {

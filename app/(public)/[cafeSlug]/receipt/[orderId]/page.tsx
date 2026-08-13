@@ -8,6 +8,8 @@ import { MenuImage } from "@/components/menu/menu-image";
 import { Button } from "@/components/ui/button";
 import { StarIcon } from "@/components/ui/rating";
 import { SurveySheet } from "@/components/menu/survey-sheet";
+import { OrderLineTags, OrderLineNote } from "@/components/menu/order-line-tags";
+import { OrderBillSummary } from "@/components/menu/order-bill-summary";
 import { formatToman } from "@/features/menu/utils/money";
 import { localizedName, menuCopy, orderTypeLabel, type MenuLang } from "@/features/menu/utils/menu-language";
 
@@ -73,23 +75,41 @@ export default async function ReceiptPage({
             />
             <div className={`flex-1 ${align}`}>
               <div className="text-[15px] font-medium">{localizedName(lang, line.product.name, line.product.nameEn)}</div>
-              {line.selectedOptionsSummary && (
-                <div className="mt-0.5 text-xs font-light text-text-3">{line.selectedOptionsSummary}</div>
-              )}
+              <OrderLineTags options={line.options} lang={lang} />
+              <OrderLineNote note={line.note} />
               <div className="mt-1 text-[13px] font-semibold text-brand">
                 {formatToman(line.unitPrice, lang)} {t.toman} × {line.quantity.toLocaleString(lang === "en" ? "en-US" : "fa-IR")}
               </div>
             </div>
           </div>
         ))}
-        <ReceiptLine label={t.subtotal} value={`${formatToman(subtotal, lang)} ${t.toman}`} />
-        <ReceiptLine label={t.taxPackaging} value={`${formatToman(order.business.packagingFee, lang)} ${t.toman}`} />
-        <div className="h-px bg-[#F0F0F0]" />
-        <ReceiptLine
-          label={t.amountPaid}
-          value={`${formatToman(subtotal + order.business.packagingFee, lang)} ${t.toman}`}
-          bold
-        />
+        {order.serviceFeeAmount !== null ? (
+          <OrderBillSummary
+            breakdown={{
+              subtotal: order.subtotal ?? subtotal,
+              packagingFeeAmount: order.packagingFeeAmount ?? 0,
+              serviceFeeAmount: order.serviceFeeAmount,
+              taxAmount: order.taxAmount ?? 0,
+              discountAmount: order.discountAmount ?? 0,
+              discountName: order.discountName,
+              walletRedeemedAmount: order.walletRedeemedAmount ?? 0,
+              total: order.totalPrice,
+            }}
+            lang={lang}
+            totalLabel={t.amountPaid}
+          />
+        ) : (
+          <>
+            <ReceiptLine label={t.subtotal} value={`${formatToman(subtotal, lang)} ${t.toman}`} />
+            <ReceiptLine label={t.taxPackaging} value={`${formatToman(order.business.packagingFee, lang)} ${t.toman}`} />
+            <div className="h-px bg-[#F0F0F0]" />
+            <ReceiptLine
+              label={t.amountPaid}
+              value={`${formatToman(subtotal + order.business.packagingFee, lang)} ${t.toman}`}
+              bold
+            />
+          </>
+        )}
       </div>
 
       {order.reviews.length === 0 && (

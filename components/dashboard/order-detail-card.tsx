@@ -2,7 +2,8 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { User, Phone } from "lucide-react";
+import Link from "next/link";
+import { User, Phone, Printer } from "lucide-react";
 import { OrderStatusBadge, type OrderStatusValue } from "@/components/dashboard/order-status-badge";
 import { formatToman } from "@/features/menu/utils/money";
 import { nextStatus, canCancel, statusLabel, progressSteps } from "@/features/dashboard/services/order-status-flow";
@@ -19,11 +20,22 @@ export interface OrderDetail {
   estimatedTime: string | null;
   totalPrice: number;
   createdAt: Date;
+  // Nullable bill breakdown snapshot — null on orders placed before this
+  // breakdown existed (see Order's schema comment). null means "fall back
+  // to the plain جمع اقلام/مبلغ کل block", not "zero fee was charged".
+  subtotal: number | null;
+  packagingFeeAmount: number | null;
+  serviceFeeAmount: number | null;
+  taxAmount: number | null;
+  discountAmount: number | null;
+  discountName: string | null;
+  walletRedeemedAmount: number | null;
   items: {
     id: string;
     quantity: number;
     unitPrice: number;
-    selectedOptionsSummary: string | null;
+    note: string | null;
+    options: { groupName: string; optionName: string; extraPrice: number }[];
     product: { name: string };
   }[];
 }
@@ -72,6 +84,14 @@ export function OrderDetailCard({ order }: { order: OrderDetail }) {
             {typeContext(order)} · {order.createdAt.toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })}
           </div>
         </div>
+        <Link
+          href={`/print/orders/${order.id}`}
+          target="_blank"
+          className="flex h-10 shrink-0 items-center gap-2 rounded-xl border border-[#EAEAEA] px-3.5 text-[13px] text-[#5F5F5F]"
+        >
+          <Printer size={16} />
+          چاپ رسید
+        </Link>
       </div>
 
       <div className="flex items-center gap-3.5 rounded-2xl border border-[#F0F0F0] bg-[#FAFBFA] p-[14px_18px]">
@@ -105,8 +125,26 @@ export function OrderDetailCard({ order }: { order: OrderDetail }) {
               </span>
               <div>
                 <span className="text-[15px]">{line.product.name}</span>
-                {line.selectedOptionsSummary && (
-                  <div className="mt-0.5 text-xs font-light text-text-3">{line.selectedOptionsSummary}</div>
+                {line.options.length > 0 && (
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {line.options.map((o, oi) => (
+                      <span
+                        key={oi}
+                        className="inline-flex items-center gap-1 whitespace-nowrap rounded-lg bg-[#F6F6F6] px-2 py-1 text-[11px] text-text-2"
+                      >
+                        <span className="text-text-3">{o.groupName}:</span>
+                        <span className="font-medium text-[#3A3A3A]">{o.optionName}</span>
+                        {o.extraPrice > 0 && (
+                          <span className="font-mont text-[10px] text-brand">+{formatToman(o.extraPrice)}</span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {line.note && (
+                  <div className="mt-1 w-fit rounded-lg bg-[#FDF7E6] px-2 py-1 text-[11px] text-[#9F7A2B]">
+                    ★ {line.note}
+                  </div>
                 )}
               </div>
             </div>
@@ -116,10 +154,49 @@ export function OrderDetailCard({ order }: { order: OrderDetail }) {
       </div>
 
       <div className="flex flex-col gap-2.5 rounded-2xl border border-[#F0F0F0] bg-[#FAFBFA] p-[16px_18px]">
-        <div className="flex justify-between">
-          <span className="text-[13px] font-light text-[#777]">جمع اقلام</span>
-          <span className="text-sm">{formatToman(sub)} تومان</span>
-        </div>
+        {order.serviceFeeAmount !== null ? (
+          <>
+            <div className="flex justify-between">
+              <span className="text-[13px] font-light text-[#777]">جمع اقلام</span>
+              <span className="text-sm">{formatToman(order.subtotal ?? sub)} تومان</span>
+            </div>
+            {!!order.packagingFeeAmount && (
+              <div className="flex justify-between">
+                <span className="text-[13px] font-light text-[#777]">بسته‌بندی</span>
+                <span className="text-sm">{formatToman(order.packagingFeeAmount)} تومان</span>
+              </div>
+            )}
+            {!!order.serviceFeeAmount && (
+              <div className="flex justify-between">
+                <span className="text-[13px] font-light text-[#777]">حق سرویس</span>
+                <span className="text-sm">{formatToman(order.serviceFeeAmount)} تومان</span>
+              </div>
+            )}
+            {!!order.taxAmount && (
+              <div className="flex justify-between">
+                <span className="text-[13px] font-light text-[#777]">مالیات</span>
+                <span className="text-sm">{formatToman(order.taxAmount)} تومان</span>
+              </div>
+            )}
+            {!!order.discountAmount && (
+              <div className="flex justify-between">
+                <span className="text-[13px] font-light text-[#777]">{order.discountName ?? "تخفیف"}</span>
+                <span className="text-sm text-brand">−{formatToman(order.discountAmount)} تومان</span>
+              </div>
+            )}
+            {!!order.walletRedeemedAmount && (
+              <div className="flex justify-between">
+                <span className="text-[13px] font-light text-[#777]">استفاده از کیف‌پول</span>
+                <span className="text-sm text-brand">−{formatToman(order.walletRedeemedAmount)} تومان</span>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex justify-between">
+            <span className="text-[13px] font-light text-[#777]">جمع اقلام</span>
+            <span className="text-sm">{formatToman(sub)} تومان</span>
+          </div>
+        )}
         <div className="h-px bg-[#EEE]" />
         <div className="flex justify-between">
           <span className="text-[15px] font-semibold text-brand">مبلغ کل</span>

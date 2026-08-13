@@ -9,6 +9,8 @@ export interface PaymentFormValue {
   acceptsOnlinePayment: boolean;
   acceptsCashPayment: boolean;
   packagingFee: number;
+  serviceFeePercent: number;
+  taxPercent: number;
 }
 
 const initialState: ActionState = {};
@@ -43,6 +45,30 @@ export function PaymentTab({ business }: { business: PaymentFormValue }) {
           min={0}
           required
         />
+        <div className="flex gap-4">
+          <Input
+            name="serviceFeePercent"
+            label="حق سرویس (٪)"
+            type="number"
+            dir="ltr"
+            className="flex-1 text-right"
+            defaultValue={business.serviceFeePercent}
+            min={0}
+            max={100}
+            required
+          />
+          <Input
+            name="taxPercent"
+            label="مالیات (٪)"
+            type="number"
+            dir="ltr"
+            className="flex-1 text-right"
+            defaultValue={business.taxPercent}
+            min={0}
+            max={100}
+            required
+          />
+        </div>
       </SettingsCard>
 
       {state.error && <p className="text-right text-xs text-red-500">{state.error}</p>}

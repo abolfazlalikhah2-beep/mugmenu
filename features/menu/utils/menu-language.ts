@@ -90,9 +90,19 @@ export const MENU_LANG_COPY = {
     trackingCode: "کد پیگیری",
     deliveryAddress: "آدرس تحویل",
     orderSummary: "خلاصه سفارش",
-    subtotal: "جمع سفارش",
+    subtotal: "جمع آیتم‌ها",
     taxPackaging: "مالیات و بسته‌بندی",
     amountPaid: "مبلغ پرداخت‌شده",
+    packagingFeeLabel: "بسته‌بندی",
+    serviceFeeLabel: "حق سرویس",
+    taxLabel: "مالیات",
+    discountLineLabel: "تخفیف",
+    walletRedeemedLabel: "استفاده از کیف‌پول",
+    orderNoteLabel: "توضیح سفارش (اختیاری)",
+    orderNotePlaceholder: "مثلاً: کباب کم‌نمک باشد",
+    editOptionsLabel: "ویرایش گزینه‌ها",
+    walletAvailableCredit: "اعتبار قابل استفاده",
+    useWalletCredit: "استفاده از کیف‌پول در این سفارش",
     howWasExperience: "تجربه‌تان چطور بود؟",
     earnPointsReview: "با ثبت نظر امتیاز باشگاه مشتریان بگیرید",
     writeReview: "ثبت نظر",
@@ -285,6 +295,16 @@ export const MENU_LANG_COPY = {
     subtotal: "Subtotal",
     taxPackaging: "Tax & packaging",
     amountPaid: "Amount paid",
+    packagingFeeLabel: "Packaging",
+    serviceFeeLabel: "Service fee",
+    taxLabel: "Tax",
+    discountLineLabel: "Discount",
+    walletRedeemedLabel: "Wallet credit used",
+    orderNoteLabel: "Order note (optional)",
+    orderNotePlaceholder: "e.g. light on salt",
+    editOptionsLabel: "Edit options",
+    walletAvailableCredit: "Available credit",
+    useWalletCredit: "Use wallet credit on this order",
     howWasExperience: "How was your experience?",
     earnPointsReview: "Earn loyalty club points by leaving a review",
     writeReview: "Write a review",
@@ -556,9 +576,14 @@ export function rewardLabel(lang: MenuLang, faLabel: string): string {
 }
 
 /** WalletTransaction type label (features/customer's wallet ledger). */
-export function walletTransactionTypeLabel(lang: MenuLang, type: "CASHBACK_EARNED" | "ADJUSTMENT"): string {
+export function walletTransactionTypeLabel(
+  lang: MenuLang,
+  type: "CASHBACK_EARNED" | "ADJUSTMENT" | "REDEEMED"
+): string {
   const t = menuCopy(lang);
-  return type === "CASHBACK_EARNED" ? t.cashbackOrder : t.balanceAdjustment;
+  if (type === "CASHBACK_EARNED") return t.cashbackOrder;
+  if (type === "REDEEMED") return t.walletRedeemedLabel;
+  return t.balanceAdjustment;
 }
 
 /** OrderStatus label shared by the dashboard's OrderStatusBadge and customer-facing order screens. */

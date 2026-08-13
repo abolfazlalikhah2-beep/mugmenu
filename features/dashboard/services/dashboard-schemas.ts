@@ -81,6 +81,8 @@ export const paymentSettingsSchema = z.object({
   acceptsOnlinePayment: z.boolean(),
   acceptsCashPayment: z.boolean(),
   packagingFee: z.coerce.number().int().min(0, "هزینه بسته‌بندی نمی‌تواند منفی باشد."),
+  serviceFeePercent: z.coerce.number().int().min(0, "درصد نمی‌تواند منفی باشد.").max(100, "درصد نمی‌تواند بیشتر از ۱۰۰ باشد."),
+  taxPercent: z.coerce.number().int().min(0, "درصد نمی‌تواند منفی باشد.").max(100, "درصد نمی‌تواند بیشتر از ۱۰۰ باشد."),
 });
 
 export const productOptionSchema = z.object({

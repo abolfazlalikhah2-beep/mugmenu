@@ -3,33 +3,69 @@
 import * as React from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { MapPin } from "lucide-react";
+import { MapPin, Wallet } from "lucide-react";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { TopBar } from "@/components/menu/top-bar";
 import { DeliveryTabs } from "@/components/menu/delivery-tabs";
 import { CartLine } from "@/components/menu/cart-line";
 import { MenuImage } from "@/components/menu/menu-image";
 import { StaticField } from "@/components/menu/static-field";
+import { OrderBillSummary } from "@/components/menu/order-bill-summary";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatToman } from "@/features/menu/utils/money";
 import { useCart } from "@/features/menu/client/cart-context";
 import { createOrderAction } from "@/features/menu/routes/actions";
-import { validateOrderDraft, estimatedTimeFor, fieldLabel } from "@/features/menu/services/order-flow";
+import {
+  validateOrderDraft,
+  estimatedTimeFor,
+  fieldLabel,
+  computeServiceFee,
+  computeTax,
+  pickBestAutoDiscount,
+  clampRedeemAmount,
+  type CartLineForDiscount,
+} from "@/features/menu/services/order-flow";
+import type { CartCheckoutContext } from "@/features/menu/services/menu-service";
 import { menuCopy, orderTypeLabel, type MenuLang } from "@/features/menu/utils/menu-language";
 
-export function CartPageClient({ lang = "fa" }: { lang?: MenuLang }) {
+export function CartPageClient({
+  lang = "fa",
+  checkout,
+}: {
+  lang?: MenuLang;
+  checkout: CartCheckoutContext | null;
+}) {
   const { cafeSlug } = useParams<{ cafeSlug: string }>();
-  const { items, orderType, total, clear } = useCart();
+  const { items, orderType, clear } = useCart();
   const [customerName, setCustomerName] = React.useState("");
   const [customerPhone, setCustomerPhone] = React.useState("");
   const [tableNumber, setTableNumber] = React.useState("");
   const [address, setAddress] = React.useState("");
+  const [redeemInput, setRedeemInput] = React.useState("");
   const [pending, setPending] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const t = menuCopy(lang);
 
   const modeLabel = orderTypeLabel(lang, orderType);
+
+  const subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const discountLines: CartLineForDiscount[] = items.map((i) => ({
+    productId: i.productId,
+    categoryId: i.categoryId ?? "",
+    lineTotal: i.price * i.qty,
+  }));
+  const bestDiscount = checkout ? pickBestAutoDiscount(discountLines, checkout.autoDiscounts) : null;
+  const discountAmount = bestDiscount?.amount ?? 0;
+  const packagingFeeAmount = checkout?.packagingFee ?? 0;
+  const serviceFeeAmount = checkout ? computeServiceFee(subtotal, checkout.serviceFeePercent) : 0;
+  const taxAmount = checkout ? computeTax(subtotal, checkout.taxPercent) : 0;
+  const payableBeforeRedeem = Math.max(0, subtotal + packagingFeeAmount + serviceFeeAmount + taxAmount - discountAmount);
+
+  const walletBalance = checkout?.walletBalance ?? 0;
+  const requestedRedeem = Number(redeemInput) || 0;
+  const redeemAmount = clampRedeemAmount(requestedRedeem, walletBalance, payableBeforeRedeem);
+  const total = payableBeforeRedeem - redeemAmount;
 
   if (items.length === 0) {
     return (
@@ -74,7 +110,9 @@ export function CartPageClient({ lang = "fa" }: { lang?: MenuLang }) {
           productId: i.productId,
           quantity: i.qty,
           selectedOptionIds: (i.selectedOptions ?? []).map((o) => o.optionId),
+          note: i.note,
         })),
+        redeemAmount,
       });
       if (result.error) {
         setError(result.error);
@@ -95,7 +133,7 @@ export function CartPageClient({ lang = "fa" }: { lang?: MenuLang }) {
         <DeliveryTabs lang={lang} />
         <div>
           {items.map((item) => (
-            <CartLine key={item.productId} item={item} lang={lang} />
+            <CartLine key={item.lineId} item={item} lang={lang} />
           ))}
         </div>
 
@@ -152,11 +190,44 @@ export function CartPageClient({ lang = "fa" }: { lang?: MenuLang }) {
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-0.5">
-          <span className="text-sm font-light text-[#777]">{t.amountDue}</span>
-          <span className="text-lg font-semibold text-brand">
-            {formatToman(total, lang)} {t.toman}
-          </span>
+        {walletBalance > 0 && (
+          <div className="flex flex-col gap-2.5 rounded-[18px] border border-brand/[0.14] bg-brand/[0.06] p-4.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 text-sm font-medium text-[#2F6B36]">
+                <Wallet size={16} />
+                {t.useWalletCredit}
+              </span>
+              <span className="font-mont text-sm font-semibold text-brand">
+                {formatToman(walletBalance, lang)} {t.toman}
+              </span>
+            </div>
+            <Input
+              type="number"
+              dir="ltr"
+              className="text-right"
+              min={0}
+              max={Math.min(walletBalance, payableBeforeRedeem)}
+              placeholder="0"
+              value={redeemInput}
+              onChange={(e) => setRedeemInput(e.target.value)}
+            />
+          </div>
+        )}
+
+        <div className="rounded-[18px] border border-[#F0F0F0] p-4.5">
+          <OrderBillSummary
+            breakdown={{
+              subtotal,
+              packagingFeeAmount,
+              serviceFeeAmount,
+              taxAmount,
+              discountAmount,
+              discountName: bestDiscount?.discount.name,
+              walletRedeemedAmount: redeemAmount,
+              total,
+            }}
+            lang={lang}
+          />
         </div>
 
         {error && <p className="text-right text-xs text-red-500">{error}</p>}

@@ -5,7 +5,12 @@ import {
   computeTotal,
   estimatedTimeFor,
   computeOptionsExtra,
-  summarizeSelectedOptions,
+  computeServiceFee,
+  computeTax,
+  computeAutoDiscountAmount,
+  pickBestAutoDiscount,
+  clampRedeemAmount,
+  type AutoDiscountDef,
 } from "./order-flow";
 
 describe("requiredFieldsFor", () => {
@@ -127,18 +132,104 @@ describe("computeOptionsExtra", () => {
   });
 });
 
-describe("summarizeSelectedOptions", () => {
-  it("joins group/option pairs into a single readable string", () => {
-    expect(
-      summarizeSelectedOptions([
-        { groupName: "سایز", optionName: "بزرگ", extraPrice: 45000 },
-        { groupName: "نوع نان", optionName: "سنگک", extraPrice: 8000 },
-      ])
-    ).toBe("سایز: بزرگ، نوع نان: سنگک");
+describe("computeServiceFee / computeTax", () => {
+  it("rounds percent of subtotal to the nearest toman", () => {
+    expect(computeServiceFee(100000, 9)).toBe(9000);
+    expect(computeTax(100000, 6)).toBe(6000);
+    expect(computeServiceFee(10001, 9)).toBe(Math.round(10001 * 0.09));
   });
 
-  it("returns undefined when nothing was selected", () => {
-    expect(summarizeSelectedOptions([])).toBeUndefined();
+  it("returns 0 when the percent is 0", () => {
+    expect(computeServiceFee(100000, 0)).toBe(0);
+    expect(computeTax(100000, 0)).toBe(0);
+  });
+});
+
+describe("computeAutoDiscountAmount / pickBestAutoDiscount", () => {
+  const lines = [
+    { productId: "kabab", categoryId: "kababs", lineTotal: 400000 },
+    { productId: "doogh", categoryId: "drinks", lineTotal: 60000 },
+  ];
+
+  it("ALL_MENU applies to every line", () => {
+    const d: AutoDiscountDef = { id: "1", name: "همه منو", percent: 10, scope: "ALL_MENU", categoryIds: [] };
+    expect(computeAutoDiscountAmount(lines, d)).toBe(Math.round(460000 * 0.1));
+  });
+
+  it("CATEGORY only applies to matching category lines", () => {
+    const d: AutoDiscountDef = {
+      id: "2",
+      name: "کباب‌ها",
+      percent: 10,
+      scope: "CATEGORY",
+      categoryIds: ["kababs"],
+    };
+    expect(computeAutoDiscountAmount(lines, d)).toBe(Math.round(400000 * 0.1));
+  });
+
+  it("PRODUCT only applies to the matching product's line", () => {
+    const d: AutoDiscountDef = {
+      id: "3",
+      name: "دوغ",
+      percent: 20,
+      scope: "PRODUCT",
+      categoryIds: [],
+      productId: "doogh",
+    };
+    expect(computeAutoDiscountAmount(lines, d)).toBe(Math.round(60000 * 0.2));
+  });
+
+  it("pickBestAutoDiscount picks the largest-amount match and ignores non-matches", () => {
+    const small: AutoDiscountDef = {
+      id: "small",
+      name: "small",
+      percent: 5,
+      scope: "ALL_MENU",
+      categoryIds: [],
+    };
+    const big: AutoDiscountDef = {
+      id: "big",
+      name: "big",
+      percent: 10,
+      scope: "CATEGORY",
+      categoryIds: ["kababs"],
+    };
+    const irrelevant: AutoDiscountDef = {
+      id: "none",
+      name: "none",
+      percent: 50,
+      scope: "PRODUCT",
+      categoryIds: [],
+      productId: "not-in-cart",
+    };
+    const best = pickBestAutoDiscount(lines, [small, big, irrelevant]);
+    expect(best?.discount.id).toBe("big");
+    expect(best?.amount).toBe(Math.round(400000 * 0.1));
+  });
+
+  it("returns null when nothing matches", () => {
+    const d: AutoDiscountDef = {
+      id: "1",
+      name: "x",
+      percent: 10,
+      scope: "PRODUCT",
+      categoryIds: [],
+      productId: "not-in-cart",
+    };
+    expect(pickBestAutoDiscount(lines, [d])).toBeNull();
+  });
+});
+
+describe("clampRedeemAmount", () => {
+  it("caps to the lowest of requested/balance/payable", () => {
+    expect(clampRedeemAmount(50000, 100000, 30000)).toBe(30000);
+    expect(clampRedeemAmount(50000, 20000, 100000)).toBe(20000);
+    expect(clampRedeemAmount(10000, 100000, 100000)).toBe(10000);
+  });
+
+  it("treats a non-positive request as 0", () => {
+    expect(clampRedeemAmount(0, 100000, 100000)).toBe(0);
+    expect(clampRedeemAmount(-500, 100000, 100000)).toBe(0);
   });
 });
 

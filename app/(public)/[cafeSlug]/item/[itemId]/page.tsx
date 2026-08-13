@@ -85,6 +85,7 @@ export default async function ItemDetailPage({
         <AddToCartControl
           slug={cafeSlug}
           productId={product.id}
+          categoryId={product.categoryId}
           name={name}
           price={finalPrice}
           imageUrl={product.imageUrl}

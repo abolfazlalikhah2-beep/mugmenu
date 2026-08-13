@@ -77,10 +77,68 @@ export function computeOptionsExtra(selected: SelectedProductOption[]): number {
   return selected.reduce((sum, o) => sum + o.extraPrice, 0);
 }
 
-/** Human-readable snapshot stored on OrderItem.selectedOptionsSummary, e.g. "سایز: بزرگ، نوع نان: سنگک". Undefined when nothing was selected. */
-export function summarizeSelectedOptions(selected: SelectedProductOption[]): string | undefined {
-  if (selected.length === 0) return undefined;
-  return selected.map((o) => `${o.groupName}: ${o.optionName}`).join("، ");
+/** Business.serviceFeePercent applied to the order's subtotal (see order-service.ts). */
+export function computeServiceFee(subtotal: number, percent: number): number {
+  return Math.round((subtotal * percent) / 100);
+}
+
+/** Business.taxPercent applied to the order's subtotal. Same shape as computeServiceFee but a distinct concept, kept separate in case the base they're computed on ever diverges. */
+export function computeTax(subtotal: number, percent: number): number {
+  return Math.round((subtotal * percent) / 100);
+}
+
+export interface CartLineForDiscount {
+  productId: string;
+  categoryId: string;
+  /** This line's pre-fee amount: (unit price incl. selected options) × quantity. */
+  lineTotal: number;
+}
+
+export interface AutoDiscountDef {
+  id: string;
+  name: string;
+  percent: number;
+  scope: "ALL_MENU" | "CATEGORY" | "PRODUCT";
+  categoryIds: string[];
+  productId?: string | null;
+}
+
+function discountEligibleLines(
+  lines: CartLineForDiscount[],
+  discount: AutoDiscountDef
+): CartLineForDiscount[] {
+  switch (discount.scope) {
+    case "ALL_MENU":
+      return lines;
+    case "CATEGORY":
+      return lines.filter((l) => discount.categoryIds.includes(l.categoryId));
+    case "PRODUCT":
+      return lines.filter((l) => l.productId === discount.productId);
+  }
+}
+
+export function computeAutoDiscountAmount(lines: CartLineForDiscount[], discount: AutoDiscountDef): number {
+  const base = discountEligibleLines(lines, discount).reduce((sum, l) => sum + l.lineTotal, 0);
+  return Math.round((base * discount.percent) / 100);
+}
+
+/** Picks the single best (largest-amount) matching automatic discount — discounts don't stack. Returns null when none apply. */
+export function pickBestAutoDiscount(
+  lines: CartLineForDiscount[],
+  discounts: AutoDiscountDef[]
+): { discount: AutoDiscountDef; amount: number } | null {
+  let best: { discount: AutoDiscountDef; amount: number } | null = null;
+  for (const discount of discounts) {
+    const amount = computeAutoDiscountAmount(lines, discount);
+    if (amount > 0 && (!best || amount > best.amount)) best = { discount, amount };
+  }
+  return best;
+}
+
+/** Caps a customer's requested wallet spend to what's actually available and payable — never trust the client's requested amount as-is (see order-service.ts). */
+export function clampRedeemAmount(requested: number, walletBalance: number, payableBeforeRedeem: number): number {
+  if (requested <= 0) return 0;
+  return Math.min(requested, walletBalance, payableBeforeRedeem);
 }
 
 /** System-shown estimate per type — not user-editable (see the cart UI). Defaults to Persian (see order-flow.test.ts). */
