@@ -166,6 +166,16 @@ model Category {
   sortOrder  Int      @default(0)
   isActive   Boolean  @default(true)
 
+  // Optional day/time visibility window (dashboard "زمان‌بندی نمایش") — a
+  // category can be active but still hidden from the public menu outside its
+  // window. Pure evaluation logic lives in features/menu/utils/category-schedule.ts
+  // so it's testable without a clock/DB. scheduleDays uses JS Date#getDay()
+  // values (0=Sunday..6=Saturday); an empty array means "every day".
+  scheduleEnabled Boolean  @default(false)
+  scheduleDays    Int[]    @default([])
+  scheduleStart   String?
+  scheduleEnd     String?
+
   products Product[]
 
   @@unique([businessId, name])
@@ -191,6 +201,15 @@ model Product {
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
 
+  // Inventory tracking (dashboard "پیگیری موجودی") — opt-in per product.
+  // When trackInventory is on and stock hits 0, the product shows as
+  // "ناموجود" everywhere and checkout is blocked server-side (order-service.ts).
+  // lowStockThreshold only drives the dashboard's "موجودی کم" badge, not
+  // ordering behavior.
+  trackInventory    Boolean @default(false)
+  stock             Int     @default(0)
+  lowStockThreshold Int     @default(5)
+
   orderItems   OrderItem[]
   reviews      Review[]
   discounts    Discount[]
@@ -203,15 +222,18 @@ model Product {
 }
 
 // Admin-authored variant groups on a product (e.g. سایز، نوع نان، نوع برنج).
-// Single-select per group on the public menu; required groups force a
-// selection (a default option, when set, pre-selects it).
+// Single-select per group on the public menu unless multiSelect is set (e.g.
+// افزودنی‌ها), in which case customers can pick any number of its options.
+// Required groups force at least one selection (a default option, when set,
+// pre-selects it for single-select groups).
 model ProductOptionGroup {
-  id        String   @id @default(cuid())
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  name      String
-  required  Boolean  @default(false)
-  sortOrder Int      @default(0)
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name        String
+  required    Boolean  @default(false)
+  multiSelect Boolean  @default(false)
+  sortOrder   Int      @default(0)
 
   options ProductOption[]
 

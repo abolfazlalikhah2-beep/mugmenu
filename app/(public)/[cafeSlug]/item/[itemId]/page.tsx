@@ -25,6 +25,7 @@ export default async function ItemDetailPage({
   after(() => logItemView(product.businessId, product.id));
   const hasDiscount = !!product.discountPercent;
   const finalPrice = computeDiscountedPrice(product.price, product.discountPercent);
+  const outOfStock = product.trackInventory && product.stock <= 0;
 
   const lang = (await getMenuLangCookie(cafeSlug)) ?? "fa";
   const t = menuCopy(lang);
@@ -47,6 +48,11 @@ export default async function ItemDetailPage({
         >
           <ChevronRight size={22} />
         </Link>
+        {outOfStock && (
+          <span className="absolute top-4 right-4 rounded-2xl bg-[#E5484D] px-3 py-1.5 text-[12.5px] font-medium text-white">
+            {t.outOfStockBadge}
+          </span>
+        )}
       </div>
       <div className={`flex flex-col gap-4 p-5 md:p-10 ${align}`}>
         <div className="flex items-center justify-between gap-3">
@@ -90,6 +96,7 @@ export default async function ItemDetailPage({
           price={finalPrice}
           imageUrl={product.imageUrl}
           optionGroups={product.optionGroups}
+          outOfStock={outOfStock}
           lang={lang}
         />
       </div>

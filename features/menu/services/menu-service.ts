@@ -1,6 +1,7 @@
 import "server-only";
 import * as repo from "@/features/menu/repositories/menu-repository";
 import { formatOpeningHours } from "@/features/menu/utils/business-hours";
+import { isCategoryVisibleNow } from "@/features/menu/utils/category-schedule";
 import { getWalletBalance } from "@/features/customer/services/wallet-service";
 import type { AutoDiscountDef } from "@/features/menu/services/order-flow";
 
@@ -40,7 +41,7 @@ export async function getCategoryBrowserData(slug: string) {
     repo.getCategories(business.id),
     repo.getProducts(business.id),
   ]);
-  return { business, categories, products };
+  return { business, categories: categories.filter((c) => isCategoryVisibleNow(c)), products };
 }
 
 export async function getItemDetailData(productId: string) {

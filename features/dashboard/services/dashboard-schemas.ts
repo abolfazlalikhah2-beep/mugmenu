@@ -94,6 +94,7 @@ export const productOptionSchema = z.object({
 export const productOptionGroupSchema = z.object({
   name: z.string().trim().min(1, "نام ویژگی را وارد کنید.").max(60),
   required: z.boolean().default(false),
+  multiSelect: z.boolean().default(false),
   options: z.array(productOptionSchema).min(1, "حداقل یک گزینه اضافه کنید."),
 });
 
@@ -106,13 +107,27 @@ export const productSchema = z.object({
   isActive: z.boolean(),
   imageUrl: optionalImageUrl,
   optionGroups: z.array(productOptionGroupSchema).optional().default([]),
+  trackInventory: z.boolean().default(false),
+  stock: z.coerce.number().int().min(0, "موجودی نمی‌تواند منفی باشد.").default(0),
+  lowStockThreshold: z.coerce.number().int().min(0, "آستانه هشدار نمی‌تواند منفی باشد.").default(5),
 });
+
+const optionalTime = z
+  .string()
+  .trim()
+  .optional()
+  .or(z.literal(""))
+  .transform((v) => (v ? v : undefined));
 
 export const categorySchema = z.object({
   name: z.string().trim().min(2, "نام دسته را کامل وارد کنید.").max(60),
   icon: z.string().trim().max(30).optional(),
   isActive: z.boolean(),
   imageUrl: optionalImageUrl,
+  scheduleEnabled: z.boolean().default(false),
+  scheduleDays: z.array(z.coerce.number().int().min(0).max(6)).optional().default([]),
+  scheduleStart: optionalTime,
+  scheduleEnd: optionalTime,
 });
 
 export const orderStatusSchema = z.object({

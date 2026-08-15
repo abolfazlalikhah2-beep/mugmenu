@@ -9,7 +9,14 @@ import { CategoryModal } from "@/components/dashboard/category-modal";
 export function CategoriesView({
   categories,
 }: {
-  categories: (CategoryRowData & { icon: string | null; imageUrl: string | null })[];
+  categories: (CategoryRowData & {
+    icon: string | null;
+    imageUrl: string | null;
+    scheduleEnabled: boolean;
+    scheduleDays: number[];
+    scheduleStart: string | null;
+    scheduleEnd: string | null;
+  })[];
 }) {
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState<"closed" | "create" | string>("closed");
@@ -78,6 +85,10 @@ export function CategoriesView({
             icon: editing.icon,
             imageUrl: editing.imageUrl,
             isActive: editing.isActive,
+            scheduleEnabled: editing.scheduleEnabled,
+            scheduleDays: editing.scheduleDays,
+            scheduleStart: editing.scheduleStart,
+            scheduleEnd: editing.scheduleEnd,
           }}
           onClose={() => setModal("closed")}
         />

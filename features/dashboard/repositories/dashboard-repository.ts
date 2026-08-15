@@ -186,6 +186,7 @@ export function getProductsByIds(businessId: string, ids: string[]) {
 export interface ProductOptionGroupInput {
   name: string;
   required: boolean;
+  multiSelect: boolean;
   options: { name: string; extraPrice: number; isDefault: boolean }[];
 }
 
@@ -193,6 +194,7 @@ function optionGroupsCreateData(groups: ProductOptionGroupInput[]) {
   return groups.map((g, i) => ({
     name: g.name,
     required: g.required,
+    multiSelect: g.multiSelect,
     sortOrder: i,
     options: {
       create: g.options.map((o, j) => ({
@@ -214,6 +216,9 @@ export function createProduct(data: {
   discountPercent?: number;
   imageUrl?: string;
   optionGroups?: ProductOptionGroupInput[];
+  trackInventory?: boolean;
+  stock?: number;
+  lowStockThreshold?: number;
 }) {
   const { optionGroups, ...rest } = data;
   return prisma.product.create({
@@ -278,6 +283,10 @@ export function createCategory(data: {
   icon?: string;
   imageUrl?: string;
   sortOrder: number;
+  scheduleEnabled?: boolean;
+  scheduleDays?: number[];
+  scheduleStart?: string;
+  scheduleEnd?: string;
 }) {
   return prisma.category.create({ data });
 }

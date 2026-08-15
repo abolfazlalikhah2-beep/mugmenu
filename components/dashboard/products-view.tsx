@@ -102,6 +102,9 @@ export function ProductsView({
             isActive: editingProduct.isActive,
             imageUrl: editingProduct.imageUrl,
             optionGroups: editingProduct.optionGroups,
+            trackInventory: editingProduct.trackInventory,
+            stock: editingProduct.stock,
+            lowStockThreshold: editingProduct.lowStockThreshold,
           }}
           onClose={() => setModal("closed")}
         />

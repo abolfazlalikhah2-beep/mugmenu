@@ -35,6 +35,15 @@ export async function createOrder(input: unknown, customerAccountId?: string): P
   const products = await menuRepository.findProductsByIds(data.items.map((i) => i.productId));
   const productMap = new Map(products.map((p) => [p.id, p]));
 
+  // Inventory is enforced here, not just as a UI hint — never trust the
+  // client's snapshot of stock at add-to-cart time.
+  for (const item of data.items) {
+    const product = productMap.get(item.productId);
+    if (product?.trackInventory && product.stock <= 0) {
+      return { ok: false, error: `«${product.name}» در حال حاضر ناموجود است.` };
+    }
+  }
+
   // Option prices are always resolved from the DB, never taken from the
   // client — the client only sends which option ids it picked.
   const optionIds = [...new Set(data.items.flatMap((i) => i.selectedOptionIds))];

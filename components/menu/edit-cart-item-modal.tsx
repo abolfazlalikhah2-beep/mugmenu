@@ -4,7 +4,13 @@ import * as React from "react";
 import { X } from "lucide-react";
 import { ProductOptionsForm } from "@/components/menu/product-options-form";
 import { useCart, type CartItem } from "@/features/menu/client/cart-context";
-import { defaultSelection, selectionToOptions, allRequiredGroupsSelected } from "@/features/menu/utils/product-options";
+import {
+  defaultSelection,
+  selectionToOptions,
+  allRequiredGroupsSelected,
+  toggleOptionSelection,
+  type OptionSelection,
+} from "@/features/menu/utils/product-options";
 import { formatToman } from "@/features/menu/utils/money";
 import { menuCopy, type MenuLang } from "@/features/menu/utils/menu-language";
 
@@ -22,15 +28,13 @@ export function EditCartItemModal({
   const align = lang === "en" ? "text-left" : "text-right";
   const groups = React.useMemo(() => item.productOptionGroups ?? [], [item.productOptionGroups]);
 
-  const [selected, setSelected] = React.useState<Record<string, string>>(() => {
-    const fromLine = Object.fromEntries(
-      (item.selectedOptions ?? [])
-        .map((o) => {
-          const group = groups.find((g) => g.options.some((opt) => opt.id === o.optionId));
-          return group ? ([group.id, o.optionId] as const) : null;
-        })
-        .filter((e): e is readonly [string, string] => e !== null)
-    );
+  const [selected, setSelected] = React.useState<OptionSelection>(() => {
+    const fromLine: OptionSelection = {};
+    for (const o of item.selectedOptions ?? []) {
+      const group = groups.find((g) => g.options.some((opt) => opt.id === o.optionId));
+      if (!group) continue;
+      fromLine[group.id] = [...(fromLine[group.id] ?? []), o.optionId];
+    }
     return Object.keys(fromLine).length > 0 ? fromLine : defaultSelection(groups);
   });
   const [note, setNote] = React.useState(item.note ?? "");
@@ -64,7 +68,11 @@ export function EditCartItemModal({
             <ProductOptionsForm
               optionGroups={groups}
               selected={selected}
-              onSelect={(groupId, optionId) => setSelected((prev) => ({ ...prev, [groupId]: optionId }))}
+              onToggle={(groupId, optionId) => {
+                const group = groups.find((g) => g.id === groupId);
+                if (!group) return;
+                setSelected((prev) => toggleOptionSelection(prev, group, optionId));
+              }}
               note={note}
               onNoteChange={setNote}
               lang={lang}

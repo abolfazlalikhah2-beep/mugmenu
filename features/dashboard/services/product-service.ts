@@ -29,6 +29,9 @@ export async function createProduct(businessId: string, input: unknown): Promise
     discountPercent: data.discountPercent,
     imageUrl: data.imageUrl,
     optionGroups: data.optionGroups,
+    trackInventory: data.trackInventory,
+    stock: data.stock,
+    lowStockThreshold: data.lowStockThreshold,
   });
   logger.info("dashboard.product_created", { businessId, name: data.name });
   return { ok: true };

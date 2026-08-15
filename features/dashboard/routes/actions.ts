@@ -428,6 +428,9 @@ export async function createProductAction(
     discountPercent: String(formData.get("discountPercent") ?? "0"),
     isActive: bool(formData, "isActive"),
     optionGroups: parseOptionGroups(formData),
+    trackInventory: bool(formData, "trackInventory"),
+    stock: String(formData.get("stock") ?? "0"),
+    lowStockThreshold: String(formData.get("lowStockThreshold") ?? "5"),
   });
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/products");
@@ -448,6 +451,9 @@ export async function updateProductAction(
     discountPercent: String(formData.get("discountPercent") ?? "0"),
     isActive: bool(formData, "isActive"),
     optionGroups: parseOptionGroups(formData),
+    trackInventory: bool(formData, "trackInventory"),
+    stock: String(formData.get("stock") ?? "0"),
+    lowStockThreshold: String(formData.get("lowStockThreshold") ?? "5"),
   });
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/products");
@@ -477,6 +483,10 @@ export async function createCategoryAction(
     name: String(formData.get("name") ?? ""),
     icon: String(formData.get("icon") ?? ""),
     isActive: bool(formData, "isActive"),
+    scheduleEnabled: bool(formData, "scheduleEnabled"),
+    scheduleDays: formData.getAll("scheduleDays").map(String),
+    scheduleStart: String(formData.get("scheduleStart") ?? ""),
+    scheduleEnd: String(formData.get("scheduleEnd") ?? ""),
   });
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/categories");
@@ -493,6 +503,10 @@ export async function updateCategoryAction(
     name: String(formData.get("name") ?? ""),
     icon: String(formData.get("icon") ?? ""),
     isActive: bool(formData, "isActive"),
+    scheduleEnabled: bool(formData, "scheduleEnabled"),
+    scheduleDays: formData.getAll("scheduleDays").map(String),
+    scheduleStart: String(formData.get("scheduleStart") ?? ""),
+    scheduleEnd: String(formData.get("scheduleEnd") ?? ""),
   });
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/categories");

@@ -16,6 +16,8 @@ export interface ProductCardData {
   price: number;
   imageUrl: string | null;
   discountPercent?: number | null;
+  trackInventory?: boolean;
+  stock?: number;
 }
 
 export function ProductCard({
@@ -30,20 +32,26 @@ export function ProductCard({
   const { addItem } = useCart();
   const hasDiscount = !!product.discountPercent;
   const finalPrice = computeDiscountedPrice(product.price, product.discountPercent);
+  const outOfStock = !!product.trackInventory && (product.stock ?? 0) <= 0;
   const t = menuCopy(lang);
   const name = localizedName(lang, product.name, product.nameEn);
   const description = localizedText(lang, product.description, product.descriptionEn);
   const align = lang === "en" ? "text-left" : "text-right";
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-card-sm border border-[#EEEEEE] bg-card">
-      <Link href={`/${slug}/item/${product.id}`}>
+    <div className={"flex flex-col overflow-hidden rounded-card-sm border border-[#EEEEEE] bg-card" + (outOfStock ? " opacity-70" : "")}>
+      <Link href={`/${slug}/item/${product.id}`} className="relative block">
         <MenuImage
           imageUrl={product.imageUrl}
           alt={name}
           label={name}
           className="h-[110px] w-full md:h-[140px]"
         />
+        {outOfStock && (
+          <span className="absolute top-2 right-2 rounded-lg bg-[#E5484D] px-2.5 py-[3px] text-[11px] font-medium text-white">
+            {t.outOfStockBadge}
+          </span>
+        )}
       </Link>
       <div className={`flex flex-col gap-2 p-3.5 ${align}`}>
         <Link href={`/${slug}/item/${product.id}`} className="text-sm font-medium md:text-base">
@@ -73,8 +81,9 @@ export function ProductCard({
                 imageUrl: product.imageUrl,
               })
             }
+            disabled={outOfStock}
             aria-label={addAriaLabel(lang, name)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Plus size={22} />
           </button>

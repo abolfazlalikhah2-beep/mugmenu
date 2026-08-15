@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import Image from "next/image";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Box } from "lucide-react";
 import { Toggle } from "@/components/dashboard/toggle";
 import { formatToman } from "@/features/menu/utils/money";
 import { toggleProductActiveAction, deleteProductAction } from "@/features/dashboard/routes/actions";
@@ -20,12 +20,18 @@ export interface ProductCardData {
   optionGroups?: {
     name: string;
     required: boolean;
+    multiSelect: boolean;
     options: { name: string; extraPrice: number; isDefault: boolean }[];
   }[];
+  trackInventory: boolean;
+  stock: number;
+  lowStockThreshold: number;
 }
 
 export function ProductCard({ product, onEdit }: { product: ProductCardData; onEdit: () => void }) {
   const [pending, startTransition] = useTransition();
+  const outOfStock = product.trackInventory && product.stock <= 0;
+  const lowStock = product.trackInventory && product.stock > 0 && product.stock <= product.lowStockThreshold;
 
   function handleToggle(next: boolean) {
     startTransition(async () => {
@@ -49,7 +55,7 @@ export function ProductCard({ product, onEdit }: { product: ProductCardData; onE
         {product.imageUrl && (
           <Image src={product.imageUrl} alt={product.name} fill sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover" />
         )}
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex gap-1.5">
           <span
             className="rounded-[9px] px-3 py-[5px] text-xs font-medium"
             style={{
@@ -59,7 +65,16 @@ export function ProductCard({ product, onEdit }: { product: ProductCardData; onE
           >
             {product.isActive ? "فعال" : "غیرفعال"}
           </span>
+          {outOfStock && (
+            <span className="rounded-[9px] bg-[#E5484D] px-3 py-[5px] text-xs font-medium text-white">ناموجود</span>
+          )}
+          {lowStock && (
+            <span className="rounded-[9px] bg-[#FDF7E6] px-3 py-[5px] text-xs font-medium text-[#9F7A2B]">
+              موجودی کم: {product.stock.toLocaleString("fa-IR")}
+            </span>
+          )}
         </div>
+        {outOfStock && <div className="absolute inset-0 bg-white/55" />}
         {!!product.discountPercent && (
           <div className="absolute top-3 left-3">
             <span className="rounded-[9px] bg-[#E5484D] px-3 py-[5px] text-xs font-medium text-white">
@@ -77,6 +92,15 @@ export function ProductCard({ product, onEdit }: { product: ProductCardData; onE
         </div>
         <div className="h-[34px] overflow-hidden text-xs font-light leading-[1.7] text-text-3">
           {product.description}
+        </div>
+        <div
+          className="flex items-center gap-1.5 text-[11.5px]"
+          style={{ color: product.trackInventory ? (outOfStock ? "#E5484D" : "#7A7A7A") : "#C0C0C0" }}
+        >
+          <Box size={14} className={product.trackInventory ? (outOfStock ? "text-[#E5484D]" : "text-[#9F9F9F]") : "text-[#D5D5D5]"} />
+          <span>
+            {product.trackInventory ? `موجودی: ${product.stock.toLocaleString("fa-IR")} عدد` : "پیگیری موجودی غیرفعال"}
+          </span>
         </div>
         <div className="flex items-center justify-between border-t border-[#F4F4F4] pt-3">
           <div className="text-base font-semibold text-brand">

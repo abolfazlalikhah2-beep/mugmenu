@@ -72,6 +72,11 @@ export const MENU_LANG_COPY = {
     optionOptional: "اختیاری",
     chooseOneOption: "یک گزینه انتخاب کنید",
     noExtraCost: "بدون هزینه",
+    multiSelectBadge: "چند انتخابی",
+    outOfStockBadge: "ناموجود",
+    outOfStockBar: "فعلاً ناموجود",
+    notifyMeLabel: "اطلاع بده",
+    notifyMeSub: "وقتی موجود شد",
 
     // ===== cart =====
     cartEmpty: "سبد شما خالی است",
@@ -274,6 +279,11 @@ export const MENU_LANG_COPY = {
     optionOptional: "Optional",
     chooseOneOption: "Choose one option",
     noExtraCost: "No extra cost",
+    multiSelectBadge: "Multi-select",
+    outOfStockBadge: "Out of stock",
+    outOfStockBar: "Currently unavailable",
+    notifyMeLabel: "Notify me",
+    notifyMeSub: "when available",
 
     // ===== cart =====
     cartEmpty: "Your cart is empty",
