@@ -11,6 +11,7 @@ import type {
   TicketCategory,
   TicketAuthorType,
   TicketStatus,
+  CourierVehicleType,
 } from "@/lib/generated/prisma/enums";
 
 // ---------- Business ----------
@@ -105,7 +106,7 @@ export function getOrders(
           }
         : {}),
     },
-    include: { items: { include: { product: true } } },
+    include: { items: { include: { product: true } }, courier: { select: { id: true, name: true } } },
     orderBy: { createdAt: "desc" },
   });
 }
@@ -113,12 +114,74 @@ export function getOrders(
 export function getOrderWithItems(id: string) {
   return prisma.order.findUnique({
     where: { id },
-    include: { items: { include: { product: true, options: true } } },
+    include: { items: { include: { product: true, options: true } }, courier: { select: { id: true, name: true } } },
   });
 }
 
 export function updateOrderStatus(id: string, status: OrderStatus) {
   return prisma.order.update({ where: { id }, data: { status } });
+}
+
+export function assignCourierToOrder(orderId: string, courierId: string | null) {
+  return prisma.order.update({ where: { id: orderId }, data: { courierId } });
+}
+
+// ---------- Couriers ----------
+
+/** _count.orders is scoped to "in flight" statuses — the couriers list's busy/free indicator (see courier-aggregation.ts). */
+export function getCouriers(businessId: string) {
+  return prisma.courier.findMany({
+    where: { businessId },
+    orderBy: { createdAt: "asc" },
+    include: {
+      _count: { select: { orders: { where: { status: { notIn: ["DELIVERED", "CANCELED"] } } } } },
+    },
+  });
+}
+
+/** Only active couriers, for the order detail page's assignment dropdown. */
+export function getActiveCouriers(businessId: string) {
+  return prisma.courier.findMany({
+    where: { businessId, isActive: true },
+    orderBy: { name: "asc" },
+    include: {
+      _count: { select: { orders: { where: { status: { notIn: ["DELIVERED", "CANCELED"] } } } } },
+    },
+  });
+}
+
+export function getCourierForEdit(id: string) {
+  return prisma.courier.findUnique({ where: { id } });
+}
+
+export interface CourierInput {
+  businessId: string;
+  name: string;
+  phone: string;
+  vehicleType: CourierVehicleType;
+  nationalCode?: string;
+  coverageZones: string[];
+  isActive: boolean;
+}
+
+export function createCourier(data: CourierInput) {
+  return prisma.courier.create({ data });
+}
+
+export function updateCourier(id: string, data: Record<string, unknown>) {
+  return prisma.courier.update({ where: { id }, data });
+}
+
+export function deleteCourier(id: string) {
+  return prisma.courier.delete({ where: { id } });
+}
+
+/** Today's DELIVERY orders (assigned or not) — grouped by courierId in courier-aggregation.ts for the "امروز" column + summary tile. */
+export function getTodayDeliveryOrders(businessId: string, since: Date) {
+  return prisma.order.findMany({
+    where: { businessId, type: "DELIVERY", createdAt: { gte: since } },
+    select: { courierId: true },
+  });
 }
 
 export interface CreateManualOrderData {

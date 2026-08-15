@@ -108,6 +108,7 @@ model Business {
   tickets      Ticket[]
   transactions Transaction[]
   customers    CustomerAccount[]
+  couriers     Courier[]
 }
 
 enum UserRole {
@@ -300,6 +301,12 @@ model Order {
   customerAccountId String?
   customerAccount   CustomerAccount? @relation(fields: [customerAccountId], references: [id])
 
+  // Internal courier assigned to a DELIVERY order (dashboard "پیک‌ها" ›
+  // تخصیص پیک on the order detail page). SetNull so deleting a courier never
+  // blocks on their order history — the order just reverts to unassigned.
+  courierId String?
+  courier   Courier? @relation(fields: [courierId], references: [id], onDelete: SetNull)
+
   items              OrderItem[]
   walletTransactions WalletTransaction[]
   reviews            Review[]
@@ -307,6 +314,32 @@ model Order {
 
   @@index([businessId])
   @@index([customerAccountId])
+  @@index([courierId])
+}
+
+enum CourierVehicleType {
+  MOTORCYCLE
+  CAR
+}
+
+// In-house delivery staff a business manages itself (not a third-party
+// dispatch integration — see CLAUDE.md phase 3 for that). Assigned to
+// DELIVERY orders from the order detail page.
+model Courier {
+  id            String             @id @default(cuid())
+  businessId    String
+  business      Business           @relation(fields: [businessId], references: [id])
+  name          String
+  phone         String
+  vehicleType   CourierVehicleType @default(MOTORCYCLE)
+  nationalCode  String?
+  coverageZones String[]           @default([])
+  isActive      Boolean            @default(true)
+  createdAt     DateTime           @default(now())
+
+  orders Order[]
+
+  @@index([businessId])
 }
 
 // End-customer identity for the public menu (phone + OTP, see

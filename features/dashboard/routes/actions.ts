@@ -17,6 +17,7 @@ import * as productService from "@/features/dashboard/services/product-service";
 import * as categoryService from "@/features/dashboard/services/category-service";
 import * as discountService from "@/features/dashboard/services/discount-service";
 import * as userMgmtService from "@/features/dashboard/services/user-mgmt-service";
+import * as courierService from "@/features/dashboard/services/courier-service";
 
 export interface ActionState {
   error?: string;
@@ -380,6 +381,14 @@ export async function updateOrderStatusAction(orderId: string, status: string) {
   return result;
 }
 
+export async function assignCourierAction(orderId: string, courierId: string | null) {
+  const { businessId } = await requireBusinessOwner();
+  const result = await orderMgmtService.assignCourier(businessId, { orderId, courierId: courierId ?? "" });
+  revalidatePath(`/dashboard/orders/${orderId}`);
+  revalidatePath("/dashboard/orders");
+  return result;
+}
+
 export async function createManualOrderAction(
   _prevState: ActionState,
   formData: FormData
@@ -531,6 +540,61 @@ export async function moveCategoryAction(categoryId: string, direction: "up" | "
   const { businessId } = await requireBusinessOwner();
   const result = await categoryService.moveCategory(businessId, categoryId, direction);
   revalidatePath("/dashboard/categories");
+  return result;
+}
+
+function parseZones(formData: FormData) {
+  return formData.getAll("coverageZones").map(String);
+}
+
+export async function createCourierAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await courierService.createCourier(businessId, {
+    name: String(formData.get("name") ?? ""),
+    phone: String(formData.get("phone") ?? ""),
+    vehicleType: String(formData.get("vehicleType") ?? "MOTORCYCLE"),
+    nationalCode: String(formData.get("nationalCode") ?? ""),
+    coverageZones: parseZones(formData),
+    isActive: bool(formData, "isActive"),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/couriers");
+  return { ok: true };
+}
+
+export async function updateCourierAction(
+  courierId: string,
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await courierService.updateCourier(businessId, courierId, {
+    name: String(formData.get("name") ?? ""),
+    phone: String(formData.get("phone") ?? ""),
+    vehicleType: String(formData.get("vehicleType") ?? "MOTORCYCLE"),
+    nationalCode: String(formData.get("nationalCode") ?? ""),
+    coverageZones: parseZones(formData),
+    isActive: bool(formData, "isActive"),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/couriers");
+  return { ok: true };
+}
+
+export async function deleteCourierAction(courierId: string) {
+  const { businessId } = await requireBusinessOwner();
+  const result = await courierService.deleteCourier(businessId, courierId);
+  revalidatePath("/dashboard/couriers");
+  return result;
+}
+
+export async function toggleCourierActiveAction(courierId: string, isActive: boolean) {
+  const { businessId } = await requireBusinessOwner();
+  const result = await courierService.toggleCourierActive(businessId, courierId, isActive);
+  revalidatePath("/dashboard/couriers");
   return result;
 }
 

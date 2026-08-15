@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User, Phone, Printer } from "lucide-react";
 import { OrderStatusBadge, type OrderStatusValue } from "@/components/dashboard/order-status-badge";
+import { CourierAssignControl, type AssignableCourier } from "@/components/dashboard/courier-assign-control";
 import { formatToman } from "@/features/menu/utils/money";
 import { nextStatus, canCancel, statusLabel, progressSteps } from "@/features/dashboard/services/order-status-flow";
 import { updateOrderStatusAction } from "@/features/dashboard/routes/actions";
@@ -30,6 +31,7 @@ export interface OrderDetail {
   discountAmount: number | null;
   discountName: string | null;
   walletRedeemedAmount: number | null;
+  courier: { id: string; name: string } | null;
   items: {
     id: string;
     quantity: number;
@@ -46,7 +48,7 @@ function typeContext(order: OrderDetail) {
   return `ارسال با پیک · ${order.address ?? "—"}`;
 }
 
-export function OrderDetailCard({ order }: { order: OrderDetail }) {
+export function OrderDetailCard({ order, couriers = [] }: { order: OrderDetail; couriers?: AssignableCourier[] }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -111,6 +113,13 @@ export function OrderDetailCard({ order }: { order: OrderDetail }) {
           <Phone size={18} className="text-brand" />
         </a>
       </div>
+
+      {order.type === "DELIVERY" && (
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-[#F0F0F0] bg-[#FAFBFA] p-[14px_18px]">
+          <span className="text-sm font-medium text-[#555]">پیک تحویل</span>
+          <CourierAssignControl orderId={order.id} currentCourier={order.courier} couriers={couriers} />
+        </div>
+      )}
 
       <div className="flex flex-col gap-0.5">
         <div className="mb-2 text-right text-sm font-medium text-[#555]">اقلام سفارش</div>

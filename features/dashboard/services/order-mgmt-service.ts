@@ -1,7 +1,7 @@
 import "server-only";
 import { logger } from "@/lib/logger";
 import * as repo from "@/features/dashboard/repositories/dashboard-repository";
-import { manualOrderSchema, orderStatusSchema } from "@/features/dashboard/services/dashboard-schemas";
+import { manualOrderSchema, orderStatusSchema, assignCourierSchema } from "@/features/dashboard/services/dashboard-schemas";
 import { validateOrderDraft, computeTotal } from "@/features/menu/services/order-flow";
 import type { OrderStatus } from "@/lib/generated/prisma/enums";
 
@@ -35,6 +35,34 @@ export async function updateOrderStatus(businessId: string, input: unknown): Pro
     businessId,
     orderId: parsed.data.orderId,
     status: parsed.data.status,
+  });
+  return { ok: true };
+}
+
+export async function assignCourier(businessId: string, input: unknown): Promise<ServiceResult> {
+  const parsed = assignCourierSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  const order = await repo.getOrderWithItems(parsed.data.orderId);
+  if (!order || order.businessId !== businessId) {
+    return { ok: false, error: "سفارش پیدا نشد." };
+  }
+  if (order.type !== "DELIVERY") {
+    return { ok: false, error: "فقط سفارش‌های «ارسال با پیک» قابل تخصیص پیک هستند." };
+  }
+
+  if (parsed.data.courierId) {
+    const courier = await repo.getCourierForEdit(parsed.data.courierId);
+    if (!courier || courier.businessId !== businessId || !courier.isActive) {
+      return { ok: false, error: "پیک انتخاب‌شده معتبر نیست." };
+    }
+  }
+
+  await repo.assignCourierToOrder(parsed.data.orderId, parsed.data.courierId ?? null);
+  logger.info("dashboard.order_courier_assigned", {
+    businessId,
+    orderId: parsed.data.orderId,
+    courierId: parsed.data.courierId ?? null,
   });
   return { ok: true };
 }

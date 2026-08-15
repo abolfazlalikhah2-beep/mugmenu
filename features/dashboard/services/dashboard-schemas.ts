@@ -135,6 +135,21 @@ export const orderStatusSchema = z.object({
   status: z.enum(["NEW", "PREPARING", "READY", "DELIVERED", "CANCELED"]),
 });
 
+export const courierSchema = z.object({
+  name: z.string().trim().min(2, "نام و نام خانوادگی را کامل وارد کنید.").max(80),
+  phone: z.string().trim().min(10, "شماره تماس معتبر نیست.").max(20),
+  vehicleType: z.enum(["MOTORCYCLE", "CAR"]),
+  nationalCode: z.string().trim().max(20).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  coverageZones: z.array(z.string().trim().min(1)).optional().default([]),
+  isActive: z.boolean(),
+});
+
+export const assignCourierSchema = z.object({
+  orderId: z.string().min(1),
+  // Empty string means "unassign" — see order-mgmt-service.ts's assignCourier.
+  courierId: z.string().trim().optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+});
+
 export const printerSchema = z.object({
   name: z.string().trim().min(2, "نام دستگاه را کامل وارد کنید.").max(80),
   model: z.string().trim().max(80).optional(),
