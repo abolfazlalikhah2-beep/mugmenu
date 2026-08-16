@@ -5,6 +5,7 @@ import { ChevronRight } from "lucide-react";
 import { getItemDetailData } from "@/features/menu/services/menu-service";
 import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
 import { logItemView } from "@/features/menu/services/visit-service";
+import { businessHasFeature } from "@/features/plans/services/plan-service";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { MenuImage } from "@/components/menu/menu-image";
 import { StarIcon } from "@/components/ui/rating";
@@ -23,6 +24,7 @@ export default async function ItemDetailPage({
   if (!data) notFound();
   const { product, rating } = data;
   after(() => logItemView(product.businessId, product.id));
+  const orderingEnabled = await businessHasFeature(product.businessId, "order.three_mode");
   const hasDiscount = !!product.discountPercent;
   const finalPrice = computeDiscountedPrice(product.price, product.discountPercent);
   const outOfStock = product.trackInventory && product.stock <= 0;
@@ -87,20 +89,24 @@ export default async function ItemDetailPage({
             {description}
           </p>
         )}
-        <div className="h-px bg-[#F0F0F0]" />
-        <AddToCartControl
-          slug={cafeSlug}
-          productId={product.id}
-          categoryId={product.categoryId}
-          name={name}
-          price={finalPrice}
-          imageUrl={product.imageUrl}
-          optionGroups={product.optionGroups}
-          outOfStock={outOfStock}
-          lang={lang}
-        />
+        {orderingEnabled && (
+          <>
+            <div className="h-px bg-[#F0F0F0]" />
+            <AddToCartControl
+              slug={cafeSlug}
+              productId={product.id}
+              categoryId={product.categoryId}
+              name={name}
+              price={finalPrice}
+              imageUrl={product.imageUrl}
+              optionGroups={product.optionGroups}
+              outOfStock={outOfStock}
+              lang={lang}
+            />
+          </>
+        )}
       </div>
-      <CartFab slug={cafeSlug} />
+      {orderingEnabled && <CartFab slug={cafeSlug} />}
     </MenuPageShell>
   );
 }

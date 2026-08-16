@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Check, MapPin } from "lucide-react";
 import { getReceiptData } from "@/features/menu/services/menu-service";
 import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
+import { businessHasFeature } from "@/features/plans/services/plan-service";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { MenuImage } from "@/components/menu/menu-image";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ export default async function ReceiptPage({
   const order = await getReceiptData(orderId);
   if (!order) notFound();
 
+  const hasSurvey = order.survey ? false : await businessHasFeature(order.business.id, "review.submit_survey");
   const lang: MenuLang = (await getMenuLangCookie(cafeSlug)) ?? "fa";
   const t = menuCopy(lang);
   const align = lang === "en" ? "text-left" : "text-right";
@@ -142,7 +144,7 @@ export default async function ReceiptPage({
         </Link>
       </div>
 
-      {!order.survey && <SurveySheet orderId={orderId} lang={lang} />}
+      {hasSurvey && <SurveySheet orderId={orderId} lang={lang} />}
     </MenuPageShell>
   );
 }

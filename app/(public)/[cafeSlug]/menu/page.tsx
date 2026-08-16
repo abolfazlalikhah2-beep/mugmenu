@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getCategoryBrowserData } from "@/features/menu/services/menu-service";
 import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
+import { businessHasFeature } from "@/features/plans/services/plan-service";
 import { menuCopy } from "@/features/menu/utils/menu-language";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { TopBar } from "@/components/menu/top-bar";
@@ -20,15 +21,24 @@ export default async function CategoryListPage({
   const data = await getCategoryBrowserData(cafeSlug);
   if (!data) notFound();
 
-  const lang = (await getMenuLangCookie(cafeSlug)) ?? "fa";
+  const [lang, orderingEnabled] = await Promise.all([
+    getMenuLangCookie(cafeSlug).then((l) => l ?? "fa"),
+    businessHasFeature(data.business.id, "order.three_mode"),
+  ]);
   const t = menuCopy(lang);
 
   return (
     <MenuPageShell dir={t.dir}>
       <OrderTypeSync type={type} />
       <TopBar title={t.menuTitle} backHref={`/${cafeSlug}`} />
-      <CategoryBrowser slug={cafeSlug} categories={data.categories} products={data.products} lang={lang} />
-      <CartFab slug={cafeSlug} />
+      <CategoryBrowser
+        slug={cafeSlug}
+        categories={data.categories}
+        products={data.products}
+        lang={lang}
+        orderingEnabled={orderingEnabled}
+      />
+      {orderingEnabled && <CartFab slug={cafeSlug} />}
     </MenuPageShell>
   );
 }

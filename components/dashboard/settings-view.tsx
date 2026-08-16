@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BusinessInfoTab } from "@/components/dashboard/business-info-tab";
 import { OrderSettingsTab } from "@/components/dashboard/order-settings-tab";
@@ -9,6 +10,7 @@ import { LanguageSettingsTab, type ProductTranslationRow } from "@/components/da
 import { QrSettingsTab } from "@/components/dashboard/qr-settings-tab";
 import { PrinterSettingsTab } from "@/components/dashboard/printer-settings-tab";
 import { PaymentTab } from "@/components/dashboard/payment-tab";
+import { UpgradeGate } from "@/components/dashboard/upgrade-gate";
 import type { PrinterFormValue } from "@/components/dashboard/printer-modal";
 
 export interface SettingsFormValue {
@@ -49,11 +51,16 @@ export function SettingsView({
   business,
   printers,
   products,
+  featureKeys,
+  printerLimit,
 }: {
   business: SettingsFormValue;
   printers: PrinterFormValue[];
   products: ProductTranslationRow[];
+  featureKeys: string[];
+  printerLimit: string | null;
 }) {
+  const hasPrinter = featureKeys.includes("printer.connection");
   const [tab, setTab] = useState(0);
 
   return (
@@ -65,11 +72,16 @@ export function SettingsView({
             type="button"
             onClick={() => setTab(i)}
             className={cn(
-              "flex h-[38px] items-center rounded-[11px] px-[18px] text-sm",
+              "flex h-[38px] items-center gap-1.5 rounded-[11px] px-[18px] text-sm",
               tab === i ? "bg-[#EAF3EB] font-medium text-brand" : "font-normal text-[#8A8A8A]"
             )}
           >
             {t}
+            {i === 5 && !hasPrinter && (
+              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#F0F0F0] text-[#9A9A9A]">
+                <Lock size={9} />
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -80,7 +92,11 @@ export function SettingsView({
         {tab === 2 && <LanguageSettingsTab business={business} products={products} />}
         {tab === 3 && <OrderSettingsTab business={business} />}
         {tab === 4 && <QrSettingsTab business={business} />}
-        {tab === 5 && <PrinterSettingsTab printers={printers} />}
+        {tab === 5 && (
+          <UpgradeGate allowed={hasPrinter} title="اتصال پرینتر در پلن شما موجود نیست">
+            <PrinterSettingsTab printers={printers} limit={printerLimit} />
+          </UpgradeGate>
+        )}
         {tab === 6 && <PaymentTab business={business} />}
       </div>
     </div>

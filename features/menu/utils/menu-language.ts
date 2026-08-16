@@ -80,6 +80,7 @@ export const MENU_LANG_COPY = {
 
     // ===== cart =====
     cartEmpty: "سبد شما خالی است",
+    orderingDisabled: "این کافه فعلاً امکان سفارش آنلاین ندارد",
     viewMenu: "مشاهده منو",
     deliveryDetails: "جزئیات تحویل",
     mapPlaceholder: "انتخاب لوکیشن روی نقشه",
@@ -287,6 +288,7 @@ export const MENU_LANG_COPY = {
 
     // ===== cart =====
     cartEmpty: "Your cart is empty",
+    orderingDisabled: "This cafe doesn't accept online orders yet",
     viewMenu: "View menu",
     deliveryDetails: "Delivery details",
     mapPlaceholder: "Choose location on map",

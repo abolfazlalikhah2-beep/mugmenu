@@ -8,6 +8,7 @@ import { getAccountProfile } from "@/features/customer/services/customer-auth-se
 import { getWalletAndLoyaltySummary } from "@/features/customer/services/wallet-service";
 import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
 import { logMenuVisit } from "@/features/menu/services/visit-service";
+import { businessHasFeature } from "@/features/plans/services/plan-service";
 import { resolveHeroBackground } from "@/features/menu/utils/hero-background";
 import { menuCopy, localizedName } from "@/features/menu/utils/menu-language";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
@@ -66,6 +67,7 @@ export default async function MenuEntryPage({
     : [null, null];
 
   const heroBackground = resolveHeroBackground(business);
+  const orderingEnabled = await businessHasFeature(business.id, "order.three_mode");
 
   return (
     <MenuPageShell dir={t.dir}>
@@ -108,24 +110,34 @@ export default async function MenuEntryPage({
       )}
       <p className={`px-4.5 pt-2.5 text-center text-sm md:px-10 ${lang === "en" ? "font-mont" : ""}`}>{t.lead}</p>
       <div className="flex flex-col gap-3 px-4.5 py-4 md:px-10 md:py-5">
-        <OrderTypeRow
-          label={t.rowDineIn}
-          icon={<UtensilsCrossed size={22} className="text-brand" />}
-          href={`/${cafeSlug}/menu?type=dine_in`}
-        />
-        <OrderTypeRow
-          label={t.rowVisual}
-          icon={<ScrollText size={22} className="text-brand" />}
-          href={`/${cafeSlug}/menu?type=view`}
-        />
-        <OrderTypeRow
-          label={t.rowTakeaway}
-          icon={<Package size={22} className="text-brand" />}
-          href={`/${cafeSlug}/menu?type=takeaway`}
-        />
+        {orderingEnabled ? (
+          <>
+            <OrderTypeRow
+              label={t.rowDineIn}
+              icon={<UtensilsCrossed size={22} className="text-brand" />}
+              href={`/${cafeSlug}/menu?type=dine_in`}
+            />
+            <OrderTypeRow
+              label={t.rowVisual}
+              icon={<ScrollText size={22} className="text-brand" />}
+              href={`/${cafeSlug}/menu?type=view`}
+            />
+            <OrderTypeRow
+              label={t.rowTakeaway}
+              icon={<Package size={22} className="text-brand" />}
+              href={`/${cafeSlug}/menu?type=takeaway`}
+            />
+          </>
+        ) : (
+          <OrderTypeRow
+            label={t.rowVisual}
+            icon={<ScrollText size={22} className="text-brand" />}
+            href={`/${cafeSlug}/menu`}
+          />
+        )}
       </div>
       <FooterBrand />
-      <CartFab slug={cafeSlug} />
+      {orderingEnabled && <CartFab slug={cafeSlug} />}
     </MenuPageShell>
   );
 }

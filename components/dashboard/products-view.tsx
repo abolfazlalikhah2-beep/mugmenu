@@ -10,9 +10,11 @@ import { ProductModal, type CategoryOption } from "@/components/dashboard/produc
 export function ProductsView({
   products,
   categories,
+  featureKeys,
 }: {
   products: ProductCardData[];
   categories: CategoryOption[];
+  featureKeys: string[];
 }) {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -87,11 +89,17 @@ export function ProductsView({
       )}
 
       {modal === "create" && (
-        <ProductModal categories={categories} product={null} onClose={() => setModal("closed")} />
+        <ProductModal
+          categories={categories}
+          product={null}
+          featureKeys={featureKeys}
+          onClose={() => setModal("closed")}
+        />
       )}
       {editingProduct && (
         <ProductModal
           categories={categories}
+          featureKeys={featureKeys}
           product={{
             id: editingProduct.id,
             name: editingProduct.name,

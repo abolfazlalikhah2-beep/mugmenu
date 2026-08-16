@@ -24,10 +24,12 @@ export function ProductCard({
   slug,
   product,
   lang = "fa",
+  orderingEnabled = true,
 }: {
   slug: string;
   product: ProductCardData;
   lang?: MenuLang;
+  orderingEnabled?: boolean;
 }) {
   const { addItem } = useCart();
   const hasDiscount = !!product.discountPercent;
@@ -72,21 +74,23 @@ export function ProductCard({
               </span>
             )}
           </div>
-          <button
-            onClick={() =>
-              addItem({
-                productId: product.id,
-                name,
-                price: finalPrice,
-                imageUrl: product.imageUrl,
-              })
-            }
-            disabled={outOfStock}
-            aria-label={addAriaLabel(lang, name)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <Plus size={22} />
-          </button>
+          {orderingEnabled && (
+            <button
+              onClick={() =>
+                addItem({
+                  productId: product.id,
+                  name,
+                  price: finalPrice,
+                  imageUrl: product.imageUrl,
+                })
+              }
+              disabled={outOfStock}
+              aria-label={addAriaLabel(lang, name)}
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Plus size={22} />
+            </button>
+          )}
         </div>
       </div>
     </div>

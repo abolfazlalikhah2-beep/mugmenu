@@ -6,15 +6,17 @@ import Image from "next/image";
 import { Home, Package, LayoutGrid, Tag, Receipt, Bike, MessageCircle, Contact, ChartLine, Users, LifeBuoy, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/features/auth/routes/actions";
+import { Lock } from "lucide-react";
+import type { FeatureKey } from "@/features/plans/feature-matrix";
 
-const NAV = [
+const NAV: { href: string; label: string; icon: typeof Home; featureKey?: FeatureKey }[] = [
   { href: "/dashboard", label: "داشبورد", icon: Home },
   { href: "/dashboard/products", label: "محصولات", icon: Package },
   { href: "/dashboard/categories", label: "دسته‌بندی", icon: LayoutGrid },
-  { href: "/dashboard/discounts", label: "تخفیف‌ها", icon: Tag },
+  { href: "/dashboard/discounts", label: "تخفیف‌ها", icon: Tag, featureKey: "discount.manual_auto" },
   { href: "/dashboard/orders", label: "سفارشات", icon: Receipt },
-  { href: "/dashboard/couriers", label: "پیک‌ها", icon: Bike },
-  { href: "/dashboard/messages", label: "پیام‌ها", icon: MessageCircle },
+  { href: "/dashboard/couriers", label: "پیک‌ها", icon: Bike, featureKey: "delivery.internal_riders" },
+  { href: "/dashboard/messages", label: "پیام‌ها", icon: MessageCircle, featureKey: "sms.panel" },
   { href: "/dashboard/customers", label: "مشتریان", icon: Contact },
   { href: "/dashboard/reports", label: "گزارش‌ها", icon: ChartLine },
   { href: "/dashboard/users", label: "کاربران", icon: Users },
@@ -22,8 +24,9 @@ const NAV = [
   { href: "/dashboard/settings", label: "تنظیمات", icon: Settings },
 ];
 
-export function Sidebar() {
+export function Sidebar({ featureKeys }: { featureKeys: string[] }) {
   const pathname = usePathname();
+  const has = (key?: FeatureKey) => !key || featureKeys.includes(key);
 
   return (
     <div className="flex w-[264px] shrink-0 flex-col border-l border-[#EDEDED] bg-card p-[30px_20px]">
@@ -40,17 +43,26 @@ export function Sidebar() {
         {NAV.map((item) => {
           const active =
             item.href === "/dashboard" ? pathname === item.href : pathname.startsWith(item.href);
+          const locked = !has(item.featureKey);
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={locked ? "/dashboard/account" : item.href}
               className={cn(
                 "flex h-[50px] items-center gap-3 rounded-2xl px-4 text-[15px]",
                 active ? "bg-[#EAF3EB] font-medium text-brand" : "font-normal text-[#7A7A7A]"
               )}
             >
               <item.icon size={21} className={active ? "text-brand" : "text-[#9A9A9A]"} />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {locked && (
+                <span
+                  title="این امکان در پلن شما موجود نیست، برای ارتقا کلیک کنید"
+                  className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#F0F0F0] text-[#9A9A9A]"
+                >
+                  <Lock size={11} />
+                </span>
+              )}
             </Link>
           );
         })}

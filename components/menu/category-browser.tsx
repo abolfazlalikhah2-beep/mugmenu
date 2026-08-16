@@ -17,11 +17,13 @@ export function CategoryBrowser({
   categories,
   products,
   lang = "fa",
+  orderingEnabled = true,
 }: {
   slug: string;
   categories: CategoryData[];
   products: (ProductCardData & { categoryId: string })[];
   lang?: MenuLang;
+  orderingEnabled?: boolean;
 }) {
   const [activeId, setActiveId] = React.useState(categories[0]?.id);
   const visible = products.filter((p) => p.categoryId === activeId);
@@ -50,7 +52,7 @@ export function CategoryBrowser({
       </div>
       <div className="grid grid-cols-2 gap-3 p-4 md:grid-cols-3 md:gap-4.5 md:p-6.5">
         {visible.map((p) => (
-          <ProductCard key={p.id} slug={slug} product={p} lang={lang} />
+          <ProductCard key={p.id} slug={slug} product={p} lang={lang} orderingEnabled={orderingEnabled} />
         ))}
       </div>
     </>

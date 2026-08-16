@@ -4,6 +4,7 @@ import { requireBusinessOwner } from "@/features/auth/services/authorize";
 import { getBusiness } from "@/features/dashboard/services/settings-service";
 import { getOrders } from "@/features/dashboard/services/order-mgmt-service";
 import { getProducts } from "@/features/dashboard/services/product-service";
+import { businessHasFeature } from "@/features/plans/services/plan-service";
 import { Topbar } from "@/components/dashboard/topbar";
 import { PanelContent } from "@/components/dashboard/panel-content";
 import { OrdersTable } from "@/components/dashboard/orders-table";
@@ -25,7 +26,11 @@ export default async function OrdersPage({
 }) {
   const { status, q } = await searchParams;
   const { businessId } = await requireBusinessOwner();
-  const [business, products] = await Promise.all([getBusiness(businessId), getProducts(businessId)]);
+  const [business, products, hasManualEntry] = await Promise.all([
+    getBusiness(businessId),
+    getProducts(businessId),
+    businessHasFeature(businessId, "order.manual_entry"),
+  ]);
   if (!business) return null;
 
   const activeStatus = TABS.some((t) => t.status === status) ? (status as OrderStatus) : undefined;
@@ -40,7 +45,7 @@ export default async function OrdersPage({
         title="سفارشات"
         businessName={business.name}
         isAcceptingOrders={business.isAcceptingOrders}
-        action={<ManualOrderTrigger products={manualOrderProducts} />}
+        action={<ManualOrderTrigger products={manualOrderProducts} allowed={hasManualEntry} />}
       />
       <PanelContent className="flex flex-col gap-[22px]">
         <div className="flex flex-wrap items-center justify-between gap-3">

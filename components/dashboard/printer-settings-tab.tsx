@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Printer as PrinterIcon, Wifi } from "lucide-react";
+import Link from "next/link";
+import { Printer as PrinterIcon, Wifi, Lock } from "lucide-react";
 import { PrimaryButton } from "@/components/dashboard/primary-button";
 import { PrinterRow } from "@/components/dashboard/printer-row";
 import { PrinterModal, type PrinterFormValue } from "@/components/dashboard/printer-modal";
@@ -18,11 +19,13 @@ function lastTestedShort(d: Date | null) {
   return `آخرین تست: ${new Date(d).toLocaleString("fa-IR", { dateStyle: "short", timeStyle: "short" })}`;
 }
 
-export function PrinterSettingsTab({ printers }: { printers: PrinterFormValue[] }) {
+export function PrinterSettingsTab({ printers, limit }: { printers: PrinterFormValue[]; limit: string | null }) {
   const [modal, setModal] = useState<"closed" | "create" | string>("closed");
 
   const primary = useMemo(() => printers.find((p) => p.isConnected) ?? null, [printers]);
   const editing = modal !== "closed" && modal !== "create" ? printers.find((p) => p.id === modal) ?? null : null;
+  const maxPrinters = limit && limit !== "unlimited" ? Number(limit) : null;
+  const limitReached = maxPrinters !== null && printers.length >= maxPrinters;
 
   return (
     <div className="flex flex-col gap-[18px] sm:gap-[22px]">
@@ -71,7 +74,18 @@ export function PrinterSettingsTab({ printers }: { printers: PrinterFormValue[] 
             {printers.length.toLocaleString("fa-IR")} دستگاه ثبت‌شده
           </div>
         </div>
-        <PrimaryButton onClick={() => setModal("create")}>افزودن پرینتر جدید</PrimaryButton>
+        {limitReached ? (
+          <Link
+            href="/dashboard/account"
+            title={`پلن شما حداکثر ${maxPrinters?.toLocaleString("fa-IR")} پرینتر را پشتیبانی می‌کند`}
+            className="flex h-[42px] items-center gap-2 rounded-[13px] bg-[#F0F0F0] px-[18px] text-sm font-medium text-[#8A8A8A]"
+          >
+            <Lock size={15} />
+            افزودن پرینتر جدید
+          </Link>
+        ) : (
+          <PrimaryButton onClick={() => setModal("create")}>افزودن پرینتر جدید</PrimaryButton>
+        )}
       </div>
 
       <div className="flex flex-col gap-1 rounded-[22px] bg-card p-[8px_14px] shadow-[0px_8px_17.5px_rgba(0,0,0,0.03)] sm:p-[8px_20px]">

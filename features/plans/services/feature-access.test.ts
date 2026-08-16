@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveFeatureAccess } from "@/features/plans/services/plan-service";
+import { resolveFeatureAccess } from "@/features/plans/services/feature-access";
 
 const rows = [
   { featureKey: "menu.core", limitValue: null },

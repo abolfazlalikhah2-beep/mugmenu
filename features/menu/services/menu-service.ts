@@ -3,6 +3,7 @@ import * as repo from "@/features/menu/repositories/menu-repository";
 import { formatOpeningHours } from "@/features/menu/utils/business-hours";
 import { isCategoryVisibleNow } from "@/features/menu/utils/category-schedule";
 import { getWalletBalance } from "@/features/customer/services/wallet-service";
+import { businessHasFeature } from "@/features/plans/services/plan-service";
 import type { AutoDiscountDef } from "@/features/menu/services/order-flow";
 
 function formatRating(avg: number | null): string | null {
@@ -72,6 +73,8 @@ export interface CartCheckoutContext {
   autoDiscounts: AutoDiscountDef[];
   /** null when checking out as a guest (not logged in) — no wallet to redeem from. */
   walletBalance: number | null;
+  /** false for menu-display plan businesses — cart/checkout must stay blocked. */
+  hasOrdering: boolean;
 }
 
 /** Fee/discount/wallet context the cart page needs to preview a bill before submitting — order-service.ts recomputes all of this itself at checkout, this is display-only. */
@@ -82,9 +85,10 @@ export async function getCartCheckoutContext(
   const business = await repo.getBusiness(slug);
   if (!business) return null;
 
-  const [autoDiscounts, walletBalance] = await Promise.all([
+  const [autoDiscounts, walletBalance, hasOrdering] = await Promise.all([
     repo.getActiveAutoDiscounts(business.id),
     customerAccountId ? getWalletBalance(customerAccountId) : Promise.resolve(null),
+    businessHasFeature(business.id, "order.three_mode"),
   ]);
 
   return {
@@ -102,6 +106,7 @@ export async function getCartCheckoutContext(
       })
     ),
     walletBalance,
+    hasOrdering,
   };
 }
 

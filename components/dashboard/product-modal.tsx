@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { FormToggle } from "@/components/dashboard/form-toggle";
 import { Toggle } from "@/components/dashboard/toggle";
 import { ImageUploadField } from "@/components/uploads/image-upload-field";
+import { UpgradeGate } from "@/components/dashboard/upgrade-gate";
 import {
   createProductAction,
   updateProductAction,
@@ -262,12 +263,16 @@ function InventoryEditor({
 export function ProductModal({
   categories,
   product,
+  featureKeys,
   onClose,
 }: {
   categories: CategoryOption[];
   product: ProductFormValue | null;
+  featureKeys: string[];
   onClose: () => void;
 }) {
+  const hasInventory = featureKeys.includes("product.inventory");
+  const hasVariants = featureKeys.includes("product.variants");
   const action = product ? updateProductAction.bind(null, product.id) : createProductAction;
   const [state, formAction, pending] = useActionState(action, initialState);
   const [optionGroups, setOptionGroups] = useState<ProductOptionGroupValue[]>(product?.optionGroups ?? []);
@@ -357,15 +362,19 @@ export function ProductModal({
             className="min-h-[76px] rounded-input border border-border-input p-[12px_16px] text-right text-[13px] leading-[1.9] text-[#555] outline-none focus:border-brand"
           />
         </div>
-        <InventoryEditor
-          track={trackInventory}
-          onTrackChange={setTrackInventory}
-          stock={stock}
-          onStockChange={setStock}
-          threshold={lowStockThreshold}
-          onThresholdChange={setLowStockThreshold}
-        />
-        <OptionGroupsEditor groups={optionGroups} onChange={setOptionGroups} />
+        <UpgradeGate allowed={hasInventory} title="پیگیری موجودی در پلن شما موجود نیست">
+          <InventoryEditor
+            track={trackInventory}
+            onTrackChange={setTrackInventory}
+            stock={stock}
+            onStockChange={setStock}
+            threshold={lowStockThreshold}
+            onThresholdChange={setLowStockThreshold}
+          />
+        </UpgradeGate>
+        <UpgradeGate allowed={hasVariants} title="گزینه‌های محصول در پلن شما موجود نیست">
+          <OptionGroupsEditor groups={optionGroups} onChange={setOptionGroups} />
+        </UpgradeGate>
         <div className="flex items-center justify-between rounded-2xl border border-[#F0F0F0] bg-[#FAFBFA] p-[14px_18px]">
           <div className="text-right">
             <div className="text-sm font-medium">وضعیت نمایش</div>

@@ -3,6 +3,7 @@ import { logger } from "@/lib/logger";
 import * as repo from "@/features/dashboard/repositories/dashboard-repository";
 import { manualOrderSchema, orderStatusSchema, assignCourierSchema } from "@/features/dashboard/services/dashboard-schemas";
 import { validateOrderDraft, computeTotal } from "@/features/menu/services/order-flow";
+import { businessHasFeature } from "@/features/plans/services/plan-service";
 import type { OrderStatus } from "@/lib/generated/prisma/enums";
 
 export function getOrders(businessId: string, filter: { status?: OrderStatus; search?: string }) {
@@ -70,6 +71,9 @@ export async function assignCourier(businessId: string, input: unknown): Promise
 export type CreateManualOrderResult = { ok: true; orderId: string } | { ok: false; error: string };
 
 export async function createManualOrder(businessId: string, input: unknown): Promise<CreateManualOrderResult> {
+  const allowed = await businessHasFeature(businessId, "order.manual_entry");
+  if (!allowed) return { ok: false, error: "ثبت سفارش دستی در پلن شما موجود نیست." };
+
   const parsed = manualOrderSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   const data = parsed.data;

@@ -13,6 +13,7 @@ import {
   type CartLineForDiscount,
 } from "@/features/menu/services/order-flow";
 import { creditCashbackForOrder, getWalletBalance, redeemWalletForOrder } from "@/features/customer/services/wallet-service";
+import { businessHasFeature } from "@/features/plans/services/plan-service";
 
 export type CreateOrderResult = { ok: true; orderId: string } | { ok: false; error: string };
 
@@ -31,6 +32,16 @@ export async function createOrder(input: unknown, customerAccountId?: string): P
 
   const business = await menuRepository.getBusiness(data.slug);
   if (!business) return { ok: false, error: "کسب‌وکار پیدا نشد." };
+
+  // Plan gate: menu-display businesses can only show the menu, never accept
+  // online orders — enforced here too since the UI-level gate (hiding the
+  // add-to-cart controls) can be bypassed by calling this action directly.
+  const [canOrder, hasWalletLogin, hasCashback] = await Promise.all([
+    businessHasFeature(business.id, "order.three_mode"),
+    businessHasFeature(business.id, "customer.wallet_login"),
+    businessHasFeature(business.id, "loyalty.cashback"),
+  ]);
+  if (!canOrder) return { ok: false, error: "این کسب‌وکار در حال حاضر امکان سفارش آنلاین ندارد." };
 
   const products = await menuRepository.findProductsByIds(data.items.map((i) => i.productId));
   const productMap = new Map(products.map((p) => [p.id, p]));
@@ -103,7 +114,7 @@ export async function createOrder(input: unknown, customerAccountId?: string): P
   // Wallet redemption: the client's requested amount is only a suggestion —
   // it's clamped against the live wallet balance read here, never trusted.
   let walletRedeemedAmount = 0;
-  if (customerAccountId && data.redeemAmount > 0) {
+  if (customerAccountId && hasWalletLogin && data.redeemAmount > 0) {
     const balance = await getWalletBalance(customerAccountId);
     walletRedeemedAmount = clampRedeemAmount(data.redeemAmount, balance, payableBeforeRedeem);
   }
@@ -138,7 +149,7 @@ export async function createOrder(input: unknown, customerAccountId?: string): P
 
   if (customerAccountId) {
     if (walletRedeemedAmount > 0) await redeemWalletForOrder(customerAccountId, order.id, walletRedeemedAmount);
-    await creditCashbackForOrder(customerAccountId, business.id, order.id, totalPrice);
+    if (hasCashback) await creditCashbackForOrder(customerAccountId, business.id, order.id, totalPrice);
   }
 
   logger.info("order.created", {

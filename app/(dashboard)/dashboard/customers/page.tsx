@@ -7,6 +7,7 @@ import {
   getLoyaltyMembersList,
   getLoyaltyAudienceCounts,
 } from "@/features/dashboard/services/loyalty-club-service";
+import { getBusinessFeatureSet } from "@/features/plans/services/plan-service";
 import { Topbar } from "@/components/dashboard/topbar";
 import { PanelContent } from "@/components/dashboard/panel-content";
 import { CustomersTable } from "@/components/dashboard/customers-table";
@@ -23,11 +24,12 @@ export default async function CustomersPage({
   const business = await getBusiness(businessId);
   if (!business) return null;
 
-  const [customers, loyaltyDashboard, loyaltyMembers, loyaltyAudienceCounts] = await Promise.all([
+  const [customers, loyaltyDashboard, loyaltyMembers, loyaltyAudienceCounts, featureSet] = await Promise.all([
     getCustomers(businessId, q?.trim() || undefined),
     getLoyaltyClubDashboard(businessId),
     getLoyaltyMembersList(businessId),
     getLoyaltyAudienceCounts(businessId),
+    getBusinessFeatureSet(businessId),
   ]);
 
   return (
@@ -73,6 +75,7 @@ export default async function CustomersPage({
                 birthdayMessageText: business.birthdayMessageText ?? "",
                 birthdayGiftAmount: business.birthdayGiftAmount,
               }}
+              featureKeys={featureSet ? [...featureSet.keys] : []}
             />
           }
         />
