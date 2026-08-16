@@ -6,16 +6,20 @@ export function MenuImage({
   alt = "",
   label,
   className,
+  sizes = "100vw",
+  priority = false,
 }: {
   imageUrl?: string | null;
   alt?: string;
   label?: string;
   className?: string;
+  sizes?: string;
+  priority?: boolean;
 }) {
   if (imageUrl) {
     return (
       <div className={cn("relative overflow-hidden bg-[#F2F2F2]", className)}>
-        <Image src={imageUrl} alt={alt} fill sizes="100vw" className="object-cover" />
+        <Image src={imageUrl} alt={alt} fill sizes={sizes} priority={priority} className="object-cover" />
       </div>
     );
   }

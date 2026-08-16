@@ -74,6 +74,7 @@ export default async function ReceiptPage({
               imageUrl={line.product.imageUrl}
               alt={localizedName(lang, line.product.name, line.product.nameEn)}
               className="h-[58px] w-[58px] shrink-0 rounded-2xl"
+              sizes="58px"
             />
             <div className={`flex-1 ${align}`}>
               <div className="text-[15px] font-medium">{localizedName(lang, line.product.name, line.product.nameEn)}</div>

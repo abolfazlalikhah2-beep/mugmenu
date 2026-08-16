@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { prisma } from "@/lib/db";
 import type { OrderType, VisitSource } from "@/lib/generated/prisma/enums";
 
@@ -16,9 +17,10 @@ export function getActiveAutoDiscounts(businessId: string) {
   });
 }
 
-export function getBusiness(slug: string) {
+/** Memoized per-request — layout.tsx and page.tsx both look up the business by slug on every navigation. */
+export const getBusiness = cache((slug: string) => {
   return prisma.business.findUnique({ where: { slug } });
-}
+});
 
 /** Just the accent color, for the per-business CSS var theming in CafeLayout. */
 export function getBusinessAccentColor(slug: string) {

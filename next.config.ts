@@ -27,6 +27,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   images: {
     remotePatterns: s3RemotePatterns(),
+    formats: ["image/avif", "image/webp"],
   },
 };
 

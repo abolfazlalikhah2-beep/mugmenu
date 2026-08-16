@@ -76,6 +76,7 @@ export default async function MenuEntryPage({
           background={heroBackground}
           overlayOpacity={business.heroOverlayOpacity}
           className="h-[200px] w-full md:h-[210px]"
+          priority
         />
         <MenuEntryBadge
           slug={cafeSlug}

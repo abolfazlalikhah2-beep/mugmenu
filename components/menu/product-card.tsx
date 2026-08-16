@@ -48,6 +48,7 @@ export function ProductCard({
           alt={name}
           label={name}
           className="h-[110px] w-full md:h-[140px]"
+          sizes="(min-width: 768px) 33vw, 50vw"
         />
         {outOfStock && (
           <span className="absolute top-2 right-2 rounded-lg bg-[#E5484D] px-2.5 py-[3px] text-[11px] font-medium text-white">

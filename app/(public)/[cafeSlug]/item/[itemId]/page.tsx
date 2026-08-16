@@ -43,6 +43,7 @@ export default async function ItemDetailPage({
           alt={name}
           label={t.itemPhoto}
           className="h-full w-full"
+          priority
         />
         <Link
           href={`/${cafeSlug}/menu`}

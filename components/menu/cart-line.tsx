@@ -19,7 +19,12 @@ export function CartLine({ item, lang = "fa" }: { item: CartItem & { lineId: str
   return (
     <div className="flex flex-col gap-2.5 border-b border-[#F2F2F2] py-3.5">
       <div className="flex items-center gap-3.5">
-        <MenuImage imageUrl={item.imageUrl} alt={item.name} className="h-[58px] w-[58px] shrink-0 rounded-2xl" />
+        <MenuImage
+          imageUrl={item.imageUrl}
+          alt={item.name}
+          className="h-[58px] w-[58px] shrink-0 rounded-2xl"
+          sizes="58px"
+        />
         <div className={lang === "en" ? "flex-1 text-left" : "flex-1 text-right"}>
           <div className="text-[15px] font-medium">{item.name}</div>
           <OrderLineTags options={item.selectedOptions ?? []} lang={lang} />
