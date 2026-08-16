@@ -20,6 +20,10 @@ export function getBusinessById(id: string) {
   return prisma.business.findUnique({ where: { id } });
 }
 
+export function getBusinessWithPlan(id: string) {
+  return prisma.business.findUnique({ where: { id }, include: { plan: true } });
+}
+
 export function updateBusiness(id: string, data: Record<string, unknown>) {
   return prisma.business.update({ where: { id }, data });
 }
@@ -32,6 +36,8 @@ export function createBusiness(data: {
   address?: string;
   description?: string;
   logoUrl?: string;
+  customDomain?: string;
+  planId: string;
 }) {
   return prisma.business.create({ data });
 }

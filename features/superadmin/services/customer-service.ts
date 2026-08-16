@@ -1,7 +1,13 @@
 import "server-only";
 import { logger } from "@/lib/logger";
 import * as repo from "@/features/superadmin/repositories/superadmin-repository";
+import * as planService from "@/features/plans/services/plan-service";
+import { changePlanSchema } from "@/features/superadmin/services/superadmin-schemas";
 import { computeSubscriptionStatus, type SubscriptionStatus } from "@/features/superadmin/services/subscription-status";
+
+function priceForCycle(plan: { monthlyPrice: number; annualPrice: number }, billingCycle: "MONTHLY" | "ANNUAL") {
+  return billingCycle === "ANNUAL" ? plan.annualPrice : plan.monthlyPrice;
+}
 
 export type ServiceResult = { ok: true } | { ok: false; error: string };
 
@@ -21,7 +27,7 @@ function toSummary(b: {
   id: string;
   name: string;
   address: string | null;
-  planName: string;
+  plan: { name: string };
   planExpiresAt: Date;
   isSuspended: boolean;
   owners: { fullName: string; phone: string }[];
@@ -34,7 +40,7 @@ function toSummary(b: {
     owner: owner?.fullName ?? "—",
     phone: owner?.phone ?? "—",
     address: b.address,
-    planName: b.planName,
+    planName: b.plan.name,
     planExpiresAt: b.planExpiresAt,
     isSuspended: b.isSuspended,
     status: computeSubscriptionStatus({ planExpiresAt: b.planExpiresAt, hasPaidTransaction: b.transactions.length > 0 }),
@@ -79,7 +85,8 @@ export async function renewSubscription(businessId: string): Promise<ServiceResu
   const business = await repo.getBusinessDetail(businessId);
   if (!business) return { ok: false, error: "کسب‌وکار پیدا نشد." };
 
-  await repo.renewSubscriptionManually(businessId, business.planPriceToman, business.planName);
+  const amount = priceForCycle(business.plan, business.billingCycle);
+  await repo.renewSubscriptionManually(businessId, amount, business.plan.name);
   logger.info("superadmin.subscription_renewed", { businessId });
   return { ok: true };
 }
@@ -90,5 +97,24 @@ export async function setSuspended(businessId: string, isSuspended: boolean): Pr
 
   await repo.setBusinessSuspended(businessId, isSuspended);
   logger.info("superadmin.business_suspension_toggled", { businessId, isSuspended });
+  return { ok: true };
+}
+
+export function getPlansForPicker() {
+  return planService.getAllPlans();
+}
+
+export async function changePlan(businessId: string, input: unknown): Promise<ServiceResult> {
+  const parsed = changePlanSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  const business = await repo.getBusinessDetail(businessId);
+  if (!business) return { ok: false, error: "کسب‌وکار پیدا نشد." };
+
+  const plans = await planService.getAllPlans();
+  if (!plans.some((p) => p.id === parsed.data.planId)) return { ok: false, error: "پلن نامعتبر است." };
+
+  await planService.changeBusinessPlan(businessId, parsed.data.planId, parsed.data.billingCycle);
+  logger.info("superadmin.business_plan_changed", { businessId, planId: parsed.data.planId, billingCycle: parsed.data.billingCycle });
   return { ok: true };
 }

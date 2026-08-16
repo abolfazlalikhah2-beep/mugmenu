@@ -11,15 +11,14 @@ function Feature({ text }: { text: string }) {
   );
 }
 
-export function PlanFeaturesCard({ maxUsers }: { maxUsers: number }) {
+export function PlanFeaturesCard({ maxUsers, featureLabels }: { maxUsers: number; featureLabels: string[] }) {
   return (
     <div className="flex flex-col gap-3.5 rounded-[22px] bg-card p-[24px_26px] shadow-[0px_8px_17.5px_rgba(0,0,0,0.03)]">
       <div className="text-right text-base font-semibold">امکانات پلن شما</div>
-      <Feature text="محصولات نامحدود" />
-      <Feature text="هر سه کانال سفارش" />
-      <Feature text="داشبورد و گزارش کامل" />
+      {featureLabels.map((label) => (
+        <Feature key={label} text={label} />
+      ))}
       <Feature text={`${maxUsers.toLocaleString("fa-IR")} کاربر مدیر`} />
-      <Feature text="پشتیبانی اولویت‌دار" />
     </div>
   );
 }

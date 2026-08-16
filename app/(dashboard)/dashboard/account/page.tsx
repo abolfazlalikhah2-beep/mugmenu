@@ -21,6 +21,7 @@ export default async function AccountPage() {
           expiresAt={overview.planExpiresAt}
           maxUsers={overview.planMaxUsers}
           status={overview.status}
+          featureLabels={overview.featureLabels}
         />
       </PanelContent>
     </>

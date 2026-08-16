@@ -44,6 +44,7 @@ export async function onboardingAction(
     phone: String(formData.get("phone") ?? ""),
     address: String(formData.get("address") ?? ""),
     description: String(formData.get("description") ?? ""),
+    customDomain: String(formData.get("customDomain") ?? ""),
   });
   if (!result.ok) return { error: result.error };
   redirect("/dashboard");

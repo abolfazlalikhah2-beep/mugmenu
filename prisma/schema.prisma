@@ -66,13 +66,22 @@ model Business {
   smsSenderNumber      String?
   smsConnected         Boolean  @default(false)
   smsCreditCount       Int?
-  // No payment gateway yet (phase 3, see CLAUDE.md) — these describe the
-  // plan every business currently starts on, not a self-service purchase.
-  planName             String   @default("اشتراک حرفه‌ای")
-  planPriceToman       Int      @default(390000)
+  // Subscription plan/feature gating (see features/plans) — no self-service
+  // purchase yet (phase 3, see CLAUDE.md), so planId is only changed by a
+  // super admin (پنل داخلی ماگ‌منو "تغییر پلن") or by /onboarding, both of
+  // which default new/backfilled businesses to menu-advanced so nobody loses
+  // access mid-transition. billingCycle only affects which of
+  // Plan.monthlyPrice/annualPrice is charged, not feature access.
+  planId               String
+  plan                 Plan          @relation(fields: [planId], references: [id])
+  billingCycle         BillingCycle @default(MONTHLY)
   planMaxUsers         Int      @default(5)
   planStartedAt        DateTime @default(now())
   planExpiresAt        DateTime @default(dbgenerated("(now() + interval '30 days')"))
+  // Captured at onboarding (dashboard "نام دامنه اختصاصی" field), only
+  // shown/enabled for businesses on menu-order/menu-advanced (domain.custom
+  // feature) — no DNS/provisioning yet, just storage (see CLAUDE.md).
+  customDomain         String?
   // Set from the super admin panel (تعلیق پنل) — enforced in
   // requireBusinessOwner(), not just a UI flag.
   isSuspended          Boolean  @default(false)
@@ -109,6 +118,47 @@ model Business {
   transactions Transaction[]
   customers    CustomerAccount[]
   couriers     Courier[]
+}
+
+enum BillingCycle {
+  MONTHLY
+  ANNUAL
+}
+
+// One of the 3 fixed subscription tiers (منو دیداری / منو سفارش / منو
+// پیشرفته) — see features/plans/feature-matrix.ts, the single source of
+// truth used to seed PlanFeature below. Prices are snapshotted here (not
+// computed from a formula at read time) so changing a price doesn't retroactively
+// change what a business was quoted; features/plans reads these + monthlyPrice/
+// annualPrice, never a hardcoded plan-name string comparison.
+model Plan {
+  id           String   @id @default(cuid())
+  key          String   @unique
+  name         String
+  monthlyPrice Int
+  annualPrice  Int
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  features   PlanFeature[]
+  businesses Business[]
+}
+
+// Row presence = the plan includes featureKey; absence = it doesn't.
+// limitValue holds a plan-specific limit ("1"/"3" branches, "2"/"unlimited"
+// printers) or is null for a plain boolean feature — see
+// features/plans/services/plan-service.ts for the read side. Editing rows
+// here (not code) is how the feature matrix changes post-launch.
+model PlanFeature {
+  id         String  @id @default(cuid())
+  planId     String
+  plan       Plan    @relation(fields: [planId], references: [id], onDelete: Cascade)
+  featureKey String
+  limitValue String?
+
+  @@unique([planId, featureKey])
+  @@index([planId])
 }
 
 enum UserRole {

@@ -57,6 +57,14 @@ export async function toggleSuspendBusinessAction(businessId: string, next: bool
   return result;
 }
 
+export async function changePlanAction(businessId: string, planId: string, billingCycle: string) {
+  await requireSuperAdmin();
+  const result = await customerService.changePlan(businessId, { planId, billingCycle });
+  revalidatePath(`/superadmin/customers/${businessId}`);
+  revalidatePath("/superadmin/customers");
+  return result;
+}
+
 export async function createTeamMemberAction(
   _prevState: ActionState,
   formData: FormData

@@ -9,18 +9,20 @@ export function AccountView({
   expiresAt,
   maxUsers,
   status,
+  featureLabels,
 }: {
   planName: string;
   priceToman: number;
   expiresAt: Date;
   maxUsers: number;
   status: PlanStatus;
+  featureLabels: string[];
 }) {
   return (
     <div className="grid h-full items-start gap-[18px] sm:gap-[24px] lg:grid-cols-[1.3fr_1fr]">
       <PlanCard planName={planName} priceToman={priceToman} expiresAt={expiresAt} status={status} />
       <div className="flex flex-col gap-[18px] sm:gap-[22px]">
-        <PlanFeaturesCard maxUsers={maxUsers} />
+        <PlanFeaturesCard maxUsers={maxUsers} featureLabels={featureLabels} />
         <BillingPlaceholderCard />
       </div>
     </div>

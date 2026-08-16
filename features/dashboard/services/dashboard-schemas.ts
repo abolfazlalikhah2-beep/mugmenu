@@ -22,6 +22,15 @@ export const onboardingSchema = z.object({
   address: z.string().trim().min(3, "آدرس را کامل وارد کنید."),
   description: z.string().trim().max(2000).optional(),
   logoUrl: optionalImageUrl,
+  // Only shown/enabled for menu-order/menu-advanced (domain.custom feature)
+  // — see app/onboarding/page.tsx. No DNS/provisioning yet, just storage.
+  customDomain: z
+    .string()
+    .trim()
+    .max(255)
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => (v ? v : undefined)),
 });
 
 export const businessInfoSchema = z.object({

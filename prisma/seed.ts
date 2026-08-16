@@ -2,11 +2,65 @@ import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../lib/generated/prisma/client";
+import {
+  PLAN_KEYS,
+  PLAN_DEFS,
+  FEATURE_KEYS,
+  FEATURE_MATRIX,
+  computeAnnualPrice,
+  type PlanKey,
+} from "../features/plans/feature-matrix";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
+interface SeededPlan {
+  id: string;
+  name: string;
+  monthlyPrice: number;
+  annualPrice: number;
+}
+
+async function seedPlans(): Promise<Record<PlanKey, SeededPlan>> {
+  const plansByKey = {} as Record<PlanKey, SeededPlan>;
+
+  for (const key of PLAN_KEYS) {
+    const def = PLAN_DEFS[key];
+    const annualPrice = computeAnnualPrice(def.monthlyPrice);
+    const plan = await prisma.plan.upsert({
+      where: { key },
+      update: { name: def.name, monthlyPrice: def.monthlyPrice, annualPrice, sortOrder: def.sortOrder },
+      create: { key, name: def.name, monthlyPrice: def.monthlyPrice, annualPrice, sortOrder: def.sortOrder },
+    });
+    plansByKey[key] = plan;
+  }
+
+  for (const featureKey of FEATURE_KEYS) {
+    const planEntries = FEATURE_MATRIX[featureKey];
+    for (const key of PLAN_KEYS) {
+      if (!(key in planEntries)) continue;
+      const planId = plansByKey[key].id;
+      const limitValue = planEntries[key] ?? null;
+      await prisma.planFeature.upsert({
+        where: { planId_featureKey: { planId, featureKey } },
+        update: { limitValue },
+        create: { planId, featureKey, limitValue },
+      });
+    }
+  }
+
+  // Any business created before Plan existed (or created without an explicit
+  // plan) defaults to menu-advanced so nobody loses access mid-migration —
+  // raw SQL because the generated client's Business type expects planId to
+  // already be non-null (its final, post-migration shape).
+  await prisma.$executeRaw`UPDATE "Business" SET "planId" = ${plansByKey["menu-advanced"].id} WHERE "planId" IS NULL`;
+
+  return plansByKey;
+}
+
 async function main() {
+  const plansByKey = await seedPlans();
+
   const demoBusinessFields = {
     name: "رستوران چلوکبابی باختر",
     nameEn: "Bakhtar Restaurant",
@@ -27,7 +81,9 @@ async function main() {
   const business = await prisma.business.upsert({
     where: { slug: "demo" },
     update: demoBusinessFields,
-    create: { slug: "demo", ...demoBusinessFields },
+    // planId only set on create, not update — re-seeding shouldn't undo a
+    // plan change made through the super-admin plan switcher while testing.
+    create: { slug: "demo", ...demoBusinessFields, planId: plansByKey["menu-advanced"].id },
   });
 
   const passwordHash = await bcrypt.hash("demo1234", 10);
@@ -320,11 +376,12 @@ async function main() {
   if (existingTransactions === 0) {
     const now = new Date();
     const monthsAgo = (n: number) => new Date(now.getFullYear(), now.getMonth() - n, 15);
+    const currentPlan = plansByKey["menu-advanced"];
     await prisma.transaction.createMany({
       data: [
-        { businessId: business.id, amount: business.planPriceToman, planName: business.planName, status: "PAID", createdAt: monthsAgo(0) },
-        { businessId: business.id, amount: business.planPriceToman, planName: business.planName, status: "PAID", createdAt: monthsAgo(1) },
-        { businessId: business.id, amount: business.planPriceToman, planName: business.planName, status: "PAID", createdAt: monthsAgo(2) },
+        { businessId: business.id, amount: currentPlan.monthlyPrice, planName: currentPlan.name, status: "PAID", createdAt: monthsAgo(0) },
+        { businessId: business.id, amount: currentPlan.monthlyPrice, planName: currentPlan.name, status: "PAID", createdAt: monthsAgo(1) },
+        { businessId: business.id, amount: currentPlan.monthlyPrice, planName: currentPlan.name, status: "PAID", createdAt: monthsAgo(2) },
       ],
     });
   }

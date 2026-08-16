@@ -24,6 +24,11 @@ export const gatewaySettingsSchema = z.object({
   zarinpalSandbox: z.boolean(),
 });
 
+export const changePlanSchema = z.object({
+  planId: z.string().min(1, "پلن را انتخاب کنید."),
+  billingCycle: z.enum(["MONTHLY", "ANNUAL"]),
+});
+
 export const teamUserSchema = z.object({
   fullName: z.string().trim().min(2, "نام و نام خانوادگی را کامل وارد کنید.").max(80),
   phone: z.string().trim().min(10, "شماره تماس معتبر نیست.").max(20),

@@ -71,6 +71,12 @@ export default function OnboardingPage() {
             />
           </div>
           <Input name="address" label="آدرس" required />
+          <div className="flex flex-col gap-1.5">
+            <Input name="customDomain" label="نام دامنه اختصاصی" dir="ltr" className="text-right" placeholder="example.com" />
+            <p className="text-right text-[11px] font-light text-text-4">
+              فقط برای پلن‌های «منو سفارش» و «منو پیشرفته» فعال است — اتصال واقعی دامنه بعداً از پشتیبانی پیگیری می‌شود.
+            </p>
+          </div>
           <div className="flex flex-col gap-2">
             <label className="text-right text-[13px] font-light text-text-4">توضیحات مجموعه</label>
             <textarea

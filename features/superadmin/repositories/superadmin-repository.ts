@@ -27,7 +27,7 @@ export function getBusinessesForList(search?: string) {
           ],
         }
       : undefined,
-    include: { ...OWNER_INCLUDE, ...HAS_PAID_TX_INCLUDE },
+    include: { ...OWNER_INCLUDE, ...HAS_PAID_TX_INCLUDE, plan: true },
     orderBy: { createdAt: "desc" },
   });
 }
@@ -42,7 +42,7 @@ export function getBusinessesForPicker() {
 export function getBusinessDetail(businessId: string) {
   return prisma.business.findUnique({
     where: { id: businessId },
-    include: { owners: { orderBy: { createdAt: "asc" } }, ...HAS_PAID_TX_INCLUDE },
+    include: { owners: { orderBy: { createdAt: "asc" } }, ...HAS_PAID_TX_INCLUDE, plan: true },
   });
 }
 
