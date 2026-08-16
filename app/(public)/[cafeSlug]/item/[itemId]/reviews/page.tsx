@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getItemReviewsData } from "@/features/menu/services/menu-service";
 import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
@@ -10,6 +11,8 @@ import {
   reviewsPageTitle,
   basedOnReviewsLabel,
 } from "@/features/menu/utils/menu-language";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function ItemReviewsPage({
   params,

@@ -34,6 +34,33 @@ export async function getBusinessAccentColor(slug: string) {
   return business?.accentColor ?? null;
 }
 
+export interface BusinessSeoData {
+  name: string;
+  description: string | null;
+  address: string | null;
+  logoUrl: string | null;
+}
+
+/** Backs the cafe layout's generateMetadata + JSON-LD — repo.getBusiness is request-memoized (React cache()), so calling this from both doesn't cost a second query. */
+export async function getBusinessSeoData(slug: string): Promise<BusinessSeoData | null> {
+  const business = await repo.getBusiness(slug);
+  if (!business) return null;
+  return {
+    name: business.name,
+    description: business.description,
+    address: business.address,
+    logoUrl: business.logoUrl,
+  };
+}
+
+export interface SitemapBusiness {
+  slug: string;
+}
+
+export function getSitemapBusinesses(): Promise<SitemapBusiness[]> {
+  return repo.getActiveBusinessSlugs();
+}
+
 export async function getCategoryBrowserData(slug: string) {
   const business = await repo.getBusiness(slug);
   if (!business) return null;

@@ -27,6 +27,14 @@ export function getBusinessAccentColor(slug: string) {
   return prisma.business.findUnique({ where: { slug }, select: { accentColor: true } });
 }
 
+/** slugs for sitemap.xml — isSuspended is this schema's "active/inactive" flag, there's no separate isActive column. */
+export function getActiveBusinessSlugs() {
+  return prisma.business.findMany({
+    where: { isSuspended: false },
+    select: { slug: true },
+  });
+}
+
 export function getCategories(businessId: string) {
   return prisma.category.findMany({
     where: { businessId, isActive: true },

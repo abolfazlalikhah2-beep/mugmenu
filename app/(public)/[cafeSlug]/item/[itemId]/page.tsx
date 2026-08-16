@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
@@ -13,6 +14,8 @@ import { formatToman, computeDiscountedPrice } from "@/features/menu/utils/money
 import { AddToCartControl } from "@/components/menu/add-to-cart-control";
 import { CartFab } from "@/components/menu/cart-fab";
 import { localizedName, localizedText, menuCopy, discountLabel } from "@/features/menu/utils/menu-language";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function ItemDetailPage({
   params,

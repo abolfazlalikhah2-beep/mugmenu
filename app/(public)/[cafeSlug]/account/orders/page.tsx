@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { requireCustomerSession } from "@/features/customer/services/customer-session-service";
 import { getOrders } from "@/features/customer/services/order-history-service";
 import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
@@ -5,6 +6,8 @@ import { menuCopy } from "@/features/menu/utils/menu-language";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { TopBar } from "@/components/menu/top-bar";
 import { OrderHistoryView } from "@/components/customer-account/order-history-view";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function CustomerOrderHistoryPage({
   params,

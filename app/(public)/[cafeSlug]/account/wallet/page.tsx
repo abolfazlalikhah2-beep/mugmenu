@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { requireCustomerSession } from "@/features/customer/services/customer-session-service";
 import { getWalletLedger, getWalletAndLoyaltySummary } from "@/features/customer/services/wallet-service";
 import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
@@ -6,6 +7,8 @@ import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { TopBar } from "@/components/menu/top-bar";
 import { WalletLedgerRow } from "@/components/customer-account/wallet-ledger-row";
 import { formatToman } from "@/features/menu/utils/money";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function CustomerWalletPage({
   params,

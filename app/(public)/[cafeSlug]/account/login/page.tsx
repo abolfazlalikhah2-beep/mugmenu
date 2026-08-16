@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getBusinessBrand } from "@/features/customer/services/customer-auth-service";
 import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
 import { localizedName, menuCopy } from "@/features/menu/utils/menu-language";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { CustomerLoginForm } from "@/components/customer-account/customer-login-form";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function CustomerLoginPage({
   params,

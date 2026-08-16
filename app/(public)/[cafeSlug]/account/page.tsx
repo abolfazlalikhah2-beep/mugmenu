@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireCustomerSession } from "@/features/customer/services/customer-session-service";
 import { getAccountProfile } from "@/features/customer/services/customer-auth-service";
@@ -13,6 +14,8 @@ import { RecentOrdersCard } from "@/components/customer-account/recent-orders-ca
 import { LogoutButton } from "@/components/customer-account/logout-button";
 import Link from "next/link";
 import { ChevronLeft, MapPin } from "lucide-react";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function CustomerAccountPage({
   params,

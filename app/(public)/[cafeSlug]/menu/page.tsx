@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCategoryBrowserData } from "@/features/menu/services/menu-service";
 import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
@@ -8,6 +9,8 @@ import { TopBar } from "@/components/menu/top-bar";
 import { CategoryBrowser } from "@/components/menu/category-browser";
 import { CartFab } from "@/components/menu/cart-fab";
 import { OrderTypeSync } from "@/components/menu/order-type-sync";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function CategoryListPage({
   params,
