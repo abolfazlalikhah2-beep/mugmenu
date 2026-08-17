@@ -54,6 +54,15 @@ export async function createOrder(input: unknown, customerAccountId?: string): P
   ]);
   if (!canOrder) return { ok: false, error: "این کسب‌وکار در حال حاضر امکان سفارش آنلاین ندارد." };
 
+  // The order-type tabs already hide disabled modes, but a stale cart
+  // (localStorage) or a direct call can still submit one — re-check against
+  // the business's own settings, never just the client's cart state.
+  const typeAccepted =
+    (data.type === "DINE_IN" && business.acceptsDineIn) ||
+    (data.type === "TAKEAWAY" && business.acceptsTakeaway) ||
+    (data.type === "DELIVERY" && business.acceptsDelivery);
+  if (!typeAccepted) return { ok: false, error: "این روش سفارش در حال حاضر برای این مجموعه فعال نیست." };
+
   const products = await menuRepository.findProductsByIds(data.items.map((i) => i.productId));
   const productMap = new Map(products.map((p) => [p.id, p]));
 

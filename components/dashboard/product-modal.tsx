@@ -85,6 +85,14 @@ function OptionGroupsEditor({
   function addOption(gi: number) {
     onChange(groups.map((g, i) => (i === gi ? { ...g, options: [...g.options, emptyOption()] } : g)));
   }
+  /** Radio behavior within a group — only one option can be the default. */
+  function setDefaultOption(gi: number, oi: number) {
+    onChange(
+      groups.map((g, i) =>
+        i === gi ? { ...g, options: g.options.map((o, j) => ({ ...o, isDefault: j === oi })) } : g
+      )
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-[#F0F0F0] bg-[#FAFBFA] p-[14px_16px]">
@@ -144,7 +152,7 @@ function OptionGroupsEditor({
                 <span className="w-9 shrink-0 text-[11.5px] text-text-3">تومان</span>
                 <button
                   type="button"
-                  onClick={() => updateOption(gi, oi, { isDefault: !o.isDefault })}
+                  onClick={() => setDefaultOption(gi, oi)}
                   className={
                     "h-9 shrink-0 rounded-[11px] border px-2.5 text-[11px] whitespace-nowrap " +
                     (o.isDefault ? "border-brand bg-[#E5F0E6] text-brand" : "border-border-input text-text-3")

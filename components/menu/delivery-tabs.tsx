@@ -7,12 +7,25 @@ import { orderTypeLabel, type MenuLang } from "@/features/menu/utils/menu-langua
 
 const TAB_VALUES: OrderType[] = ["DINE_IN", "TAKEAWAY", "DELIVERY"];
 
-export function DeliveryTabs({ lang = "fa" }: { lang?: MenuLang }) {
+export interface OrderTypeAvailability {
+  acceptsDineIn: boolean;
+  acceptsTakeaway: boolean;
+  acceptsDelivery: boolean;
+}
+
+const AVAILABILITY_KEY: Record<OrderType, keyof OrderTypeAvailability> = {
+  DINE_IN: "acceptsDineIn",
+  TAKEAWAY: "acceptsTakeaway",
+  DELIVERY: "acceptsDelivery",
+};
+
+export function DeliveryTabs({ lang = "fa", availability }: { lang?: MenuLang; availability: OrderTypeAvailability }) {
   const { orderType, setOrderType } = useCart();
+  const values = TAB_VALUES.filter((v) => availability[AVAILABILITY_KEY[v]]);
 
   return (
     <div className="flex gap-1 rounded-input bg-chip p-1.5">
-      {TAB_VALUES.map((value) => {
+      {values.map((value) => {
         const active = value === orderType;
         return (
           <button

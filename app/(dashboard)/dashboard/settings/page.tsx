@@ -20,7 +20,7 @@ export default async function SettingsPage() {
 
   return (
     <>
-      <Topbar title="تنظیمات" businessName={business.name} isAcceptingOrders={business.isAcceptingOrders} />
+      <Topbar title="تنظیمات" businessName={business.name} />
       <PanelContent>
         <SettingsView
           business={business}

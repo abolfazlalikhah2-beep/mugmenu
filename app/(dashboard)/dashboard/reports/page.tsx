@@ -21,7 +21,7 @@ export default async function ReportsPage() {
 
   return (
     <>
-      <Topbar title="گزارش‌ها" businessName={business.name} isAcceptingOrders={business.isAcceptingOrders} />
+      <Topbar title="گزارش‌ها" businessName={business.name} />
       <PanelContent>
         <ReportsView ordersData={ordersData} productsData={productsData} menuAnalyticsData={menuAnalyticsData} />
       </PanelContent>

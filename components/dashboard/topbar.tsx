@@ -1,28 +1,26 @@
 import Link from "next/link";
 import { User } from "lucide-react";
-import { ServerToggle } from "@/components/dashboard/server-toggle";
-import { toggleAcceptingOrdersAction } from "@/features/dashboard/routes/actions";
+import { AcceptingOrdersToggle } from "@/components/dashboard/accepting-orders-toggle";
+import { SidebarHamburgerButton } from "@/components/dashboard/sidebar-hamburger-button";
 
 export function Topbar({
   title,
   businessName,
-  isAcceptingOrders,
   action,
 }: {
   title: string;
   businessName: string;
-  isAcceptingOrders: boolean;
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex h-[88px] shrink-0 items-center justify-between border-b border-[#EDEDED] bg-card px-[34px]">
-      <div className="text-[23px] font-semibold">{title}</div>
+    <div className="flex h-[88px] shrink-0 items-center justify-between gap-3 border-b border-[#EDEDED] bg-card px-4 md:px-[34px]">
+      <div className="flex min-w-0 items-center gap-3">
+        <SidebarHamburgerButton />
+        <div className="truncate text-[19px] font-semibold md:text-[23px]">{title}</div>
+      </div>
       <div className="flex items-center gap-4.5">
         {action}
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-light text-[#777]">وضعیت سفارش‌گیری</span>
-          <ServerToggle initial={isAcceptingOrders} action={toggleAcceptingOrdersAction} />
-        </div>
+        <AcceptingOrdersToggle className="hidden sm:flex" />
         <span className="h-[30px] w-px bg-[#ECECEC]" />
         <Link href="/dashboard/account" className="flex items-center gap-2.5">
           <div className="text-right">

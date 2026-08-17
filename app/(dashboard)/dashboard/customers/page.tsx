@@ -34,7 +34,7 @@ export default async function CustomersPage({
 
   return (
     <>
-      <Topbar title="مشتریان" businessName={business.name} isAcceptingOrders={business.isAcceptingOrders} />
+      <Topbar title="مشتریان" businessName={business.name} />
       <PanelContent className="flex flex-col gap-[18px] sm:gap-[22px]">
         <CustomersView
           customerList={

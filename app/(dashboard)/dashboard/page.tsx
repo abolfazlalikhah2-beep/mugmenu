@@ -28,7 +28,7 @@ export default async function DashboardHomePage() {
 
   return (
     <>
-      <Topbar title="داشبورد" businessName={business.name} isAcceptingOrders={business.isAcceptingOrders} />
+      <Topbar title="داشبورد" businessName={business.name} />
       <PanelContent>
         <div className="grid h-full items-start gap-[22px] lg:grid-cols-[2.1fr_1fr]">
           <div className="flex min-w-0 flex-col gap-[22px]">
@@ -69,13 +69,12 @@ export default async function DashboardHomePage() {
             />
           </div>
           <div className="flex min-w-0 flex-col gap-[22px]">
-            <ProfileCard
-              name={business.name}
-              slug={business.slug}
-              address={business.address}
-              isAcceptingOrders={business.isAcceptingOrders}
+            <ProfileCard name={business.name} slug={business.slug} address={business.address} />
+            <CategorySummary
+              totalSales={categorySummary.totalSales}
+              topProducts={categorySummary.topProducts}
+              categories={categorySummary.categories}
             />
-            <CategorySummary totalSales={categorySummary.totalSales} topProducts={categorySummary.topProducts} />
           </div>
         </div>
       </PanelContent>

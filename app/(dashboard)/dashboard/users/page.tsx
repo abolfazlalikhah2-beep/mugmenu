@@ -13,7 +13,7 @@ export default async function UsersPage() {
 
   return (
     <>
-      <Topbar title="کاربران" businessName={business.name} isAcceptingOrders={business.isAcceptingOrders} />
+      <Topbar title="کاربران" businessName={business.name} />
       <PanelContent>
         <UsersView
           users={users.map((u) => ({ id: u.id, fullName: u.fullName, phone: u.phone, role: u.role }))}

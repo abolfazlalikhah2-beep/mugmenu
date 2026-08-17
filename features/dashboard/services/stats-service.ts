@@ -56,9 +56,14 @@ export interface TopProduct {
   revenue: number;
 }
 
+export interface CategoryBreakdown {
+  name: string;
+  revenue: number;
+}
+
 export async function getCategorySummary(
   businessId: string
-): Promise<{ totalSales: number; topProducts: TopProduct[] }> {
+): Promise<{ totalSales: number; topProducts: TopProduct[]; categories: CategoryBreakdown[] }> {
   const items = await repo.getOrderItemsWithProduct(businessId);
   let totalSales = 0;
   const byProduct = new Map<string, TopProduct>();
@@ -80,6 +85,16 @@ export async function getCategorySummary(
     }
   }
 
-  const topProducts = [...byProduct.values()].sort((a, b) => b.revenue - a.revenue).slice(0, 3);
-  return { totalSales, topProducts };
+  const byCategory = new Map<string, number>();
+  for (const p of byProduct.values()) {
+    byCategory.set(p.category, (byCategory.get(p.category) ?? 0) + p.revenue);
+  }
+  const categories = [...byCategory.entries()]
+    .map(([name, revenue]) => ({ name, revenue }))
+    .sort((a, b) => b.revenue - a.revenue);
+
+  // A wider pool than "top 3" so the category filter (see CategorySummary)
+  // has something to actually filter down to per category.
+  const topProducts = [...byProduct.values()].sort((a, b) => b.revenue - a.revenue).slice(0, 10);
+  return { totalSales, topProducts, categories };
 }

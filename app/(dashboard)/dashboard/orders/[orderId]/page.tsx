@@ -32,7 +32,7 @@ export default async function OrderDetailPage({
 
   return (
     <>
-      <Topbar title="جزئیات سفارش" businessName={business.name} isAcceptingOrders={business.isAcceptingOrders} />
+      <Topbar title="جزئیات سفارش" businessName={business.name} />
       <PanelContent>
         <OrderDetailCard order={order} couriers={couriers} />
       </PanelContent>

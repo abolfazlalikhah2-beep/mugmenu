@@ -111,29 +111,23 @@ export default async function MenuEntryPage({
       )}
       <p className={`px-4.5 pt-2.5 text-center text-sm md:px-10 ${lang === "en" ? "font-mont" : ""}`}>{t.lead}</p>
       <div className="flex flex-col gap-3 px-4.5 py-4 md:px-10 md:py-5">
-        {orderingEnabled ? (
-          <>
-            <OrderTypeRow
-              label={t.rowDineIn}
-              icon={<UtensilsCrossed size={22} className="text-brand" />}
-              href={`/${cafeSlug}/menu?type=dine_in`}
-            />
-            <OrderTypeRow
-              label={t.rowVisual}
-              icon={<ScrollText size={22} className="text-brand" />}
-              href={`/${cafeSlug}/menu?type=view`}
-            />
-            <OrderTypeRow
-              label={t.rowTakeaway}
-              icon={<Package size={22} className="text-brand" />}
-              href={`/${cafeSlug}/menu?type=takeaway`}
-            />
-          </>
-        ) : (
+        {orderingEnabled && business.acceptsDineIn && (
           <OrderTypeRow
-            label={t.rowVisual}
-            icon={<ScrollText size={22} className="text-brand" />}
-            href={`/${cafeSlug}/menu`}
+            label={t.rowDineIn}
+            icon={<UtensilsCrossed size={22} className="text-brand" />}
+            href={`/${cafeSlug}/menu?type=dine_in`}
+          />
+        )}
+        <OrderTypeRow
+          label={t.rowVisual}
+          icon={<ScrollText size={22} className="text-brand" />}
+          href={orderingEnabled ? `/${cafeSlug}/menu?type=view` : `/${cafeSlug}/menu`}
+        />
+        {orderingEnabled && business.acceptsTakeaway && (
+          <OrderTypeRow
+            label={t.rowTakeaway}
+            icon={<Package size={22} className="text-brand" />}
+            href={`/${cafeSlug}/menu?type=takeaway`}
           />
         )}
       </div>

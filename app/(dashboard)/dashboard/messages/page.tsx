@@ -22,7 +22,7 @@ export default async function MessagesPage() {
 
   return (
     <>
-      <Topbar title="پیام‌ها" businessName={business.name} isAcceptingOrders={business.isAcceptingOrders} />
+      <Topbar title="پیام‌ها" businessName={business.name} />
       <PanelContent>
         <UpgradeGate allowed={hasSmsPanel} title="پنل پیامک در پلن شما موجود نیست">
           {data && (

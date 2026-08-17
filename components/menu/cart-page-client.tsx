@@ -6,7 +6,8 @@ import Link from "next/link";
 import { MapPin, Wallet } from "lucide-react";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { TopBar } from "@/components/menu/top-bar";
-import { DeliveryTabs } from "@/components/menu/delivery-tabs";
+import { DeliveryTabs, type OrderTypeAvailability } from "@/components/menu/delivery-tabs";
+import type { OrderType } from "@/features/menu/services/order-flow";
 import { CartLine } from "@/components/menu/cart-line";
 import { MenuImage } from "@/components/menu/menu-image";
 import { StaticField } from "@/components/menu/static-field";
@@ -37,7 +38,7 @@ export function CartPageClient({
   checkout: CartCheckoutContext | null;
 }) {
   const { cafeSlug } = useParams<{ cafeSlug: string }>();
-  const { items, orderType, clear } = useCart();
+  const { items, orderType, setOrderType, clear } = useCart();
   const [customerName, setCustomerName] = React.useState("");
   const [customerPhone, setCustomerPhone] = React.useState("");
   const [tableNumber, setTableNumber] = React.useState("");
@@ -46,6 +47,28 @@ export function CartPageClient({
   const [pending, setPending] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const t = menuCopy(lang);
+
+  const availability: OrderTypeAvailability = {
+    acceptsDineIn: checkout?.acceptsDineIn ?? true,
+    acceptsTakeaway: checkout?.acceptsTakeaway ?? true,
+    acceptsDelivery: checkout?.acceptsDelivery ?? false,
+  };
+  const availabilityByType: Record<OrderType, boolean> = {
+    DINE_IN: availability.acceptsDineIn,
+    TAKEAWAY: availability.acceptsTakeaway,
+    DELIVERY: availability.acceptsDelivery,
+  };
+
+  // The cart can carry a stale orderType from before the merchant disabled
+  // it (localStorage) or from a link into a mode that's now off — fall back
+  // to the first still-accepted type rather than let checkout stay on one
+  // the business no longer takes.
+  React.useEffect(() => {
+    if (availabilityByType[orderType]) return;
+    const fallback = (["DINE_IN", "TAKEAWAY", "DELIVERY"] as const).find((v) => availabilityByType[v]);
+    if (fallback) setOrderType(fallback);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderType, availability.acceptsDineIn, availability.acceptsTakeaway, availability.acceptsDelivery]);
 
   const modeLabel = orderTypeLabel(lang, orderType);
 
@@ -144,7 +167,7 @@ export function CartPageClient({
     <MenuPageShell dir={t.dir}>
       <TopBar title={t.cartTitle} backHref={`/${cafeSlug}`} />
       <div className="flex flex-col gap-4 p-4 md:p-8.5">
-        <DeliveryTabs lang={lang} />
+        <DeliveryTabs lang={lang} availability={availability} />
         <div>
           {items.map((item) => (
             <CartLine key={item.lineId} item={item} lang={lang} />

@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { ModalShell } from "@/components/dashboard/modal-shell";
 import { Input } from "@/components/ui/input";
+import { JalaliDatePicker } from "@/components/ui/jalali-date-picker";
 import { FormToggle } from "@/components/dashboard/form-toggle";
 import {
   createDiscountCodeAction,
@@ -113,8 +114,8 @@ export function DiscountCodeModal({
         <div className="flex flex-col gap-2">
           <label className="text-right text-[13px] font-light text-text-4">مدت‌زمان</label>
           <div className="flex gap-3.5">
-            <Input name="startDate" type="date" defaultValue={discount?.startDate ?? undefined} className="flex-1" />
-            <Input name="endDate" type="date" defaultValue={discount?.endDate ?? undefined} className="flex-1" />
+            <JalaliDatePicker name="startDate" placeholder="از تاریخ" defaultValue={discount?.startDate} className="flex-1" />
+            <JalaliDatePicker name="endDate" placeholder="تا تاریخ" defaultValue={discount?.endDate} className="flex-1" />
           </div>
         </div>
 

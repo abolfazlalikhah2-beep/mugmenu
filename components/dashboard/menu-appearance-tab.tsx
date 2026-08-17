@@ -28,12 +28,15 @@ const SWATCHES = ["#328C3D", "#E1662A", "#2563EB", "#8E2DE2", "#C1398A", "#0F766
 const GRADIENT_KEYS = HERO_BG_KEYS.filter((k): k is Exclude<HeroBgKey, "photo"> => k !== "photo");
 const DEFAULT_ACCENT = "#328C3D";
 const DEFAULT_HERO_BG: HeroBgKey = "g1";
+const HEX_COLOR_PATTERN = /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/;
 
 const initialState: ActionState = {};
 
 export function MenuAppearanceTab({ business }: { business: MenuAppearanceFormValue }) {
   const [state, formAction, pending] = useActionState(updateMenuAppearanceAction, initialState);
   const [accentColor, setAccentColor] = useState(business.accentColor);
+  const [hexDraft, setHexDraft] = useState(business.accentColor.toUpperCase());
+  const [hexError, setHexError] = useState(false);
   const [logoUrl, setLogoUrl] = useState(business.logoUrl ?? "");
   const [heroBgKey, setHeroBgKey] = useState<HeroBgKey>((business.heroBgKey as HeroBgKey) || DEFAULT_HERO_BG);
   const [heroImageUrl, setHeroImageUrl] = useState(business.heroImageUrl ?? "");
@@ -41,8 +44,27 @@ export function MenuAppearanceTab({ business }: { business: MenuAppearanceFormVa
 
   const background = resolveHeroBackground({ heroBgKey, heroImageUrl: heroImageUrl || null, accentColor });
 
+  /** Single entry point for every way accentColor can change, so the hex text field always mirrors it. */
+  function applyAccentColor(color: string) {
+    setAccentColor(color);
+    setHexDraft(color.toUpperCase());
+    setHexError(false);
+  }
+
+  function handleHexInput(value: string) {
+    setHexDraft(value);
+    const normalized = value.trim();
+    const candidate = normalized.startsWith("#") ? normalized : `#${normalized}`;
+    if (HEX_COLOR_PATTERN.test(candidate)) {
+      setAccentColor(candidate);
+      setHexError(false);
+    } else {
+      setHexError(normalized.length > 0);
+    }
+  }
+
   function resetToDefault() {
-    setAccentColor(DEFAULT_ACCENT);
+    applyAccentColor(DEFAULT_ACCENT);
     setHeroBgKey(DEFAULT_HERO_BG);
   }
 
@@ -128,7 +150,7 @@ export function MenuAppearanceTab({ business }: { business: MenuAppearanceFormVa
                 <button
                   key={c}
                   type="button"
-                  onClick={() => setAccentColor(c)}
+                  onClick={() => applyAccentColor(c)}
                   aria-label={c}
                   className="flex h-12 w-12 items-center justify-center rounded-2xl"
                   style={{
@@ -143,18 +165,31 @@ export function MenuAppearanceTab({ business }: { business: MenuAppearanceFormVa
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-right text-[13px] font-light text-text-4">کد رنگ دلخواه</label>
-            <div className="flex h-[50px] items-center justify-between rounded-input border border-border-input px-4.5">
-              <span dir="ltr" className="font-mont text-sm text-[#333]">
-                {accentColor.toUpperCase()}
-              </span>
+            <div
+              className={
+                "flex h-[50px] items-center justify-between gap-2 rounded-input border px-4.5 " +
+                (hexError ? "border-red-400" : "border-border-input")
+              }
+            >
+              <input
+                type="text"
+                dir="ltr"
+                value={hexDraft}
+                onChange={(e) => handleHexInput(e.target.value)}
+                placeholder="#328C3D"
+                maxLength={7}
+                className="min-w-0 flex-1 bg-transparent font-mont text-sm text-[#333] outline-none placeholder:text-[#B8B8B8]"
+                aria-label="کد رنگ دلخواه"
+              />
               <input
                 type="color"
                 value={accentColor}
-                onChange={(e) => setAccentColor(e.target.value)}
-                className="h-[30px] w-[34px] cursor-pointer border-none bg-transparent p-0"
-                aria-label="کد رنگ دلخواه"
+                onChange={(e) => applyAccentColor(e.target.value)}
+                className="h-[30px] w-[34px] shrink-0 cursor-pointer border-none bg-transparent p-0"
+                aria-label="انتخاب رنگ از پالت"
               />
             </div>
+            {hexError && <p className="text-right text-xs text-red-500">کد رنگ نامعتبر است — مثل #328C3D وارد کنید.</p>}
           </div>
         </SettingsCard>
 

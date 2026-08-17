@@ -111,6 +111,10 @@ export interface CartCheckoutContext {
   walletBalance: number | null;
   /** false for menu-display plan businesses — cart/checkout must stay blocked. */
   hasOrdering: boolean;
+  /** Which order types this business currently accepts (dashboard settings > order settings) — the cart's type tabs must only offer these. */
+  acceptsDineIn: boolean;
+  acceptsTakeaway: boolean;
+  acceptsDelivery: boolean;
 }
 
 /** Fee/discount/wallet context the cart page needs to preview a bill before submitting — order-service.ts recomputes all of this itself at checkout, this is display-only. */
@@ -143,6 +147,9 @@ export async function getCartCheckoutContext(
     ),
     walletBalance,
     hasOrdering,
+    acceptsDineIn: business.acceptsDineIn,
+    acceptsTakeaway: business.acceptsTakeaway,
+    acceptsDelivery: business.acceptsDelivery,
   };
 }
 

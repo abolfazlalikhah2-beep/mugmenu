@@ -44,7 +44,6 @@ export default async function OrdersPage({
       <Topbar
         title="سفارشات"
         businessName={business.name}
-        isAcceptingOrders={business.isAcceptingOrders}
         action={<ManualOrderTrigger products={manualOrderProducts} allowed={hasManualEntry} />}
       />
       <PanelContent className="flex flex-col gap-[22px]">

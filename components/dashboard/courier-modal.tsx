@@ -126,16 +126,20 @@ export function CourierModal({
           <input key={z} type="hidden" name="coverageZones" value={z} />
         ))}
         <div className="flex flex-col gap-4 sm:flex-row">
-          <Input name="name" label="نام و نام خانوادگی" defaultValue={courier?.name} required className="flex-1" />
-          <Input
-            name="phone"
-            label="شماره تماس"
-            dir="ltr"
-            className="flex-1 text-right"
-            defaultValue={courier?.phone}
-            placeholder="۰۹۱۲۰۰۰۰۰۰۰"
-            required
-          />
+          <div className="min-w-0 flex-1">
+            <Input name="name" label="نام و نام خانوادگی" defaultValue={courier?.name} required className="w-full" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <Input
+              name="phone"
+              label="شماره تماس"
+              dir="ltr"
+              className="w-full text-right"
+              defaultValue={courier?.phone}
+              placeholder="۰۹۱۲۰۰۰۰۰۰۰"
+              required
+            />
+          </div>
         </div>
         <div className="flex flex-col gap-4 sm:flex-row">
           <div className="flex flex-1 flex-col gap-2">
