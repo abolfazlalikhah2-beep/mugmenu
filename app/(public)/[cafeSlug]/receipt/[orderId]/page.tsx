@@ -36,7 +36,7 @@ export default async function ReceiptPage({
   params: Promise<{ cafeSlug: string; orderId: string }>;
 }) {
   const { cafeSlug, orderId } = await params;
-  const order = await getReceiptData(orderId);
+  const order = await getReceiptData(cafeSlug, orderId);
   if (!order) notFound();
 
   const hasSurvey = order.survey ? false : await businessHasFeature(order.business.id, "review.submit_survey");

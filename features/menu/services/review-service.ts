@@ -1,6 +1,8 @@
 import "server-only";
 import { PrismaClientKnownRequestError } from "@/lib/generated/prisma/internal/prismaNamespace";
 import { logger } from "@/lib/logger";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/request-ip";
 import * as repo from "@/features/menu/repositories/menu-repository";
 import { submitReviewSchema, submitSurveySchema } from "@/features/menu/services/review-schemas";
 import { awardReviewPoints } from "@/features/customer/services/wallet-service";
@@ -9,7 +11,16 @@ export type SubmitReviewResult =
   | { ok: true; pointsAwarded: number }
   | { ok: false; error: string };
 
+const REVIEW_SUBMIT_IP_LIMIT = { limit: 5, windowMs: 60 * 60 * 1000 }; // 5 reviews / hour / IP
+
 export async function submitReview(input: unknown): Promise<SubmitReviewResult> {
+  const ip = await getClientIp();
+  const { allowed } = checkRateLimit(`review-submit:${ip}`, REVIEW_SUBMIT_IP_LIMIT);
+  if (!allowed) {
+    logger.warn("review.rate_limited", { ip });
+    return { ok: false, error: "تعداد ثبت نظر بیش از حد مجاز است. کمی بعد دوباره تلاش کنید." };
+  }
+
   const parsed = submitReviewSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   const data = parsed.data;
@@ -53,6 +64,13 @@ export async function submitReview(input: unknown): Promise<SubmitReviewResult> 
 export type SubmitSurveyResult = { ok: true } | { ok: false; error: string };
 
 export async function submitSurvey(input: unknown): Promise<SubmitSurveyResult> {
+  const ip = await getClientIp();
+  const { allowed } = checkRateLimit(`survey-submit:${ip}`, REVIEW_SUBMIT_IP_LIMIT);
+  if (!allowed) {
+    logger.warn("review.survey_rate_limited", { ip });
+    return { ok: false, error: "تعداد ثبت نظرسنجی بیش از حد مجاز است. کمی بعد دوباره تلاش کنید." };
+  }
+
   const parsed = submitSurveySchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   const data = parsed.data;

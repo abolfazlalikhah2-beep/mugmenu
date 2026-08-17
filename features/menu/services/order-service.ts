@@ -1,5 +1,7 @@
 import "server-only";
 import { logger } from "@/lib/logger";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/request-ip";
 import * as menuRepository from "@/features/menu/repositories/menu-repository";
 import { createOrderSchema } from "@/features/menu/services/order-schemas";
 import {
@@ -17,12 +19,21 @@ import { businessHasFeature } from "@/features/plans/services/plan-service";
 
 export type CreateOrderResult = { ok: true; orderId: string } | { ok: false; error: string };
 
+const ORDER_CREATE_IP_LIMIT = { limit: 10, windowMs: 60 * 1000 }; // 10 orders / min / IP
+
 /**
  * customerAccountId is resolved by the caller (features/menu/routes/actions.ts,
  * from the customer session cookie) — it's a trusted server-side value, not
  * part of the zod-validated client input, so it's a separate parameter.
  */
 export async function createOrder(input: unknown, customerAccountId?: string): Promise<CreateOrderResult> {
+  const ip = await getClientIp();
+  const { allowed } = checkRateLimit(`order-create:${ip}`, ORDER_CREATE_IP_LIMIT);
+  if (!allowed) {
+    logger.warn("order.rate_limited", { ip });
+    return { ok: false, error: "تعداد درخواست‌های سفارش بیش از حد مجاز است. کمی بعد دوباره تلاش کنید." };
+  }
+
   const parsed = createOrderSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   const data = parsed.data;

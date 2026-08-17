@@ -88,10 +88,21 @@ function describeUploadError(e: unknown): string {
 }
 
 /**
- * Uploads a file and returns its public URL. The bucket itself must be
- * configured for public read (bucket policy / public bucket setting) —
- * this does not set a per-object ACL, since several S3-compatible
- * providers reject or ignore the `x-amz-acl` header.
+ * Uploads a file and returns its public URL. Object keys are namespaced by
+ * kind/businessId and end in a randomUUID(), so paths aren't guessable/
+ * enumerable — that's this app's only control over exposure, since object
+ * ACLs aren't set here (see below).
+ *
+ * The bucket itself must be configured, in the Liara panel (or whichever
+ * S3-compatible provider), for:
+ *   - public READ on objects (bucket policy / "public bucket" setting) —
+ *     this function does not set a per-object ACL, since several
+ *     S3-compatible providers reject or ignore the `x-amz-acl` header.
+ *   - public LIST/ListBucket must stay DENIED — public read alone lets
+ *     someone fetch a key they already have; public listing would let them
+ *     enumerate every uploaded file (other businesses' product/logo images,
+ *     ticket attachments) without ever guessing a UUID. This can't be
+ *     fixed from application code — it's a bucket policy setting.
  */
 export async function uploadImage(input: UploadImageInput): Promise<string> {
   const config = readConfig();

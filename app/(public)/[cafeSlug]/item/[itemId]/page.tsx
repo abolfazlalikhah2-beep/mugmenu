@@ -23,7 +23,7 @@ export default async function ItemDetailPage({
   params: Promise<{ cafeSlug: string; itemId: string }>;
 }) {
   const { cafeSlug, itemId } = await params;
-  const data = await getItemDetailData(itemId);
+  const data = await getItemDetailData(cafeSlug, itemId);
   if (!data) notFound();
   const { product, rating } = data;
   after(() => logItemView(product.businessId, product.id));

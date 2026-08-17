@@ -20,7 +20,7 @@ export default async function ItemReviewsPage({
   params: Promise<{ cafeSlug: string; itemId: string }>;
 }) {
   const { cafeSlug, itemId } = await params;
-  const data = await getItemReviewsData(itemId);
+  const data = await getItemReviewsData(cafeSlug, itemId);
   if (!data) notFound();
   const { product, reviews, rating, count } = data;
 

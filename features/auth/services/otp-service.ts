@@ -1,5 +1,6 @@
 import "server-only";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/request-ip";
 import { logger } from "@/lib/logger";
 
 /**
@@ -27,6 +28,9 @@ function getOtpProvider(): OtpProvider {
 }
 
 const OTP_LIMIT = { limit: 3, windowMs: 10 * 60 * 1000 }; // 3 sends / 10 min / phone
+// A second, coarser bucket per IP — the per-phone limit alone doesn't stop
+// one client from cycling through many phone numbers to run up SMS cost.
+const OTP_IP_LIMIT = { limit: 10, windowMs: 10 * 60 * 1000 }; // 10 sends / 10 min / IP
 
 export class OtpRateLimitError extends Error {
   constructor() {
@@ -36,9 +40,15 @@ export class OtpRateLimitError extends Error {
 }
 
 export async function sendOtp(phone: string): Promise<{ success: boolean }> {
-  const { allowed } = checkRateLimit(`otp:${phone}`, OTP_LIMIT);
-  if (!allowed) {
+  const ip = await getClientIp();
+  const { allowed: phoneAllowed } = checkRateLimit(`otp:${phone}`, OTP_LIMIT);
+  if (!phoneAllowed) {
     logger.warn("otp.rate_limited", { phone });
+    throw new OtpRateLimitError();
+  }
+  const { allowed: ipAllowed } = checkRateLimit(`otp-ip:${ip}`, OTP_IP_LIMIT);
+  if (!ipAllowed) {
+    logger.warn("otp.ip_rate_limited", { ip });
     throw new OtpRateLimitError();
   }
   return getOtpProvider().sendOtp(phone);

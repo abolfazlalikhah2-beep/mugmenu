@@ -15,7 +15,7 @@ export default async function OrderReviewPage({
   params: Promise<{ cafeSlug: string; orderId: string }>;
 }) {
   const { cafeSlug, orderId } = await params;
-  const data = await getReviewFormData(orderId);
+  const data = await getReviewFormData(cafeSlug, orderId);
   if (!data) notFound();
 
   const lang = (await getMenuLangCookie(cafeSlug)) ?? "fa";

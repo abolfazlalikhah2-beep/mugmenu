@@ -72,16 +72,21 @@ export async function getCategoryBrowserData(slug: string) {
   return { business, categories: categories.filter((c) => isCategoryVisibleNow(c)), products };
 }
 
-export async function getItemDetailData(productId: string) {
+/** slug is not just a display concern — a product/order id from another business must 404 here, not render under the wrong tenant's URL. */
+export async function getItemDetailData(slug: string, productId: string) {
+  const business = await repo.getBusiness(slug);
+  if (!business) return null;
   const product = await repo.getProduct(productId);
-  if (!product) return null;
+  if (!product || product.businessId !== business.id) return null;
   const ratingAgg = await repo.getProductRatingAggregate(productId);
   return { product, rating: formatRating(ratingAgg.avg) };
 }
 
-export async function getItemReviewsData(productId: string) {
+export async function getItemReviewsData(slug: string, productId: string) {
+  const business = await repo.getBusiness(slug);
+  if (!business) return null;
   const product = await repo.getProduct(productId);
-  if (!product) return null;
+  if (!product || product.businessId !== business.id) return null;
   const [reviews, ratingAgg] = await Promise.all([
     repo.getProductReviews(productId),
     repo.getProductRatingAggregate(productId),
@@ -89,8 +94,12 @@ export async function getItemReviewsData(productId: string) {
   return { product, reviews, rating: formatRating(ratingAgg.avg) ?? "—", count: ratingAgg.count };
 }
 
-export function getReceiptData(orderId: string) {
-  return repo.getOrder(orderId);
+export async function getReceiptData(slug: string, orderId: string) {
+  const business = await repo.getBusiness(slug);
+  if (!business) return null;
+  const order = await repo.getOrder(orderId);
+  if (!order || order.businessId !== business.id) return null;
+  return order;
 }
 
 export interface CartCheckoutContext {
@@ -137,9 +146,11 @@ export async function getCartCheckoutContext(
   };
 }
 
-export async function getReviewFormData(orderId: string) {
+export async function getReviewFormData(slug: string, orderId: string) {
+  const business = await repo.getBusiness(slug);
+  if (!business) return null;
   const order = await repo.getOrder(orderId);
-  if (!order) return null;
+  if (!order || order.businessId !== business.id) return null;
   return {
     order,
     alreadyReviewed: order.reviews.length > 0,
