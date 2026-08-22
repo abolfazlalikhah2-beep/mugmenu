@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Contact, Wallet, LifeBuoy, ShieldCheck, LogOut } from "lucide-react";
+import { LayoutDashboard, Contact, Wallet, LifeBuoy, ShieldCheck, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/features/auth/routes/actions";
 
 const NAV = [
+  { href: "/superadmin", label: "داشبورد", icon: LayoutDashboard, exact: true },
   { href: "/superadmin/customers", label: "مشتریان", icon: Contact },
   { href: "/superadmin/finance", label: "مالی", icon: Wallet },
   { href: "/superadmin/tickets", label: "تیکت‌ها", icon: LifeBuoy },
@@ -31,7 +32,7 @@ export function Sidebar() {
       </div>
       <nav className="flex flex-col gap-1.5">
         {NAV.map((item) => {
-          const active = pathname.startsWith(item.href);
+          const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}

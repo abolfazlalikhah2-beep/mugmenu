@@ -71,6 +71,66 @@ export function setBusinessSuspended(businessId: string, isSuspended: boolean) {
   return prisma.business.update({ where: { id: businessId }, data: { isSuspended } });
 }
 
+// ---------- Dashboard overview ----------
+
+export function countAllBusinesses() {
+  return prisma.business.count();
+}
+
+export function countBusinessesNotSuspended() {
+  return prisma.business.count({ where: { isSuspended: false } });
+}
+
+export function countBusinessesOnDemo(now: Date) {
+  return prisma.business.count({ where: { isDemoActive: true, demoExpiresAt: { gt: now } } });
+}
+
+export async function countBusinessesByPlan() {
+  const [rows, plans] = await Promise.all([
+    prisma.business.groupBy({ by: ["planId"], _count: { _all: true } }),
+    prisma.plan.findMany({ select: { id: true, key: true, name: true, sortOrder: true }, orderBy: { sortOrder: "asc" } }),
+  ]);
+  return plans.map((p) => ({
+    key: p.key,
+    name: p.name,
+    count: rows.find((r) => r.planId === p.id)?._count._all ?? 0,
+  }));
+}
+
+export function countOrdersSince(since: Date) {
+  return prisma.order.count({ where: { createdAt: { gte: since } } });
+}
+
+export async function sumOrderRevenueSince(since: Date) {
+  const result = await prisma.order.aggregate({
+    where: { createdAt: { gte: since }, status: { not: "CANCELED" } },
+    _sum: { totalPrice: true },
+  });
+  return result._sum.totalPrice ?? 0;
+}
+
+export function getBusinessesExpiringSoon(now: Date, soonBy: Date, take = 8) {
+  return prisma.business.findMany({
+    where: {
+      isSuspended: false,
+      OR: [
+        { isDemoActive: true, demoExpiresAt: { gt: now, lte: soonBy } },
+        { planExpiresAt: { gt: now, lte: soonBy } },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      isDemoActive: true,
+      demoExpiresAt: true,
+      planExpiresAt: true,
+      owners: { where: { role: "OWNER" }, take: 1, select: { fullName: true } },
+    },
+    orderBy: { planExpiresAt: "asc" },
+    take,
+  });
+}
+
 export function updateBusinessDemo(businessId: string, isDemoActive: boolean, demoExpiresAt: Date | null) {
   return prisma.business.update({ where: { id: businessId }, data: { isDemoActive, demoExpiresAt } });
 }
