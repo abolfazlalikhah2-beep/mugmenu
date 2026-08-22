@@ -12,12 +12,15 @@ export function getPlanByKey(key: string) {
   return prisma.plan.findUnique({ where: { key }, include: { features: true } });
 }
 
-export async function getBusinessPlanFeatures(businessId: string) {
-  const business = await prisma.business.findUnique({
+export async function getBusinessPlanState(businessId: string) {
+  return prisma.business.findUnique({
     where: { id: businessId },
-    select: { planId: true, plan: { select: { key: true, name: true, features: true } } },
+    select: {
+      isDemoActive: true,
+      demoExpiresAt: true,
+      plan: { select: { key: true, name: true, features: true } },
+    },
   });
-  return business?.plan ?? null;
 }
 
 export function updateBusinessPlan(businessId: string, planId: string, billingCycle: "MONTHLY" | "ANNUAL") {

@@ -32,7 +32,7 @@ export function CustomerDetailView({
   detail: CustomerDetail;
   plans: { id: string; key: string; name: string; monthlyPrice: number; annualPrice: number }[];
 }) {
-  const { business, owner, status, activity, payments } = detail;
+  const { business, owner, status, demoActive, activity, payments } = detail;
   const planStatus = computePlanStatus(business.planStartedAt, business.planExpiresAt);
   const currentPrice = business.billingCycle === "ANNUAL" ? business.plan.annualPrice : business.plan.monthlyPrice;
 
@@ -124,6 +124,9 @@ export function CustomerDetailView({
         plans={plans}
         currentPlanId={business.planId}
         currentBillingCycle={business.billingCycle}
+        isDemoActive={business.isDemoActive}
+        demoActiveNow={demoActive}
+        demoExpiresAt={business.demoExpiresAt}
       />
     </div>
   );

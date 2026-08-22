@@ -71,6 +71,10 @@ export function setBusinessSuspended(businessId: string, isSuspended: boolean) {
   return prisma.business.update({ where: { id: businessId }, data: { isSuspended } });
 }
 
+export function updateBusinessDemo(businessId: string, isDemoActive: boolean, demoExpiresAt: Date | null) {
+  return prisma.business.update({ where: { id: businessId }, data: { isDemoActive, demoExpiresAt } });
+}
+
 export function renewSubscriptionManually(businessId: string, amount: number, planName: string) {
   const now = new Date();
   const expiresAt = new Date(now);

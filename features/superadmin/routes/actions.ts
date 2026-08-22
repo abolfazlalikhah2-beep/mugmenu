@@ -65,6 +65,22 @@ export async function changePlanAction(businessId: string, planId: string, billi
   return result;
 }
 
+export async function updateBusinessDemoAction(
+  businessId: string,
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  await requireSuperAdmin();
+  const result = await customerService.updateDemo(businessId, {
+    isDemoActive: bool(formData, "isDemoActive"),
+    demoExpiresAt: String(formData.get("demoExpiresAt") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath(`/superadmin/customers/${businessId}`);
+  revalidatePath("/superadmin/customers");
+  return { ok: true };
+}
+
 export async function createTeamMemberAction(
   _prevState: ActionState,
   formData: FormData

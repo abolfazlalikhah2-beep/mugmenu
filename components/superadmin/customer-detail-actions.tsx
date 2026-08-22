@@ -7,6 +7,7 @@ import {
   renewSubscriptionAction,
   toggleSuspendBusinessAction,
 } from "@/features/superadmin/routes/actions";
+import { DemoTrialModal } from "@/components/superadmin/demo-trial-modal";
 
 interface PlanOption {
   id: string;
@@ -23,6 +24,9 @@ export function CustomerDetailActions({
   plans,
   currentPlanId,
   currentBillingCycle,
+  isDemoActive,
+  demoActiveNow,
+  demoExpiresAt,
 }: {
   businessId: string;
   storeName: string;
@@ -30,6 +34,9 @@ export function CustomerDetailActions({
   plans: PlanOption[];
   currentPlanId: string;
   currentBillingCycle: "MONTHLY" | "ANNUAL";
+  isDemoActive: boolean;
+  demoActiveNow: boolean;
+  demoExpiresAt: Date | null;
 }) {
   const [renewPending, startRenew] = useTransition();
   const [suspendPending, startSuspend] = useTransition();
@@ -37,6 +44,7 @@ export function CustomerDetailActions({
   const [planId, setPlanId] = useState(currentPlanId);
   const [billingCycle, setBillingCycle] = useState(currentBillingCycle);
   const [planError, setPlanError] = useState<string | null>(null);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
 
   function handleRenew() {
     if (!confirm(`تمدید دستی اشتراک «${storeName}» به مدت ۳۰ روز از امروز ثبت شود؟`)) return;
@@ -96,7 +104,28 @@ export function CustomerDetailActions({
           {planPending ? "در حال ثبت…" : "اعمال تغییر پلن"}
         </button>
         {planError && <span className="text-xs text-red-500">{planError}</span>}
+        <button
+          type="button"
+          onClick={() => setDemoModalOpen(true)}
+          className="flex h-10 items-center justify-center whitespace-nowrap rounded-xl border border-dashed border-brand px-4 text-[13px] font-medium text-brand"
+        >
+          مدیریت دمو آزمایشی
+          {demoActiveNow && (
+            <span className="me-2 h-1.5 w-1.5 rounded-full bg-brand" />
+          )}
+        </button>
       </div>
+
+      {demoModalOpen && (
+        <DemoTrialModal
+          businessId={businessId}
+          storeName={storeName}
+          isDemoActive={isDemoActive}
+          demoActiveNow={demoActiveNow}
+          demoExpiresAt={demoExpiresAt}
+          onClose={() => setDemoModalOpen(false)}
+        />
+      )}
 
       <div className="flex flex-wrap gap-3">
         <button

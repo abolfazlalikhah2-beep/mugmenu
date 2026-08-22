@@ -29,6 +29,18 @@ export const changePlanSchema = z.object({
   billingCycle: z.enum(["MONTHLY", "ANNUAL"]),
 });
 
+export const demoTrialSchema = z
+  .object({
+    isDemoActive: z.boolean(),
+    // ISO date ("YYYY-MM-DD") from JalaliDatePicker's hidden input; empty
+    // string means "no date selected".
+    demoExpiresAt: z.string().trim().optional(),
+  })
+  .refine((data) => !data.isDemoActive || !!data.demoExpiresAt, {
+    message: "تاریخ انقضای دمو را انتخاب کنید.",
+    path: ["demoExpiresAt"],
+  });
+
 export const teamUserSchema = z.object({
   fullName: z.string().trim().min(2, "نام و نام خانوادگی را کامل وارد کنید.").max(80),
   phone: z.string().trim().min(10, "شماره تماس معتبر نیست.").max(20),

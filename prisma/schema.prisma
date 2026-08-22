@@ -85,6 +85,13 @@ model Business {
   // Set from the super admin panel (تعلیق پنل) — enforced in
   // requireBusinessOwner(), not just a UI flag.
   isSuspended          Boolean  @default(false)
+  // Super-admin demo trial (پنل سوپرادمین › "مدیریت دمو آزمایشی") — while
+  // isDemoActive is true and demoExpiresAt is in the future, the business is
+  // treated as menu-advanced for feature gating regardless of planId (see
+  // features/plans/services/demo-access.ts's isDemoEffective, consumed by
+  // plan-service.ts). Expiry is checked at read time, no cron involved.
+  isDemoActive         Boolean   @default(false)
+  demoExpiresAt        DateTime?
   // Loyalty Club cashback settings (dashboard "باشگاه مشتریان" › "کش‌بک"
   // tab) — drives features/customer/services/loyalty.ts's computeCashback,
   // replacing what used to be a hardcoded 5% constant. Wallet redemption at

@@ -2,8 +2,9 @@ import "server-only";
 import { logger } from "@/lib/logger";
 import * as repo from "@/features/superadmin/repositories/superadmin-repository";
 import * as planService from "@/features/plans/services/plan-service";
-import { changePlanSchema } from "@/features/superadmin/services/superadmin-schemas";
+import { changePlanSchema, demoTrialSchema } from "@/features/superadmin/services/superadmin-schemas";
 import { computeSubscriptionStatus, type SubscriptionStatus } from "@/features/superadmin/services/subscription-status";
+import { isDemoEffective } from "@/features/plans/services/demo-access";
 
 function priceForCycle(plan: { monthlyPrice: number; annualPrice: number }, billingCycle: "MONTHLY" | "ANNUAL") {
   return billingCycle === "ANNUAL" ? plan.annualPrice : plan.monthlyPrice;
@@ -74,6 +75,7 @@ export async function getCustomerDetail(businessId: string) {
       planExpiresAt: business.planExpiresAt,
       hasPaidTransaction: business.transactions.length > 0,
     }),
+    demoActive: isDemoEffective(business),
     activity,
     payments,
   };
@@ -97,6 +99,23 @@ export async function setSuspended(businessId: string, isSuspended: boolean): Pr
 
   await repo.setBusinessSuspended(businessId, isSuspended);
   logger.info("superadmin.business_suspension_toggled", { businessId, isSuspended });
+  return { ok: true };
+}
+
+export async function updateDemo(businessId: string, input: unknown): Promise<ServiceResult> {
+  const parsed = demoTrialSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  const business = await repo.getBusinessDetail(businessId);
+  if (!business) return { ok: false, error: "کسب‌وکار پیدا نشد." };
+
+  const demoExpiresAt = parsed.data.demoExpiresAt ? new Date(`${parsed.data.demoExpiresAt}T23:59:59`) : null;
+  await repo.updateBusinessDemo(businessId, parsed.data.isDemoActive, demoExpiresAt);
+  logger.info("superadmin.business_demo_updated", {
+    businessId,
+    isDemoActive: parsed.data.isDemoActive,
+    demoExpiresAt,
+  });
   return { ok: true };
 }
 
