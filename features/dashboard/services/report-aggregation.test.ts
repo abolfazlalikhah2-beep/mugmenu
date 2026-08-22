@@ -4,8 +4,11 @@ import {
   summarizeRange,
   topProducts,
   earliestWindowStart,
+  currentWindowBounds,
+  summarizeCashRegister,
   type OrderPoint,
   type OrderItemPoint,
+  type PaymentMethodPoint,
 } from "./report-aggregation";
 
 // Fixed "now" so bucket boundaries are deterministic across runs.
@@ -101,5 +104,52 @@ describe("earliestWindowStart", () => {
     const start = earliestWindowStart(NOW);
     const monthsBack = (NOW.getFullYear() - start.getFullYear()) * 12 + (NOW.getMonth() - start.getMonth());
     expect(monthsBack).toBeGreaterThanOrEqual(5);
+  });
+});
+
+describe("currentWindowBounds", () => {
+  it("matches the last window's bounds returned by bucketOrders for the same range", () => {
+    const bounds = currentWindowBounds("daily", NOW);
+    const buckets = bucketOrders(
+      [{ createdAt: bounds.start, totalPrice: 1 }],
+      "daily",
+      NOW
+    );
+    expect(buckets[buckets.length - 1].count).toBe(1);
+  });
+});
+
+describe("summarizeCashRegister", () => {
+  const points: PaymentMethodPoint[] = [
+    { createdAt: day(0), totalPrice: 100_000, paymentMethod: "CASH", type: "DINE_IN" },
+    { createdAt: day(0), totalPrice: 50_000, paymentMethod: "CARD", type: "TAKEAWAY" },
+    { createdAt: day(0), totalPrice: 200_000, paymentMethod: "CREDIT", type: "DELIVERY" },
+    { createdAt: day(0), totalPrice: 30_000, paymentMethod: "CASH", type: "DINE_IN" },
+    { createdAt: day(-2), totalPrice: 999_999, paymentMethod: "CASH", type: "DINE_IN" }, // outside today-only window
+  ];
+
+  it("totals sales for the current period only", () => {
+    const summary = summarizeCashRegister(points, "daily", NOW);
+    expect(summary.totalSales).toEqual({ count: 4, amount: 380_000 });
+  });
+
+  it("breaks totals down by payment method", () => {
+    const summary = summarizeCashRegister(points, "daily", NOW);
+    expect(summary.byPaymentMethod).toEqual({
+      CASH: { count: 2, amount: 130_000 },
+      CARD: { count: 1, amount: 50_000 },
+      CREDIT: { count: 1, amount: 200_000 },
+    });
+  });
+
+  it("counts orders by type", () => {
+    const summary = summarizeCashRegister(points, "daily", NOW);
+    expect(summary.byOrderType).toEqual({ DINE_IN: 2, TAKEAWAY: 1, DELIVERY: 1 });
+  });
+
+  it("returns all-zero breakdowns with no orders", () => {
+    const summary = summarizeCashRegister([], "daily", NOW);
+    expect(summary.totalSales).toEqual({ count: 0, amount: 0 });
+    expect(summary.byPaymentMethod.CASH).toEqual({ count: 0, amount: 0 });
   });
 });

@@ -4,9 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import { Lock } from "lucide-react";
 import { PrimaryButton } from "@/components/dashboard/primary-button";
-import { ManualOrderModal, type ManualOrderProduct } from "@/components/dashboard/manual-order-modal";
+import { ManualOrderModal } from "@/components/dashboard/manual-order-modal";
 
-export function ManualOrderTrigger({ products, allowed }: { products: ManualOrderProduct[]; allowed: boolean }) {
+export function ManualOrderTrigger({
+  allowed,
+  acceptsDineIn,
+  acceptsTakeaway,
+  acceptsDelivery,
+}: {
+  allowed: boolean;
+  acceptsDineIn: boolean;
+  acceptsTakeaway: boolean;
+  acceptsDelivery: boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   if (!allowed) {
@@ -25,7 +35,14 @@ export function ManualOrderTrigger({ products, allowed }: { products: ManualOrde
   return (
     <>
       <PrimaryButton onClick={() => setOpen(true)}>ثبت سفارش دستی</PrimaryButton>
-      {open && <ManualOrderModal products={products} onClose={() => setOpen(false)} />}
+      {open && (
+        <ManualOrderModal
+          acceptsDineIn={acceptsDineIn}
+          acceptsTakeaway={acceptsTakeaway}
+          acceptsDelivery={acceptsDelivery}
+          onClose={() => setOpen(false)}
+        />
+      )}
     </>
   );
 }

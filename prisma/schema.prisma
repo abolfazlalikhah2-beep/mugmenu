@@ -126,6 +126,7 @@ model Business {
   customers    CustomerAccount[]
   couriers     Courier[]
   paymentRequests PaymentRequest[]
+  creditRecords   CreditRecord[]
 }
 
 enum BillingCycle {
@@ -325,12 +326,24 @@ enum OrderStatus {
   CANCELED
 }
 
+// How the order was settled — CASH/CARD are paid in full at order time;
+// CREDIT (نسیه) means payment is deferred and tracked via CreditRecord
+// below (features/credits). Defaults to CASH since this only matters for
+// manual/POS orders today — the public online-order flow always pays in
+// full through the (mock) gateway or wallet, never on credit.
+enum OrderPaymentMethod {
+  CASH
+  CARD
+  CREDIT
+}
+
 model Order {
   id                String           @id @default(cuid())
   businessId        String
   business          Business         @relation(fields: [businessId], references: [id])
   type              OrderType
   status            OrderStatus      @default(NEW)
+  paymentMethod     OrderPaymentMethod @default(CASH)
   customerName      String
   customerPhone     String
   tableNumber       String?
@@ -369,10 +382,43 @@ model Order {
   walletTransactions WalletTransaction[]
   reviews            Review[]
   survey             OrderSurvey?
+  creditRecord       CreditRecord?
 
   @@index([businessId])
   @@index([customerAccountId])
   @@index([courierId])
+}
+
+enum CreditStatus {
+  UNPAID
+  PARTIAL
+  PAID
+}
+
+// One row per نسیه (buy-now-pay-later) manual order — created automatically
+// when a cashier submits a manual order with paymentMethod CREDIT (see
+// features/dashboard/services/order-mgmt-service.ts). Settling is manual,
+// partial payments accumulate in paidAmount (features/credits/services
+// /credit-service.ts's settleCreditRecord) — there's no payment gateway or
+// SMS reminder wired to this, same phase-3 gap as everything else in
+// CLAUDE.md.
+model CreditRecord {
+  id            String       @id @default(cuid())
+  businessId    String
+  business      Business     @relation(fields: [businessId], references: [id])
+  orderId       String       @unique
+  order         Order        @relation(fields: [orderId], references: [id])
+  customerName  String
+  customerPhone String
+  amount        Int
+  notes         String?
+  status        CreditStatus @default(UNPAID)
+  paidAmount    Int          @default(0)
+  createdAt     DateTime     @default(now())
+  settledAt     DateTime?
+
+  @@index([businessId])
+  @@index([businessId, status])
 }
 
 enum CourierVehicleType {

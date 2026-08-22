@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import type {
   OrderStatus,
   OrderType,
+  OrderPaymentMethod,
   DiscountType,
   DiscountScope,
   PrinterConnectionType,
@@ -198,12 +199,29 @@ export interface CreateManualOrderData {
   tableNumber?: string;
   address?: string;
   totalPrice: number;
+  paymentMethod: OrderPaymentMethod;
   items: { productId: string; quantity: number; unitPrice: number }[];
 }
 
 export function createManualOrder(data: CreateManualOrderData) {
   const { items, ...rest } = data;
   return prisma.order.create({ data: { ...rest, items: { create: items } } });
+}
+
+/** Business-scoped customer lookup for the manual order modal's phone auto-fill — checks the loyalty account first, then falls back to the most recent order placed with that phone. */
+export async function findCustomerNameByPhone(businessId: string, phone: string): Promise<string | null> {
+  const account = await prisma.customerAccount.findUnique({
+    where: { businessId_phone: { businessId, phone } },
+    select: { fullName: true },
+  });
+  if (account) return account.fullName;
+
+  const order = await prisma.order.findFirst({
+    where: { businessId, customerPhone: phone },
+    orderBy: { createdAt: "desc" },
+    select: { customerName: true },
+  });
+  return order?.customerName ?? null;
 }
 
 // ---------- Customers ----------
@@ -588,6 +606,13 @@ export function getOrdersForReport(businessId: string, since: Date) {
   return prisma.order.findMany({
     where: { businessId, createdAt: { gte: since } },
     select: { createdAt: true, totalPrice: true },
+  });
+}
+
+export function getOrdersForCashRegisterReport(businessId: string, since: Date) {
+  return prisma.order.findMany({
+    where: { businessId, createdAt: { gte: since } },
+    select: { createdAt: true, totalPrice: true, paymentMethod: true, type: true },
   });
 }
 

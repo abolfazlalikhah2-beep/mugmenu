@@ -4,6 +4,7 @@ import * as repo from "@/features/dashboard/repositories/dashboard-repository";
 import { manualOrderSchema, orderStatusSchema, assignCourierSchema } from "@/features/dashboard/services/dashboard-schemas";
 import { validateOrderDraft, computeTotal } from "@/features/menu/services/order-flow";
 import { businessHasFeature } from "@/features/plans/services/plan-service";
+import { createCreditRecord } from "@/features/credits/services/credit-service";
 import type { OrderStatus } from "@/lib/generated/prisma/enums";
 
 export function getOrders(businessId: string, filter: { status?: OrderStatus; search?: string }) {
@@ -81,6 +82,17 @@ export async function createManualOrder(businessId: string, input: unknown): Pro
   const fieldError = validateOrderDraft(data.type, data);
   if (fieldError) return { ok: false, error: fieldError };
 
+  const business = await repo.getBusinessById(businessId);
+  if (!business) return { ok: false, error: "کسب‌وکار پیدا نشد." };
+
+  // The type selector already hides disabled modes, but re-check here too —
+  // never trust the client to only ever submit an allowed type.
+  const typeAccepted =
+    (data.type === "DINE_IN" && business.acceptsDineIn) ||
+    (data.type === "TAKEAWAY" && business.acceptsTakeaway) ||
+    (data.type === "DELIVERY" && business.acceptsDelivery);
+  if (!typeAccepted) return { ok: false, error: "این روش سفارش در حال حاضر برای این مجموعه فعال نیست." };
+
   const productIds = [...new Set(data.items.map((i) => i.productId))];
   const products = await repo.getProductsByIds(businessId, productIds);
   if (products.length !== productIds.length) {
@@ -98,6 +110,7 @@ export async function createManualOrder(businessId: string, input: unknown): Pro
     tableNumber: data.tableNumber,
     address: data.address,
     totalPrice,
+    paymentMethod: data.paymentMethod,
     items: data.items.map((i) => ({
       productId: i.productId,
       quantity: i.quantity,
@@ -105,6 +118,68 @@ export async function createManualOrder(businessId: string, input: unknown): Pro
     })),
   });
 
-  logger.info("dashboard.manual_order_created", { businessId, orderId: order.id, type: data.type });
+  if (data.paymentMethod === "CREDIT") {
+    await createCreditRecord({
+      businessId,
+      orderId: order.id,
+      customerName: data.customerName,
+      customerPhone: data.customerPhone,
+      amount: totalPrice,
+      notes: data.creditNote,
+    });
+  }
+
+  logger.info("dashboard.manual_order_created", {
+    businessId,
+    orderId: order.id,
+    type: data.type,
+    paymentMethod: data.paymentMethod,
+  });
   return { ok: true, orderId: order.id };
+}
+
+/** Business-scoped phone lookup for the manual order modal's auto-fill — returns null (not an error) when nothing matches, since not finding a name is a normal case, not a failure. */
+export async function lookupCustomerByPhone(businessId: string, phone: string): Promise<string | null> {
+  const trimmed = phone.trim();
+  if (trimmed.length < 6) return null;
+  return repo.findCustomerNameByPhone(businessId, trimmed);
+}
+
+export interface ManualOrderCatalog {
+  products: { id: string; name: string; price: number; imageUrl: string | null; categoryId: string }[];
+  categories: { id: string; name: string }[];
+}
+
+/**
+ * Fetched on demand (client calls this only after the manual order modal
+ * has already opened, see manual-order-modal.tsx) rather than on every
+ * /dashboard/orders page load — the full active catalog can be sizeable and
+ * most page visits never open the modal at all.
+ */
+export async function getManualOrderCatalog(businessId: string): Promise<ManualOrderCatalog> {
+  const allowed = await businessHasFeature(businessId, "order.manual_entry");
+  if (!allowed) return { products: [], categories: [] };
+
+  const products = (await repo.getProducts(businessId)).filter((p) => p.isActive);
+
+  const categoryById = new Map<string, { name: string; sortOrder: number }>();
+  for (const p of products) {
+    if (!categoryById.has(p.categoryId)) {
+      categoryById.set(p.categoryId, { name: p.category.name, sortOrder: p.category.sortOrder });
+    }
+  }
+  const categories = [...categoryById.entries()]
+    .sort((a, b) => a[1].sortOrder - b[1].sortOrder)
+    .map(([id, c]) => ({ id, name: c.name }));
+
+  return {
+    products: products.map((p) => ({
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      imageUrl: p.imageUrl,
+      categoryId: p.categoryId,
+    })),
+    categories,
+  };
 }

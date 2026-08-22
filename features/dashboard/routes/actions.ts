@@ -410,11 +410,24 @@ export async function createManualOrderAction(
     tableNumber: String(formData.get("tableNumber") ?? ""),
     address: String(formData.get("address") ?? ""),
     items,
+    paymentMethod: String(formData.get("paymentMethod") ?? "CASH"),
+    creditNote: String(formData.get("creditNote") ?? ""),
   });
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/orders");
   revalidatePath("/dashboard/customers");
+  revalidatePath("/dashboard/credits");
   return { ok: true };
+}
+
+export async function lookupCustomerByPhoneAction(phone: string): Promise<string | null> {
+  const { businessId } = await requireBusinessOwner();
+  return orderMgmtService.lookupCustomerByPhone(businessId, phone);
+}
+
+export async function getManualOrderCatalogAction() {
+  const { businessId } = await requireBusinessOwner();
+  return orderMgmtService.getManualOrderCatalog(businessId);
 }
 
 function parseOptionGroups(formData: FormData) {

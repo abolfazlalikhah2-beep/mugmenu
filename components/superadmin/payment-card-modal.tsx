@@ -67,24 +67,28 @@ export function PaymentCardModal({
       }
     >
       <form id="payment-card-form" action={formAction} className="flex flex-col gap-[18px]">
-        <Input name="holderName" label="نام صاحب کارت" defaultValue={card?.holderName} required />
+        <Input name="holderName" label="نام صاحب کارت" defaultValue={card?.holderName} required className="w-full" />
         <div className="flex flex-col gap-4 sm:flex-row">
-          <Input name="bankName" label="نام بانک" defaultValue={card?.bankName} required className="flex-1" />
-          <Input
-            name="cardNumber"
-            label="شماره کارت"
-            dir="ltr"
-            className="flex-1 text-right"
-            defaultValue={card?.cardNumber}
-            placeholder="۶۰۳۷-۹۹۱۱-۰۰۰۰-۰۰۰۰"
-            required
-          />
+          <div className="min-w-0 flex-1">
+            <Input name="bankName" label="نام بانک" defaultValue={card?.bankName} required className="w-full" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <Input
+              name="cardNumber"
+              label="شماره کارت"
+              dir="ltr"
+              className="w-full text-right"
+              defaultValue={card?.cardNumber}
+              placeholder="۶۰۳۷-۹۹۱۱-۰۰۰۰-۰۰۰۰"
+              required
+            />
+          </div>
         </div>
         <Input
           name="accountNumber"
           label="شماره حساب"
           dir="ltr"
-          className="text-right"
+          className="w-full text-right"
           defaultValue={card?.accountNumber}
           required
         />

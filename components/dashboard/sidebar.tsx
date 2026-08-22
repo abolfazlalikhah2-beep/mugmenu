@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Home, Package, LayoutGrid, Tag, Receipt, Bike, MessageCircle, Contact, ChartLine, Users, LifeBuoy, Settings, LogOut } from "lucide-react";
+import { Home, Package, LayoutGrid, Tag, Receipt, HandCoins, Bike, MessageCircle, Contact, ChartLine, Users, LifeBuoy, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/features/auth/routes/actions";
 import { Lock } from "lucide-react";
@@ -17,6 +17,7 @@ const NAV: { href: string; label: string; icon: typeof Home; featureKey?: Featur
   { href: "/dashboard/categories", label: "دسته‌بندی", icon: LayoutGrid },
   { href: "/dashboard/discounts", label: "تخفیف‌ها", icon: Tag, featureKey: "discount.manual_auto" },
   { href: "/dashboard/orders", label: "سفارشات", icon: Receipt },
+  { href: "/dashboard/credits", label: "نسیه", icon: HandCoins, featureKey: "order.manual_entry" },
   { href: "/dashboard/couriers", label: "پیک‌ها", icon: Bike, featureKey: "delivery.internal_riders" },
   { href: "/dashboard/messages", label: "پیام‌ها", icon: MessageCircle, featureKey: "sms.panel" },
   { href: "/dashboard/customers", label: "مشتریان", icon: Contact },

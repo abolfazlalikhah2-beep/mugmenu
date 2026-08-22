@@ -47,7 +47,7 @@ export const RANGE_DELTA_LABEL: Record<ReportRange, string> = {
 
 const BUCKET_COUNT: Record<ReportRange, number> = { daily: 7, weekly: 8, monthly: 6 };
 
-interface Window {
+export interface Window {
   start: Date;
   end: Date;
 }
@@ -84,6 +84,12 @@ function windows(range: ReportRange, now: Date): Window[] {
 export function earliestWindowStart(now = new Date()): Date {
   const starts = (["daily", "weekly", "monthly"] as ReportRange[]).map((r) => windows(r, now)[0].start);
   return starts.reduce((min, d) => (d < min ? d : min));
+}
+
+/** The current period's [start, end) bounds for a range — e.g. for scoping a related I/O query (see report-service.ts's getCashRegisterReport, which uses this to bound the credit-outstanding lookup to the same period). */
+export function currentWindowBounds(range: ReportRange, now = new Date()): Window {
+  const ws = windows(range, now);
+  return ws[ws.length - 1];
 }
 
 function bucketLabel(range: ReportRange, w: Window): string {
@@ -132,6 +138,57 @@ export function summarizeRange(orders: OrderPoint[], range: ReportRange, now = n
     countDelta: computeDelta(count, prevCount),
     revenueDelta: computeDelta(revenue, prevRevenue),
     avgOrderDelta: computeDelta(avgOrder, prevAvgOrder),
+  };
+}
+
+export type PaymentMethod = "CASH" | "CARD" | "CREDIT";
+export type OrderTypeValue = "DINE_IN" | "TAKEAWAY" | "DELIVERY";
+
+export interface PaymentMethodPoint {
+  createdAt: Date;
+  totalPrice: number;
+  paymentMethod: PaymentMethod;
+  type: OrderTypeValue;
+}
+
+export interface PaymentMethodBreakdown {
+  count: number;
+  amount: number;
+}
+
+export interface CashRegisterSummary {
+  totalSales: PaymentMethodBreakdown;
+  byPaymentMethod: Record<PaymentMethod, PaymentMethodBreakdown>;
+  byOrderType: Record<OrderTypeValue, number>;
+}
+
+/** Same "current period" concept as summarizeRange, just broken down by payment method and order type instead of a single count/revenue pair — see the "گزارش صندوق" report tab. */
+export function summarizeCashRegister(
+  orders: PaymentMethodPoint[],
+  range: ReportRange,
+  now = new Date()
+): CashRegisterSummary {
+  const ws = windows(range, now);
+  const current = ws[ws.length - 1];
+  const matched = orders.filter((o) => o.createdAt >= current.start && o.createdAt < current.end);
+
+  const byPaymentMethod: Record<PaymentMethod, PaymentMethodBreakdown> = {
+    CASH: { count: 0, amount: 0 },
+    CARD: { count: 0, amount: 0 },
+    CREDIT: { count: 0, amount: 0 },
+  };
+  const byOrderType: Record<OrderTypeValue, number> = { DINE_IN: 0, TAKEAWAY: 0, DELIVERY: 0 };
+
+  for (const o of matched) {
+    byPaymentMethod[o.paymentMethod].count += 1;
+    byPaymentMethod[o.paymentMethod].amount += o.totalPrice;
+    byOrderType[o.type] += 1;
+  }
+
+  return {
+    totalSales: { count: matched.length, amount: matched.reduce((sum, o) => sum + o.totalPrice, 0) },
+    byPaymentMethod,
+    byOrderType,
   };
 }
 

@@ -6,13 +6,14 @@ import { cn } from "@/lib/utils";
 import { OrdersReportView } from "@/components/dashboard/orders-report-view";
 import { ProductsReportView } from "@/components/dashboard/products-report-view";
 import { MenuAnalyticsView } from "@/components/dashboard/menu-analytics-view";
+import { CashRegisterView } from "@/components/dashboard/cash-register-view";
 import { UpgradeGate } from "@/components/dashboard/upgrade-gate";
 import { downloadCsv } from "@/features/dashboard/utils/csv-export";
 import type { ReportRange } from "@/features/dashboard/services/report-aggregation";
-import type { OrdersReport, ProductsReport } from "@/features/dashboard/services/report-service";
+import type { OrdersReport, ProductsReport, CashRegisterReport } from "@/features/dashboard/services/report-service";
 import type { MenuAnalyticsReport } from "@/features/dashboard/services/menu-analytics-service";
 
-const TABS = ["گزارش سفارشات", "گزارش محصولات", "آمار بازدید منو"] as const;
+const TABS = ["گزارش سفارشات", "گزارش محصولات", "آمار بازدید منو", "گزارش صندوق"] as const;
 
 const RANGE_FILE_LABEL: Record<ReportRange, string> = {
   daily: "روزانه",
@@ -24,14 +25,17 @@ export function ReportsView({
   ordersData,
   productsData,
   menuAnalyticsData,
+  cashRegisterData,
 }: {
   ordersData: OrdersReport | null;
   productsData: ProductsReport;
   menuAnalyticsData: MenuAnalyticsReport;
+  cashRegisterData: CashRegisterReport;
 }) {
-  const [tab, setTab] = useState<0 | 1 | 2>(0);
+  const [tab, setTab] = useState<0 | 1 | 2 | 3>(0);
   const [ordersRange, setOrdersRange] = useState<ReportRange>("weekly");
   const [productsRange, setProductsRange] = useState<ReportRange>("monthly");
+  const [cashRegisterRange, setCashRegisterRange] = useState<ReportRange>("weekly");
   const exportAllowed = tab !== 0 || ordersData !== null;
 
   function handleExport() {
@@ -50,6 +54,17 @@ export function ReportsView({
         ["رتبه", "نام محصول", "دسته‌بندی", "تعداد فروش"],
         rows.map((p, i) => [i + 1, p.name, p.category, p.sold])
       );
+    } else if (tab === 3) {
+      const summary = cashRegisterData[cashRegisterRange];
+      downloadCsv(
+        `گزارش-صندوق-${RANGE_FILE_LABEL[cashRegisterRange]}.csv`,
+        ["روش پرداخت", "تعداد سفارش", "مبلغ (تومان)"],
+        (["CASH", "CARD", "CREDIT"] as const).map((m) => [
+          m === "CASH" ? "نقدی" : m === "CARD" ? "کارتخوان" : "نسیه",
+          summary.byPaymentMethod[m].count,
+          summary.byPaymentMethod[m].amount,
+        ])
+      );
     } else {
       downloadCsv(
         "آمار-بازدید-منو.csv",
@@ -67,7 +82,7 @@ export function ReportsView({
             <button
               key={t}
               type="button"
-              onClick={() => setTab(i as 0 | 1 | 2)}
+              onClick={() => setTab(i as 0 | 1 | 2 | 3)}
               className={cn(
                 "flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl px-5 text-sm sm:flex-none",
                 tab === i ? "bg-card font-medium text-brand sm:bg-[#EAF3EB]" : "font-normal text-[#8A8A8A]"
@@ -99,8 +114,10 @@ export function ReportsView({
         </UpgradeGate>
       ) : tab === 1 ? (
         <ProductsReportView data={productsData} range={productsRange} onRangeChange={setProductsRange} />
-      ) : (
+      ) : tab === 2 ? (
         <MenuAnalyticsView data={menuAnalyticsData} />
+      ) : (
+        <CashRegisterView data={cashRegisterData} range={cashRegisterRange} onRangeChange={setCashRegisterRange} />
       )}
     </div>
   );

@@ -185,6 +185,8 @@ export const manualOrderSchema = z.object({
   tableNumber: z.string().trim().max(20).optional(),
   address: z.string().trim().max(500).optional(),
   items: z.array(manualOrderItemSchema).min(1, "حداقل یک آیتم انتخاب کنید."),
+  paymentMethod: z.enum(["CASH", "CARD", "CREDIT"]),
+  creditNote: z.string().trim().max(500).optional(),
 });
 
 const optionalDate = z
