@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Crown, Calendar } from "lucide-react";
 import { formatToman } from "@/features/menu/utils/money";
 import type { PlanStatus } from "@/features/dashboard/services/plan-status";
@@ -8,11 +9,15 @@ export function PlanCard({
   priceToman,
   expiresAt,
   status,
+  planId,
+  billingCycle,
 }: {
   planName: string;
   priceToman: number;
   expiresAt: Date;
   status: PlanStatus;
+  planId: string;
+  billingCycle: "MONTHLY" | "ANNUAL";
 }) {
   return (
     <div className="relative flex flex-col gap-[22px] overflow-hidden rounded-[26px] bg-[#0F7A3B] p-[26px_22px] text-white sm:p-[34px_36px]">
@@ -69,14 +74,13 @@ export function PlanCard({
       </div>
 
       <div className="relative flex flex-col items-center gap-2">
-        <button
-          type="button"
-          disabled
-          className="flex h-[54px] w-full cursor-not-allowed items-center justify-center rounded-[15px] bg-white text-[17px] font-bold text-[#0F7A3B] opacity-80"
+        <Link
+          href={`/payment?planId=${planId}&billingCycle=${billingCycle}`}
+          className="flex h-[54px] w-full items-center justify-center rounded-[15px] bg-white text-[17px] font-bold text-[#0F7A3B]"
         >
-          تمدید اشتراک
-        </button>
-        <span className="text-[11px] font-light text-white/80">اتصال به درگاه پرداخت به‌زودی</span>
+          {status.isExpired ? "تمدید اشتراک" : "خرید/تمدید اشتراک"}
+        </Link>
+        <span className="text-[11px] font-light text-white/80">پرداخت کارت‌به‌کارت</span>
       </div>
     </div>
   );

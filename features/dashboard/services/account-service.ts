@@ -4,15 +4,17 @@ import * as userRepo from "@/features/auth/repositories/user-repository";
 import { computePlanStatus } from "@/features/dashboard/services/plan-status";
 import { getBusinessFeatureSet } from "@/features/plans/services/plan-service";
 import { FEATURE_LABELS } from "@/features/plans/feature-labels";
+import { getRequestsForBusiness } from "@/features/payments/services/payment-service";
 import type { FeatureKey } from "@/features/plans/feature-matrix";
 
 export async function getAccountOverview(businessId: string) {
   const business = await repo.getBusinessWithPlan(businessId);
   if (!business) return null;
 
-  const [userCount, featureSet] = await Promise.all([
+  const [userCount, featureSet, paymentRequests] = await Promise.all([
     userRepo.countUsersForBusiness(businessId),
     getBusinessFeatureSet(businessId),
+    getRequestsForBusiness(businessId),
   ]);
   const status = computePlanStatus(business.planStartedAt, business.planExpiresAt);
   const priceToman = business.billingCycle === "ANNUAL" ? business.plan.annualPrice : business.plan.monthlyPrice;
@@ -21,12 +23,15 @@ export async function getAccountOverview(businessId: string) {
     : [];
 
   return {
+    planId: business.planId,
     planName: business.plan.name,
     planPriceToman: priceToman,
     planMaxUsers: business.planMaxUsers,
     planExpiresAt: business.planExpiresAt,
+    billingCycle: business.billingCycle,
     userCount,
     status,
     featureLabels,
+    paymentRequests,
   };
 }

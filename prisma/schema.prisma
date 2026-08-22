@@ -125,6 +125,7 @@ model Business {
   transactions Transaction[]
   customers    CustomerAccount[]
   couriers     Courier[]
+  paymentRequests PaymentRequest[]
 }
 
 enum BillingCycle {
@@ -690,6 +691,52 @@ model Transaction {
   createdAt  DateTime          @default(now())
 
   @@index([businessId])
+}
+
+enum PaymentRequestStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+// Bank card the platform accepts manual card-to-card transfers on — stands
+// in for a real payment gateway for now (see CLAUDE.md phase 3). Business
+// owners on the /payment page are shown one random active card
+// (features/payments/services/payment-service.ts's pickRandomActiveCard);
+// the super admin "تنظیمات پرداخت" page manages the pool.
+model PaymentCard {
+  id            String   @id @default(cuid())
+  bankName      String
+  cardNumber    String
+  accountNumber String
+  holderName    String
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  paymentRequests PaymentRequest[]
+}
+
+// One row per business's card-to-card transfer claim, created after they
+// manually transfer money on the /payment page. A super admin cross-checks
+// it against their bank statement and sets referenceNumber/status/notes on
+// the same "درخواست‌های پرداخت" review — VERIFIED also calls
+// changeBusinessPlan with whichever plan the admin picks then, since there's
+// no automatic plan inference from the transfer amount.
+model PaymentRequest {
+  id              String               @id @default(cuid())
+  businessId      String
+  business        Business             @relation(fields: [businessId], references: [id])
+  amount          Int
+  assignedCardId  String
+  assignedCard    PaymentCard          @relation(fields: [assignedCardId], references: [id])
+  referenceNumber String?
+  status          PaymentRequestStatus @default(PENDING)
+  notes           String?
+  createdAt       DateTime             @default(now())
+  verifiedAt      DateTime?
+
+  @@index([businessId])
+  @@index([assignedCardId])
 }
 
 // Single-row platform-wide settings (payment gateway credentials for

@@ -1,29 +1,43 @@
 import { PlanCard } from "@/components/dashboard/plan-card";
 import { PlanFeaturesCard } from "@/components/dashboard/plan-features-card";
-import { BillingPlaceholderCard } from "@/components/dashboard/billing-placeholder-card";
+import { PaymentRequestsCard } from "@/components/dashboard/payment-requests-card";
 import type { PlanStatus } from "@/features/dashboard/services/plan-status";
+import type { BusinessPaymentRequestRow } from "@/features/payments/services/payment-service";
 
 export function AccountView({
+  planId,
+  billingCycle,
   planName,
   priceToman,
   expiresAt,
   maxUsers,
   status,
   featureLabels,
+  paymentRequests,
 }: {
+  planId: string;
+  billingCycle: "MONTHLY" | "ANNUAL";
   planName: string;
   priceToman: number;
   expiresAt: Date;
   maxUsers: number;
   status: PlanStatus;
   featureLabels: string[];
+  paymentRequests: BusinessPaymentRequestRow[];
 }) {
   return (
     <div className="grid h-full items-start gap-[18px] sm:gap-[24px] lg:grid-cols-[1.3fr_1fr]">
-      <PlanCard planName={planName} priceToman={priceToman} expiresAt={expiresAt} status={status} />
+      <PlanCard
+        planId={planId}
+        billingCycle={billingCycle}
+        planName={planName}
+        priceToman={priceToman}
+        expiresAt={expiresAt}
+        status={status}
+      />
       <div className="flex flex-col gap-[18px] sm:gap-[22px]">
         <PlanFeaturesCard maxUsers={maxUsers} featureLabels={featureLabels} />
-        <BillingPlaceholderCard />
+        <PaymentRequestsCard requests={paymentRequests} />
       </div>
     </div>
   );

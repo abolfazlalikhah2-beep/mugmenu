@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { LayoutDashboard, Contact, Wallet, LifeBuoy, ShieldCheck, LogOut } from "lucide-react";
+import { LayoutDashboard, Contact, Wallet, LifeBuoy, ShieldCheck, CreditCard, ReceiptText, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/features/auth/routes/actions";
 
@@ -11,6 +11,8 @@ const NAV = [
   { href: "/superadmin", label: "داشبورد", icon: LayoutDashboard, exact: true },
   { href: "/superadmin/customers", label: "مشتریان", icon: Contact },
   { href: "/superadmin/finance", label: "مالی", icon: Wallet },
+  { href: "/superadmin/payment-cards", label: "تنظیمات پرداخت", icon: CreditCard },
+  { href: "/superadmin/payment-requests", label: "درخواست‌های پرداخت", icon: ReceiptText },
   { href: "/superadmin/tickets", label: "تیکت‌ها", icon: LifeBuoy },
   { href: "/superadmin/users", label: "کاربران", icon: ShieldCheck },
 ];
