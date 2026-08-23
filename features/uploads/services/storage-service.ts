@@ -43,6 +43,13 @@ let clientConfigKey = "";
 function getClient(config: StorageConfig): S3Client {
   const key = `${config.endpoint}:${config.accessKeyId}`;
   if (!client || clientConfigKey !== key) {
+    console.log('S3 Config:', {
+      endpoint: process.env.S3_ENDPOINT,
+      accessKey: process.env.S3_ACCESS_KEY,
+      secretKey: process.env.S3_SECRET_KEY?.substring(0, 4) + '...',
+      bucket: process.env.S3_BUCKET,
+      region: process.env.S3_REGION,
+    });
     client = new S3Client({
       endpoint: config.endpoint,
       region: config.region,
