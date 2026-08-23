@@ -153,6 +153,11 @@ export function updateOrderStatus(id: string, status: OrderStatus) {
   return prisma.order.update({ where: { id }, data: { status } });
 }
 
+/** `businessId` in the where clause is the IDOR guard — ids belonging to another business are silently skipped, not errored. */
+export function bulkUpdateOrderStatus(businessId: string, orderIds: string[], status: OrderStatus) {
+  return prisma.order.updateMany({ where: { id: { in: orderIds }, businessId }, data: { status } });
+}
+
 export function assignCourierToOrder(orderId: string, courierId: string | null) {
   return prisma.order.update({ where: { id: orderId }, data: { courierId } });
 }

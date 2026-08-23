@@ -157,6 +157,11 @@ export const orderStatusSchema = z.object({
   status: z.enum(["NEW", "PREPARING", "READY", "DELIVERED", "CANCELED"]),
 });
 
+export const bulkOrderStatusSchema = z.object({
+  orderIds: z.array(z.string().min(1)).min(1, "حداقل یک سفارش را انتخاب کنید.").max(100),
+  status: z.enum(["NEW", "PREPARING", "READY", "DELIVERED", "CANCELED"]),
+});
+
 export const courierSchema = z.object({
   name: z.string().trim().min(2, "نام و نام خانوادگی را کامل وارد کنید.").max(80),
   phone: z.string().trim().min(10, "شماره تماس معتبر نیست.").max(20),

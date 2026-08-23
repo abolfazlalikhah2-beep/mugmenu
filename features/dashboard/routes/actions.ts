@@ -397,6 +397,13 @@ export async function updateOrderStatusAction(orderId: string, status: string) {
   return result;
 }
 
+export async function bulkUpdateOrderStatusAction(orderIds: string[], status: string) {
+  const { businessId } = await requireBusinessOwner();
+  const result = await orderMgmtService.bulkUpdateOrderStatus(businessId, { orderIds, status });
+  revalidatePath("/dashboard/orders");
+  return result;
+}
+
 /** businessId comes from the session, never from the client — order-mgmt-service.getOrderDetail returns null on any businessId mismatch (IDOR check). */
 export async function getOrderForPrintAction(orderId: string) {
   const { businessId } = await requireBusinessOwner();

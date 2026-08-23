@@ -1,7 +1,12 @@
 import "server-only";
 import { logger } from "@/lib/logger";
 import * as repo from "@/features/dashboard/repositories/dashboard-repository";
-import { manualOrderSchema, orderStatusSchema, assignCourierSchema } from "@/features/dashboard/services/dashboard-schemas";
+import {
+  manualOrderSchema,
+  orderStatusSchema,
+  bulkOrderStatusSchema,
+  assignCourierSchema,
+} from "@/features/dashboard/services/dashboard-schemas";
 import { validateOrderDraft, computeTotal } from "@/features/menu/services/order-flow";
 import { businessHasFeature } from "@/features/plans/services/plan-service";
 import { createCreditRecord } from "@/features/credits/services/credit-service";
@@ -37,6 +42,20 @@ export async function updateOrderStatus(businessId: string, input: unknown): Pro
     businessId,
     orderId: parsed.data.orderId,
     status: parsed.data.status,
+  });
+  return { ok: true };
+}
+
+export async function bulkUpdateOrderStatus(businessId: string, input: unknown): Promise<ServiceResult> {
+  const parsed = bulkOrderStatusSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  const result = await repo.bulkUpdateOrderStatus(businessId, parsed.data.orderIds, parsed.data.status);
+  logger.info("dashboard.order_status_bulk_changed", {
+    businessId,
+    status: parsed.data.status,
+    requested: parsed.data.orderIds.length,
+    updated: result.count,
   });
   return { ok: true };
 }
