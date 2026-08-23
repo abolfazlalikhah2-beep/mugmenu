@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { getSitemapBusinesses } from "@/features/menu/services/menu-service";
 
+export const dynamic = "force-dynamic";
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
