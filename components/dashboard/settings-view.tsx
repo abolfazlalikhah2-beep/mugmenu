@@ -12,6 +12,7 @@ import { PrinterSettingsTab } from "@/components/dashboard/printer-settings-tab"
 import { PaymentTab } from "@/components/dashboard/payment-tab";
 import { UpgradeGate } from "@/components/dashboard/upgrade-gate";
 import type { PrinterFormValue } from "@/components/dashboard/printer-modal";
+import type { DayHours } from "@/features/menu/utils/business-hours";
 
 export interface SettingsFormValue {
   slug: string;
@@ -19,8 +20,7 @@ export interface SettingsFormValue {
   nameEn: string | null;
   phone: string | null;
   address: string | null;
-  openingHoursStart: string | null;
-  openingHoursEnd: string | null;
+  hours: DayHours[];
   acceptsDineIn: boolean;
   acceptsTakeaway: boolean;
   acceptsDelivery: boolean;
@@ -87,7 +87,7 @@ export function SettingsView({
       </div>
 
       <div className="flex-1 overflow-y-auto pb-6">
-        {tab === 0 && <BusinessInfoTab business={business} />}
+        {tab === 0 && <BusinessInfoTab business={business} hours={business.hours} />}
         {tab === 1 && <MenuAppearanceTab business={business} />}
         {tab === 2 && <LanguageSettingsTab business={business} products={products} />}
         {tab === 3 && <OrderSettingsTab business={business} />}

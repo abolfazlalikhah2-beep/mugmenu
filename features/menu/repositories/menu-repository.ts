@@ -22,6 +22,14 @@ export const getBusiness = cache((slug: string) => {
   return prisma.business.findUnique({ where: { slug } });
 });
 
+/** Entry page only — includes the per-day hours relation the other business fetches on this page don't need. */
+export function getBusinessWithHours(slug: string) {
+  return prisma.business.findUnique({
+    where: { slug },
+    include: { hours: { orderBy: { dayOfWeek: "asc" } } },
+  });
+}
+
 /** Just the accent color, for the per-business CSS var theming in CafeLayout. */
 export function getBusinessAccentColor(slug: string) {
   return prisma.business.findUnique({ where: { slug }, select: { accentColor: true } });

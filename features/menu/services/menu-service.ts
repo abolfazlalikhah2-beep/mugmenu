@@ -1,6 +1,5 @@
 import "server-only";
 import * as repo from "@/features/menu/repositories/menu-repository";
-import { formatOpeningHours } from "@/features/menu/utils/business-hours";
 import { isCategoryVisibleNow } from "@/features/menu/utils/category-schedule";
 import { getWalletBalance } from "@/features/customer/services/wallet-service";
 import { businessHasFeature } from "@/features/plans/services/plan-service";
@@ -11,7 +10,7 @@ function formatRating(avg: number | null): string | null {
 }
 
 export async function getMenuEntryData(slug: string) {
-  const business = await repo.getBusiness(slug);
+  const business = await repo.getBusinessWithHours(slug);
   if (!business) return null;
 
   const [ratingAgg, recentReviews] = await Promise.all([
@@ -20,10 +19,7 @@ export async function getMenuEntryData(slug: string) {
   ]);
 
   return {
-    business: {
-      ...business,
-      openingHours: formatOpeningHours(business.openingHoursStart, business.openingHoursEnd),
-    },
+    business,
     rating: formatRating(ratingAgg.avg),
     recentReviews,
   };

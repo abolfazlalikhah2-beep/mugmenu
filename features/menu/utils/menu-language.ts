@@ -36,6 +36,9 @@ export const MENU_LANG_COPY = {
     loginTeaserSub: "ورود سریع با شماره موبایل",
     login: "ورود",
     infoHours: "ساعت کاری",
+    openNow: "اکنون باز است",
+    closedNow: "اکنون تعطیل است",
+    dayClosed: "تعطیل",
     infoPhone: "شماره تماس",
     infoAbout: "درباره رستوران",
     infoAboutText:
@@ -247,6 +250,9 @@ export const MENU_LANG_COPY = {
     loginTeaserSub: "Quick sign-in with your phone number",
     login: "Sign in",
     infoHours: "Opening hours",
+    openNow: "Open now",
+    closedNow: "Closed now",
+    dayClosed: "Closed",
     infoPhone: "Phone number",
     infoAbout: "About the restaurant",
     infoAboutText:

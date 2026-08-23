@@ -1,11 +1,13 @@
 "use client";
 
-import { X, Clock, Phone, MapPin } from "lucide-react";
+import { X, Phone, MapPin } from "lucide-react";
 import { LogoBox } from "@/components/menu/logo-box";
 import { AcceptingOrdersLine } from "@/components/menu/status-line";
 import { MenuImage } from "@/components/menu/menu-image";
+import { BusinessHoursAccordion } from "@/components/menu/business-hours-accordion";
 import { StarIcon } from "@/components/ui/rating";
 import { menuCopy, type MenuLang } from "@/features/menu/utils/menu-language";
+import type { DayHours } from "@/features/menu/utils/business-hours";
 import { cn } from "@/lib/utils";
 
 export interface BusinessInfoModalProps {
@@ -14,7 +16,7 @@ export interface BusinessInfoModalProps {
   name: string;
   address: string | null;
   phone: string | null;
-  openingHours: string | null;
+  hours: DayHours[];
   isAcceptingOrders: boolean;
   reviews: { customerName: string; rating: number; comment: string | null }[];
   logoUrl?: string | null;
@@ -51,7 +53,7 @@ export function BusinessInfoModal({
   name,
   address,
   phone,
-  openingHours,
+  hours,
   isAcceptingOrders,
   reviews,
   logoUrl,
@@ -94,9 +96,7 @@ export function BusinessInfoModal({
           </div>
 
           <div className="flex flex-col gap-3">
-            {openingHours && (
-              <InfoRow icon={<Clock size={16} className="text-brand" />} label={t.infoHours} value={openingHours} />
-            )}
+            {hours.length > 0 && <BusinessHoursAccordion hours={hours} lang={lang} />}
             {phone && (
               <InfoRow
                 icon={<Phone size={15} className="text-brand" />}

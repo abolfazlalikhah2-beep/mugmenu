@@ -7,13 +7,14 @@ import { AcceptingOrdersLine } from "@/components/menu/status-line";
 import { RatingChip } from "@/components/ui/rating";
 import { BusinessInfoModal } from "@/components/menu/business-info-modal";
 import { menuCopy, type MenuLang } from "@/features/menu/utils/menu-language";
+import type { DayHours } from "@/features/menu/utils/business-hours";
 import { cn } from "@/lib/utils";
 
 export interface RestaurantHeaderProps {
   name: string;
   address: string | null;
   phone: string | null;
-  openingHours: string | null;
+  hours: DayHours[];
   isAcceptingOrders: boolean;
   rating: string | null;
   reviews: { customerName: string; rating: number; comment: string | null }[];
@@ -25,7 +26,7 @@ export function RestaurantHeader({
   name,
   address,
   phone,
-  openingHours,
+  hours,
   isAcceptingOrders,
   rating,
   reviews,
@@ -69,7 +70,7 @@ export function RestaurantHeader({
         name={name}
         address={address}
         phone={phone}
-        openingHours={openingHours}
+        hours={hours}
         isAcceptingOrders={isAcceptingOrders}
         reviews={reviews}
         logoUrl={logoUrl}

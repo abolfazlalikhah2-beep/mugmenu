@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db";
+import { DEFAULT_BUSINESS_HOURS } from "@/features/menu/utils/business-hours";
 import type {
   OrderStatus,
   OrderType,
@@ -18,7 +19,7 @@ import type {
 // ---------- Business ----------
 
 export function getBusinessById(id: string) {
-  return prisma.business.findUnique({ where: { id } });
+  return prisma.business.findUnique({ where: { id }, include: { hours: { orderBy: { dayOfWeek: "asc" } } } });
 }
 
 export function getBusinessWithPlan(id: string) {
@@ -40,11 +41,34 @@ export function createBusiness(data: {
   customDomain?: string;
   planId: string;
 }) {
-  return prisma.business.create({ data });
+  return prisma.business.create({
+    data: { ...data, hours: { create: DEFAULT_BUSINESS_HOURS } },
+  });
 }
 
 export function linkUserToBusiness(userId: string, businessId: string) {
   return prisma.user.update({ where: { id: userId }, data: { businessId } });
+}
+
+// ---------- Business hours ----------
+
+export interface BusinessHoursInput {
+  dayOfWeek: number;
+  isClosed: boolean;
+  openTime: string;
+  closeTime: string;
+}
+
+export async function upsertBusinessHours(businessId: string, days: BusinessHoursInput[]) {
+  await prisma.$transaction(
+    days.map((d) =>
+      prisma.businessHours.upsert({
+        where: { businessId_dayOfWeek: { businessId, dayOfWeek: d.dayOfWeek } },
+        create: { businessId, ...d },
+        update: { isClosed: d.isClosed, openTime: d.openTime, closeTime: d.closeTime },
+      })
+    )
+  );
 }
 
 // ---------- Orders ----------

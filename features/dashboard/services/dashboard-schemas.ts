@@ -38,8 +38,21 @@ export const businessInfoSchema = z.object({
   nameEn: z.string().trim().max(60).optional(),
   phone: z.string().trim().min(10, "شماره تماس معتبر نیست.").max(20),
   address: z.string().trim().min(3, "آدرس را کامل وارد کنید."),
-  openingHoursStart: z.string().trim().min(1, "ساعت شروع را وارد کنید."),
-  openingHoursEnd: z.string().trim().min(1, "ساعت پایان را وارد کنید."),
+});
+
+const timeString = z.string().trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "قالب ساعت معتبر نیست.");
+
+export const businessHoursSchema = z.object({
+  days: z
+    .array(
+      z.object({
+        dayOfWeek: z.coerce.number().int().min(0).max(6),
+        isClosed: z.boolean(),
+        openTime: timeString,
+        closeTime: timeString,
+      })
+    )
+    .length(7, "ساعت کاری هر ۷ روز هفته باید مشخص باشد."),
 });
 
 export const orderSettingsSchema = z.object({

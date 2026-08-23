@@ -3,12 +3,12 @@
 import { forwardRef } from "react";
 import { MapPin, Clock } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+import { summarizeUniformHours, type DayHours } from "@/features/menu/utils/business-hours";
 
 export interface QrCardBusiness {
   name: string;
   address: string | null;
-  openingHoursStart: string | null;
-  openingHoursEnd: string | null;
+  hours: DayHours[];
 }
 
 export const QrCard = forwardRef<
@@ -22,6 +22,7 @@ export const QrCard = forwardRef<
     size?: number;
   }
 >(function QrCard({ business, publicUrl, showInfo, showHours, showLogo, size = 210 }, ref) {
+  const uniformHours = summarizeUniformHours(business.hours);
   return (
     <div
       ref={ref}
@@ -44,11 +45,11 @@ export const QrCard = forwardRef<
         <QRCodeSVG value={publicUrl} size={size} level="M" />
       </div>
 
-      {showHours && business.openingHoursStart && business.openingHoursEnd && (
+      {showHours && uniformHours && (
         <div className="flex items-center gap-2 rounded-xl bg-[#EAF3EB] px-4 py-2 text-brand">
           <Clock size={16} />
           <span className="text-[13px] font-medium">
-            همه‌روزه {business.openingHoursStart} تا {business.openingHoursEnd}
+            همه‌روزه {uniformHours.openTime} تا {uniformHours.closeTime}
           </span>
         </div>
       )}

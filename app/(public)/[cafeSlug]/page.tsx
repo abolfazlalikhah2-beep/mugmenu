@@ -96,7 +96,7 @@ export default async function MenuEntryPage({
         name={displayName}
         address={business.address}
         phone={business.phone}
-        openingHours={business.openingHours}
+        hours={business.hours}
         isAcceptingOrders={business.isAcceptingOrders}
         rating={rating}
         reviews={recentReviews}

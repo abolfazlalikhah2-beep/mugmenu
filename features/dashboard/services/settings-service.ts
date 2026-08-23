@@ -3,6 +3,7 @@ import { logger } from "@/lib/logger";
 import * as repo from "@/features/dashboard/repositories/dashboard-repository";
 import {
   businessInfoSchema,
+  businessHoursSchema,
   orderSettingsSchema,
   qrSettingsSchema,
   paymentSettingsSchema,
@@ -22,6 +23,15 @@ export async function updateBusinessInfo(businessId: string, input: unknown): Pr
 
   await repo.updateBusiness(businessId, parsed.data);
   logger.info("dashboard.business_info_updated", { businessId });
+  return { ok: true };
+}
+
+export async function updateBusinessHours(businessId: string, input: unknown): Promise<ServiceResult> {
+  const parsed = businessHoursSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  await repo.upsertBusinessHours(businessId, parsed.data.days);
+  logger.info("dashboard.business_hours_updated", { businessId });
   return { ok: true };
 }
 

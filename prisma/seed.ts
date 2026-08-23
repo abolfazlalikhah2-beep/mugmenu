@@ -69,8 +69,6 @@ async function main() {
     description:
       "رستوران ما با الهام از طعم‌های اصیل و مواد اولیه تازه، تلاش می‌کند لحظاتی خوشمزه و به‌یادماندنی برای شما بسازد.",
     isAcceptingOrders: true,
-    openingHoursStart: "15:00",
-    openingHoursEnd: "00:00",
     acceptsDineIn: true,
     acceptsTakeaway: true,
     acceptsDelivery: true,
@@ -85,6 +83,21 @@ async function main() {
     // plan change made through the super-admin plan switcher while testing.
     create: { slug: "demo", ...demoBusinessFields, planId: plansByKey["menu-advanced"].id },
   });
+
+  // Friday closed, Thursday shorter hours — gives the public accordion and
+  // dashboard editor non-uniform demo data to show off (see business-hours.ts).
+  const businessHoursDefs = Array.from({ length: 7 }, (_, dayOfWeek) => {
+    if (dayOfWeek === 5) return { dayOfWeek, isClosed: true, openTime: "15:00", closeTime: "00:00" };
+    if (dayOfWeek === 4) return { dayOfWeek, isClosed: false, openTime: "15:00", closeTime: "22:00" };
+    return { dayOfWeek, isClosed: false, openTime: "15:00", closeTime: "00:00" };
+  });
+  for (const h of businessHoursDefs) {
+    await prisma.businessHours.upsert({
+      where: { businessId_dayOfWeek: { businessId: business.id, dayOfWeek: h.dayOfWeek } },
+      update: h,
+      create: { businessId: business.id, ...h },
+    });
+  }
 
   const passwordHash = await bcrypt.hash("demo1234", 10);
   await prisma.user.upsert({

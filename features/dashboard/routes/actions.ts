@@ -67,9 +67,24 @@ export async function updateBusinessInfoAction(
     nameEn: String(formData.get("nameEn") ?? ""),
     phone: String(formData.get("phone") ?? ""),
     address: String(formData.get("address") ?? ""),
-    openingHoursStart: String(formData.get("openingHoursStart") ?? ""),
-    openingHoursEnd: String(formData.get("openingHoursEnd") ?? ""),
   });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/settings");
+  return { ok: true };
+}
+
+export async function updateBusinessHoursAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const days = Array.from({ length: 7 }, (_, dayOfWeek) => ({
+    dayOfWeek,
+    isClosed: bool(formData, `day${dayOfWeek}_isClosed`),
+    openTime: String(formData.get(`day${dayOfWeek}_openTime`) ?? ""),
+    closeTime: String(formData.get(`day${dayOfWeek}_closeTime`) ?? ""),
+  }));
+  const result = await settingsService.updateBusinessHours(businessId, { days });
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/settings");
   return { ok: true };
@@ -380,6 +395,20 @@ export async function updateOrderStatusAction(orderId: string, status: string) {
   const result = await orderMgmtService.updateOrderStatus(businessId, { orderId, status });
   revalidatePath("/dashboard/orders");
   return result;
+}
+
+/** businessId comes from the session, never from the client — order-mgmt-service.getOrderDetail returns null on any businessId mismatch (IDOR check). */
+export async function getOrderForPrintAction(orderId: string) {
+  const { businessId } = await requireBusinessOwner();
+  const [business, order] = await Promise.all([
+    settingsService.getBusiness(businessId),
+    orderMgmtService.getOrderDetail(businessId, orderId),
+  ]);
+  if (!business || !order) return null;
+  return {
+    ...order,
+    business: { name: business.name, address: business.address, phone: business.phone },
+  };
 }
 
 export async function assignCourierAction(orderId: string, courierId: string | null) {

@@ -22,8 +22,6 @@ model Business {
   phone                String?
   description          String?
   isAcceptingOrders    Boolean  @default(true)
-  openingHoursStart    String?
-  openingHoursEnd      String?
   acceptsDineIn        Boolean  @default(true)
   acceptsTakeaway      Boolean  @default(true)
   acceptsDelivery      Boolean  @default(false)
@@ -112,6 +110,7 @@ model Business {
   updatedAt            DateTime @updatedAt
 
   owners       User[]
+  hours        BusinessHours[]
   categories   Category[]
   products     Product[]
   orders       Order[]
@@ -127,6 +126,25 @@ model Business {
   couriers     Courier[]
   paymentRequests PaymentRequest[]
   creditRecords   CreditRecord[]
+}
+
+// Per-day working hours (public menu "ساعت کاری" accordion + dashboard
+// settings). Replaces the old single Business.openingHoursStart/End range —
+// every business gets exactly 7 rows (one per JS Date#getDay() value, same
+// 0=Sunday..6=Saturday convention as Category.scheduleDays), backfilled/
+// defaulted to isClosed=false, 09:00-22:00. Pure evaluation (isOpenNow,
+// day labels) lives in features/menu/utils/business-hours.ts.
+model BusinessHours {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  dayOfWeek  Int
+  isClosed   Boolean  @default(false)
+  openTime   String   @default("09:00")
+  closeTime  String   @default("22:00")
+
+  @@unique([businessId, dayOfWeek])
+  @@index([businessId])
 }
 
 enum BillingCycle {
