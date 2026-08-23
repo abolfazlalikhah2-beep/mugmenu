@@ -4,7 +4,7 @@ import { CashStatCard } from "@/components/dashboard/cash-stat-card";
 import { ProductReportRow } from "@/components/dashboard/product-report-row";
 import { formatToman } from "@/features/menu/utils/money";
 import type { ReportRange, PaymentMethod, OrderTypeValue } from "@/features/dashboard/services/report-aggregation";
-import type { CashRegisterReport } from "@/features/dashboard/services/report-service";
+import type { CashRegisterReport, CustomCashRegisterReport } from "@/features/dashboard/services/report-service";
 
 const PAYMENT_LABEL: Record<PaymentMethod, { label: string; icon: typeof Banknote }> = {
   CASH: { label: "نقدی", icon: Banknote },
@@ -25,12 +25,16 @@ export function CashRegisterView({
   data,
   range,
   onRangeChange,
+  customData,
+  isCustomActive,
 }: {
   data: CashRegisterReport;
   range: ReportRange;
   onRangeChange: (range: ReportRange) => void;
+  customData: CustomCashRegisterReport | null;
+  isCustomActive: boolean;
 }) {
-  const summary = data[range];
+  const summary = isCustomActive && customData ? customData : data[range];
   const maxSold = summary.topProducts[0]?.sold ?? 1;
 
   return (
@@ -40,7 +44,7 @@ export function CashRegisterView({
           <div className="text-[15px] font-semibold sm:text-base">گزارش صندوق</div>
           <div className="mt-0.5 text-xs font-light text-text-3">فروش و روش‌های پرداخت در بازه انتخابی</div>
         </div>
-        <RangeSwitch value={range} onChange={onRangeChange} />
+        <RangeSwitch value={range} onChange={onRangeChange} disabled={isCustomActive} />
       </div>
 
       <div className="flex flex-col gap-3.5 sm:flex-row sm:gap-[22px]">

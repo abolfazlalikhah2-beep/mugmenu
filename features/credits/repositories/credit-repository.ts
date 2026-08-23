@@ -15,9 +15,18 @@ export function createCreditRecord(data: CreateCreditRecordData) {
   return prisma.creditRecord.create({ data });
 }
 
-export function getCreditRecords(businessId: string, status?: CreditStatus) {
+/** `dateRange` bounds the underlying order's createdAt (the "تاریخ سفارش" column shown to the user), not the credit record's own createdAt. */
+export function getCreditRecords(
+  businessId: string,
+  status?: CreditStatus,
+  dateRange?: { gte: Date; lte: Date }
+) {
   return prisma.creditRecord.findMany({
-    where: { businessId, ...(status ? { status } : {}) },
+    where: {
+      businessId,
+      ...(status ? { status } : {}),
+      ...(dateRange ? { order: { createdAt: dateRange } } : {}),
+    },
     include: { order: { select: { createdAt: true } } },
     orderBy: { createdAt: "desc" },
   });

@@ -5,6 +5,7 @@ import { settleCreditSchema } from "@/features/credits/services/credit-schemas";
 import { businessHasFeature } from "@/features/plans/services/plan-service";
 import { computeCreditStatus } from "@/features/credits/services/credit-status";
 import type { CreditStatus } from "@/lib/generated/prisma/enums";
+import type { DateRange } from "@/features/dashboard/services/date-range-filter";
 
 export type ServiceResult = { ok: true } | { ok: false; error: string };
 
@@ -49,8 +50,16 @@ export interface CreditRecordRow {
   notes: string | null;
 }
 
-export async function getCreditRecords(businessId: string, status?: CreditStatus): Promise<CreditRecordRow[]> {
-  const rows = await repo.getCreditRecords(businessId, status);
+export async function getCreditRecords(
+  businessId: string,
+  status?: CreditStatus,
+  dateRange?: DateRange
+): Promise<CreditRecordRow[]> {
+  const rows = await repo.getCreditRecords(
+    businessId,
+    status,
+    dateRange ? { gte: dateRange.start, lte: dateRange.end } : undefined
+  );
   return rows.map((r) => ({
     id: r.id,
     orderId: r.orderId,

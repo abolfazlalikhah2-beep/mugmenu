@@ -8,10 +8,12 @@ export function OrdersReportChart({
   buckets,
   range,
   onRangeChange,
+  disabled,
 }: {
   buckets: ReportBucket[];
   range: ReportRange;
   onRangeChange: (range: ReportRange) => void;
+  disabled?: boolean;
 }) {
   const scaleMax = Math.max(...buckets.map((b) => b.count), 1) * 1.15;
   const highlightIndex = buckets.length - 1;
@@ -23,7 +25,7 @@ export function OrdersReportChart({
           <span className="h-[11px] w-[11px] rounded-[3px] bg-brand" />
           <span className="text-sm text-[#666]">تعداد سفارش در بازه</span>
         </div>
-        <RangeSwitch value={range} onChange={onRangeChange} />
+        <RangeSwitch value={range} onChange={onRangeChange} disabled={disabled} />
       </div>
       <div className="flex h-[170px] items-end justify-between gap-2 pt-1.5 sm:h-[210px] sm:gap-4.5">
         {buckets.map((b, i) => (

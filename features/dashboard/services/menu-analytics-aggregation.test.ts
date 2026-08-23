@@ -6,6 +6,10 @@ import {
   hourlyToday,
   sourceBreakdown,
   topViewedItems,
+  summarizeCustomVisits,
+  customTrend,
+  sourceBreakdownCustom,
+  topViewedItemsCustom,
   type EntryVisitPoint,
   type ItemViewPoint,
 } from "./menu-analytics-aggregation";
@@ -117,5 +121,58 @@ describe("topViewedItems", () => {
     ];
     const rows = topViewedItems(views, [], NOW, 30, 5);
     expect(rows).toHaveLength(0);
+  });
+});
+
+describe("summarizeCustomVisits", () => {
+  it("counts visits strictly within the custom [start, end] bounds, both inclusive", () => {
+    const w = { start: day(-3), end: day(0) };
+    const visits: EntryVisitPoint[] = [visit(-3, "QR"), visit(0, "LINK"), visit(-4, "DIRECT"), visit(1, "QR")];
+    expect(summarizeCustomVisits(visits, w)).toEqual({ count: 2 });
+  });
+
+  it("returns zero for an empty range", () => {
+    expect(summarizeCustomVisits([], { start: day(-3), end: day(0) })).toEqual({ count: 0 });
+  });
+});
+
+describe("customTrend", () => {
+  it("buckets by day for a short range and matches the total visit count", () => {
+    const w = { start: day(-2), end: day(0) };
+    const visits: EntryVisitPoint[] = [visit(-2, "QR"), visit(-1, "QR"), visit(0, "QR")];
+    const trend = customTrend(visits, w);
+    expect(trend).toHaveLength(3);
+    expect(trend.reduce((s, p) => s + p.count, 0)).toBe(3);
+  });
+
+  it("switches to weekly buckets for a range longer than 31 days", () => {
+    const trend = customTrend([], { start: day(-60), end: day(0) });
+    expect(trend.length).toBeGreaterThan(1);
+    expect(trend.length).toBeLessThanOrEqual(10);
+  });
+});
+
+describe("sourceBreakdownCustom", () => {
+  it("computes source percentages within the custom range only", () => {
+    const w = { start: day(-1), end: day(0) };
+    const visits: EntryVisitPoint[] = [visit(0, "QR"), visit(0, "QR"), visit(-1, "LINK"), visit(-5, "DIRECT")];
+    const breakdown = sourceBreakdownCustom(visits, w);
+    expect(breakdown.find((b) => b.source === "QR")).toMatchObject({ count: 2, percent: 67 });
+    expect(breakdown.find((b) => b.source === "DIRECT")).toMatchObject({ count: 0, percent: 0 });
+  });
+});
+
+describe("topViewedItemsCustom", () => {
+  it("ranks by view count within the custom range and merges in matching order quantity", () => {
+    const w = { start: day(-1), end: day(0) };
+    const views: ItemViewPoint[] = [
+      { createdAt: day(0), productId: "p1", productName: "چلوکباب", categoryName: "کباب", imageUrl: null },
+      { createdAt: day(-5), productId: "p1", productName: "چلوکباب", categoryName: "کباب", imageUrl: null }, // outside range
+    ];
+    const orders: OrderItemPoint[] = [
+      { createdAt: day(0), productId: "p1", productName: "چلوکباب", categoryName: "کباب", imageUrl: null, quantity: 3 },
+    ];
+    const rows = topViewedItemsCustom(views, orders, w);
+    expect(rows).toEqual([{ name: "چلوکباب", category: "کباب", imageUrl: null, views: 1, orders: 3 }]);
   });
 });

@@ -1,18 +1,22 @@
 import { RangeSwitch } from "@/components/dashboard/range-switch";
 import { ProductReportRow } from "@/components/dashboard/product-report-row";
 import type { ReportRange } from "@/features/dashboard/services/report-aggregation";
-import type { ProductsReport } from "@/features/dashboard/services/report-service";
+import type { ProductsReport, CustomProductsReport } from "@/features/dashboard/services/report-service";
 
 export function ProductsReportView({
   data,
   range,
   onRangeChange,
+  customData,
+  isCustomActive,
 }: {
   data: ProductsReport;
   range: ReportRange;
   onRangeChange: (range: ReportRange) => void;
+  customData: CustomProductsReport | null;
+  isCustomActive: boolean;
 }) {
-  const rows = data[range];
+  const rows = isCustomActive && customData ? customData : data[range];
   const maxSold = rows[0]?.sold ?? 1;
 
   return (
@@ -22,7 +26,7 @@ export function ProductsReportView({
           <div className="text-[15px] font-semibold sm:text-base">پرفروش‌ترین محصولات</div>
           <div className="mt-0.5 text-xs font-light text-text-3">بر اساس تعداد فروش در بازه انتخابی</div>
         </div>
-        <RangeSwitch value={range} onChange={onRangeChange} />
+        <RangeSwitch value={range} onChange={onRangeChange} disabled={isCustomActive} />
       </div>
 
       <div className="rounded-[22px] bg-card p-[8px_16px] shadow-[0px_8px_17.5px_rgba(0,0,0,0.03)] sm:p-[12px_20px]">

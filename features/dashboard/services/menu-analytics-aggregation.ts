@@ -143,6 +143,97 @@ export function sourceBreakdown(visits: EntryVisitPoint[], now = new Date(), day
   }));
 }
 
+// ---------- Custom date-range filter (see date-range-filter.ts) ----------
+//
+// This tab has no daily/weekly/monthly toggle to begin with (unlike
+// report-aggregation.ts) — it always shows fixed today/week/month cards.
+// A custom range doesn't map onto that fixed shape, so when one is active
+// the view swaps to this single custom summary instead (see
+// menu-analytics-view.tsx): one total, a trend bucketed to the range's
+// span, and sources/top-items bound to the same range.
+
+export interface Window {
+  start: Date;
+  end: Date;
+}
+
+function inWindow(visits: EntryVisitPoint[], w: Window): EntryVisitPoint[] {
+  return visits.filter((v) => v.createdAt >= w.start && v.createdAt <= w.end);
+}
+
+/** Total visits in the custom range — no delta, since an arbitrary range has no natural "previous period" to compare against. */
+export function summarizeCustomVisits(visits: EntryVisitPoint[], w: Window): { count: number } {
+  return { count: inWindow(visits, w).length };
+}
+
+/** Day/week bucket size for the custom-range trend, scaled to the span so a year-long range doesn't render 365 bars. */
+function customBucketWindows(w: Window): Window[] {
+  const spanDays = (w.end.getTime() - w.start.getTime()) / 86_400_000;
+  const step = spanDays <= 31 ? 1 : 7;
+  const out: Window[] = [];
+  let cursor = startOfDay(w.start);
+  while (cursor <= w.end) {
+    const next = addDays(cursor, step);
+    out.push({ start: cursor, end: next });
+    cursor = next;
+  }
+  return out;
+}
+
+/** Trend series across the custom range, bucketed by day (or by week past ~1 month) — see customBucketWindows. */
+export function customTrend(visits: EntryVisitPoint[], w: Window): TrendPoint[] {
+  return customBucketWindows(w).map((bw) => ({
+    label: bw.start.toLocaleDateString("fa-IR", { day: "2-digit", month: "short" }),
+    count: visits.filter((v) => v.createdAt >= bw.start && v.createdAt < bw.end).length,
+  }));
+}
+
+/** Same shape as sourceBreakdown, bound to the custom range instead of a trailing 30-day window. */
+export function sourceBreakdownCustom(visits: EntryVisitPoint[], w: Window): SourceSlice[] {
+  const windowed = inWindow(visits, w);
+  const total = windowed.length;
+
+  const counts: Record<VisitSource, number> = { QR: 0, LINK: 0, DIRECT: 0 };
+  for (const v of windowed) counts[v.source]++;
+
+  return (["QR", "LINK", "DIRECT"] as VisitSource[]).map((source) => ({
+    source,
+    count: counts[source],
+    percent: total > 0 ? Math.round((counts[source] / total) * 100) : 0,
+  }));
+}
+
+/** Same shape as topViewedItems, bound to the custom range instead of a trailing 30-day window. */
+export function topViewedItemsCustom(
+  itemViews: ItemViewPoint[],
+  orderItems: OrderItemPoint[],
+  w: Window,
+  limit = 5
+): TopMenuItemRow[] {
+  const byProduct = new Map<string, TopMenuItemRow>();
+  for (const v of itemViews) {
+    if (v.createdAt < w.start || v.createdAt > w.end) continue;
+    const existing = byProduct.get(v.productId);
+    if (existing) existing.views += 1;
+    else
+      byProduct.set(v.productId, {
+        name: v.productName,
+        category: v.categoryName,
+        imageUrl: v.imageUrl,
+        views: 1,
+        orders: 0,
+      });
+  }
+
+  for (const o of orderItems) {
+    if (o.createdAt < w.start || o.createdAt > w.end) continue;
+    const existing = byProduct.get(o.productId);
+    if (existing) existing.orders += o.quantity;
+  }
+
+  return [...byProduct.values()].sort((a, b) => b.views - a.views).slice(0, limit);
+}
+
 /**
  * Most-viewed item detail pages over the trailing window, with order quantity
  * for the same window merged in. Ranked by views (matches the design's

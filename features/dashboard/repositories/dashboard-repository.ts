@@ -631,23 +631,24 @@ export function addTicketMessage(data: AddTicketMessageData) {
 
 // ---------- Reports ----------
 
-export function getOrdersForReport(businessId: string, since: Date) {
+/** `until` bounds the query for a custom Jalali date-range filter (see date-range-filter.ts); omitted for the daily/weekly/monthly views, which stay open-ended from `since`. */
+export function getOrdersForReport(businessId: string, since: Date, until?: Date) {
   return prisma.order.findMany({
-    where: { businessId, createdAt: { gte: since } },
+    where: { businessId, createdAt: { gte: since, ...(until ? { lte: until } : {}) } },
     select: { createdAt: true, totalPrice: true },
   });
 }
 
-export function getOrdersForCashRegisterReport(businessId: string, since: Date) {
+export function getOrdersForCashRegisterReport(businessId: string, since: Date, until?: Date) {
   return prisma.order.findMany({
-    where: { businessId, createdAt: { gte: since } },
+    where: { businessId, createdAt: { gte: since, ...(until ? { lte: until } : {}) } },
     select: { createdAt: true, totalPrice: true, paymentMethod: true, type: true },
   });
 }
 
-export function getOrderItemsForReport(businessId: string, since: Date) {
+export function getOrderItemsForReport(businessId: string, since: Date, until?: Date) {
   return prisma.orderItem.findMany({
-    where: { order: { businessId, createdAt: { gte: since } } },
+    where: { order: { businessId, createdAt: { gte: since, ...(until ? { lte: until } : {}) } } },
     select: {
       quantity: true,
       productId: true,
@@ -659,16 +660,16 @@ export function getOrderItemsForReport(businessId: string, since: Date) {
 
 // ---------- Menu analytics (menu visits) ----------
 
-export function getMenuEntryVisits(businessId: string, since: Date) {
+export function getMenuEntryVisits(businessId: string, since: Date, until?: Date) {
   return prisma.menuVisit.findMany({
-    where: { businessId, productId: null, createdAt: { gte: since } },
+    where: { businessId, productId: null, createdAt: { gte: since, ...(until ? { lte: until } : {}) } },
     select: { createdAt: true, source: true },
   });
 }
 
-export function getMenuItemViews(businessId: string, since: Date) {
+export function getMenuItemViews(businessId: string, since: Date, until?: Date) {
   return prisma.menuVisit.findMany({
-    where: { businessId, productId: { not: null }, createdAt: { gte: since } },
+    where: { businessId, productId: { not: null }, createdAt: { gte: since, ...(until ? { lte: until } : {}) } },
     select: {
       createdAt: true,
       productId: true,

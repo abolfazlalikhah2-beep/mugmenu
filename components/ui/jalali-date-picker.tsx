@@ -40,14 +40,21 @@ export function JalaliDatePicker({
   placeholder = "انتخاب تاریخ",
   defaultValue,
   className,
+  onChange,
 }: {
   name: string;
   label?: string;
   placeholder?: string;
   defaultValue?: string | null;
   className?: string;
+  /** Gregorian ISO ("YYYY-MM-DD") of the newly selected day, or "" when cleared. */
+  onChange?: (iso: string) => void;
 }) {
-  const [iso, setIso] = useState(defaultValue ?? "");
+  const [iso, setIsoState] = useState(defaultValue ?? "");
+  function setIso(next: string) {
+    setIsoState(next);
+    onChange?.(next);
+  }
   const [open, setOpen] = useState(false);
   const initial = isoToJalali(defaultValue) ?? todayJalali();
   const [viewYear, setViewYear] = useState(initial.jy);

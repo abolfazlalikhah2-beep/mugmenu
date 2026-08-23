@@ -6,6 +6,10 @@ import {
   earliestWindowStart,
   currentWindowBounds,
   summarizeCashRegister,
+  bucketOrdersCustom,
+  summarizeRangeCustom,
+  summarizeCashRegisterCustom,
+  topProductsCustom,
   type OrderPoint,
   type OrderItemPoint,
   type PaymentMethodPoint,
@@ -151,5 +155,70 @@ describe("summarizeCashRegister", () => {
     const summary = summarizeCashRegister([], "daily", NOW);
     expect(summary.totalSales).toEqual({ count: 0, amount: 0 });
     expect(summary.byPaymentMethod.CASH).toEqual({ count: 0, amount: 0 });
+  });
+});
+
+describe("summarizeRangeCustom", () => {
+  it("totals orders strictly within the custom [start, end] bounds, both inclusive", () => {
+    const w = { start: day(-3), end: day(0) };
+    const orders: OrderPoint[] = [
+      { createdAt: day(-3), totalPrice: 100 }, // start boundary, inclusive
+      { createdAt: day(0), totalPrice: 200 }, // end boundary, inclusive
+      { createdAt: day(-4, 23), totalPrice: 999 }, // just before start, excluded
+      { createdAt: day(1), totalPrice: 999 }, // just after end, excluded
+    ];
+    const summary = summarizeRangeCustom(orders, w);
+    expect(summary).toEqual({ count: 2, revenue: 300, avgOrder: 150 });
+  });
+
+  it("returns zeroed totals for an empty range", () => {
+    expect(summarizeRangeCustom([], { start: day(-3), end: day(0) })).toEqual({ count: 0, revenue: 0, avgOrder: 0 });
+  });
+});
+
+describe("bucketOrdersCustom", () => {
+  it("buckets by day for a short range and matches the total order count", () => {
+    const w = { start: day(-2), end: day(0) };
+    const orders: OrderPoint[] = [{ createdAt: day(-2) }, { createdAt: day(-1) }, { createdAt: day(0) }].map((o) => ({
+      ...o,
+      totalPrice: 100,
+    }));
+    const buckets = bucketOrdersCustom(orders, w);
+    expect(buckets).toHaveLength(3);
+    expect(buckets.reduce((s, b) => s + b.count, 0)).toBe(3);
+  });
+
+  it("switches to weekly buckets for a range longer than 31 days", () => {
+    const w = { start: day(-60), end: day(0) };
+    const buckets = bucketOrdersCustom([], w);
+    expect(buckets.length).toBeGreaterThan(1);
+    expect(buckets.length).toBeLessThanOrEqual(10);
+  });
+});
+
+describe("summarizeCashRegisterCustom", () => {
+  it("totals and breaks down orders within the custom range", () => {
+    const w = { start: day(-1), end: day(0) };
+    const points: PaymentMethodPoint[] = [
+      { createdAt: day(0), totalPrice: 100_000, paymentMethod: "CASH", type: "DINE_IN" },
+      { createdAt: day(-1), totalPrice: 50_000, paymentMethod: "CARD", type: "TAKEAWAY" },
+      { createdAt: day(-5), totalPrice: 999_999, paymentMethod: "CASH", type: "DINE_IN" }, // outside range
+    ];
+    const summary = summarizeCashRegisterCustom(points, w);
+    expect(summary.totalSales).toEqual({ count: 2, amount: 150_000 });
+    expect(summary.byPaymentMethod.CASH).toEqual({ count: 1, amount: 100_000 });
+  });
+});
+
+describe("topProductsCustom", () => {
+  it("aggregates quantity per product within the custom range", () => {
+    const w = { start: day(-1), end: day(0) };
+    const items: OrderItemPoint[] = [
+      { createdAt: day(0), productId: "a", productName: "چلوکباب", categoryName: "کباب‌ها", imageUrl: null, quantity: 3 },
+      { createdAt: day(-1), productId: "a", productName: "چلوکباب", categoryName: "کباب‌ها", imageUrl: null, quantity: 2 },
+      { createdAt: day(-5), productId: "a", productName: "چلوکباب", categoryName: "کباب‌ها", imageUrl: null, quantity: 99 },
+    ];
+    const rows = topProductsCustom(items, w);
+    expect(rows).toEqual([{ name: "چلوکباب", category: "کباب‌ها", imageUrl: null, sold: 5 }]);
   });
 });

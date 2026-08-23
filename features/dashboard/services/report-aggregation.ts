@@ -192,6 +192,111 @@ export function summarizeCashRegister(
   };
 }
 
+// ---------- Custom date-range filter (see date-range-filter.ts) ----------
+//
+// A user-picked [start, end] range doesn't fit the daily/weekly/monthly
+// "current period vs. previous period" model above — there's no natural
+// "previous period" for an arbitrary range, and the existing per-range
+// functions are left untouched so daily/weekly/monthly behavior can't
+// regress. These are the parallel custom-range equivalents.
+
+function inCustomWindow(orders: OrderPoint[], w: Window): OrderPoint[] {
+  return orders.filter((o) => o.createdAt >= w.start && o.createdAt <= w.end);
+}
+
+/** Day/week/month bucket size for the custom-range trend chart, scaled to the span so a year-long range doesn't render 365 bars. */
+function customBucketGranularity(w: Window): "day" | "week" | "month" {
+  const spanDays = (w.end.getTime() - w.start.getTime()) / 86_400_000;
+  if (spanDays <= 31) return "day";
+  if (spanDays <= 180) return "week";
+  return "month";
+}
+
+function customBucketWindows(w: Window): Window[] {
+  const granularity = customBucketGranularity(w);
+  const out: Window[] = [];
+  let cursor = startOfDay(w.start);
+  const step = granularity === "day" ? (d: Date) => addDays(d, 1) : granularity === "week" ? (d: Date) => addDays(d, 7) : (d: Date) => addMonths(d, 1);
+  while (cursor <= w.end) {
+    const next = step(cursor);
+    out.push({ start: cursor, end: next });
+    cursor = next;
+  }
+  return out;
+}
+
+function customBucketLabel(granularity: "day" | "week" | "month", w: Window): string {
+  if (granularity === "month") return w.start.toLocaleDateString("fa-IR", { month: "long" });
+  return w.start.toLocaleDateString("fa-IR", { day: "2-digit", month: "short" });
+}
+
+/** Trend series across the custom range, bucketed by day/week/month depending on its span — see customBucketGranularity. */
+export function bucketOrdersCustom(orders: OrderPoint[], w: Window): ReportBucket[] {
+  const granularity = customBucketGranularity(w);
+  return customBucketWindows(w).map((bw) => {
+    const matched = orders.filter((o) => o.createdAt >= bw.start && o.createdAt < bw.end);
+    return {
+      label: customBucketLabel(granularity, bw),
+      count: matched.length,
+      revenue: matched.reduce((sum, o) => sum + o.totalPrice, 0),
+    };
+  });
+}
+
+/** Totals for the custom range — no delta, since an arbitrary range has no natural "previous period" to compare against. */
+export function summarizeRangeCustom(orders: OrderPoint[], w: Window): Pick<ReportSummary, "count" | "revenue" | "avgOrder"> {
+  const matched = inCustomWindow(orders, w);
+  const count = matched.length;
+  const revenue = matched.reduce((sum, o) => sum + o.totalPrice, 0);
+  return { count, revenue, avgOrder: count > 0 ? Math.round(revenue / count) : 0 };
+}
+
+/** Same breakdown as summarizeCashRegister, bounded to the custom range instead of a trailing window. */
+export function summarizeCashRegisterCustom(orders: PaymentMethodPoint[], w: Window): CashRegisterSummary {
+  const matched = orders.filter((o) => o.createdAt >= w.start && o.createdAt <= w.end);
+
+  const byPaymentMethod: Record<PaymentMethod, PaymentMethodBreakdown> = {
+    CASH: { count: 0, amount: 0 },
+    CARD: { count: 0, amount: 0 },
+    CREDIT: { count: 0, amount: 0 },
+  };
+  const byOrderType: Record<OrderTypeValue, number> = { DINE_IN: 0, TAKEAWAY: 0, DELIVERY: 0 };
+
+  for (const o of matched) {
+    byPaymentMethod[o.paymentMethod].count += 1;
+    byPaymentMethod[o.paymentMethod].amount += o.totalPrice;
+    byOrderType[o.type] += 1;
+  }
+
+  return {
+    totalSales: { count: matched.length, amount: matched.reduce((sum, o) => sum + o.totalPrice, 0) },
+    byPaymentMethod,
+    byOrderType,
+  };
+}
+
+/** Top-selling products within the custom range, by quantity. */
+export function topProductsCustom(items: OrderItemPoint[], w: Window, limit = 8): TopProductRow[] {
+  const matched = items.filter((i) => i.createdAt >= w.start && i.createdAt <= w.end);
+
+  const byProduct = new Map<string, TopProductRow>();
+  for (const item of matched) {
+    const existing = byProduct.get(item.productId);
+    if (existing) {
+      existing.sold += item.quantity;
+    } else {
+      byProduct.set(item.productId, {
+        name: item.productName,
+        category: item.categoryName,
+        imageUrl: item.imageUrl,
+        sold: item.quantity,
+      });
+    }
+  }
+
+  return [...byProduct.values()].sort((a, b) => b.sold - a.sold).slice(0, limit);
+}
+
 /** Top-selling products within the current period (today / this week / this month), by quantity. */
 export function topProducts(
   items: OrderItemPoint[],
