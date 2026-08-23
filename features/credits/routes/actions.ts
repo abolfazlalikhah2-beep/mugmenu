@@ -21,5 +21,6 @@ export async function settleCreditRecordAction(
   });
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/credits");
+  revalidatePath("/dashboard/reports");
   return { ok: true };
 }
