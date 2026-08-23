@@ -11,11 +11,15 @@ export function ManualOrderTrigger({
   acceptsDineIn,
   acceptsTakeaway,
   acceptsDelivery,
+  label = "ثبت سفارش دستی",
+  className,
 }: {
   allowed: boolean;
   acceptsDineIn: boolean;
   acceptsTakeaway: boolean;
   acceptsDelivery: boolean;
+  label?: string;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -23,18 +27,18 @@ export function ManualOrderTrigger({
     return (
       <Link
         href="/dashboard/account"
-        title="ثبت سفارش دستی در پلن شما موجود نیست، برای ارتقا کلیک کنید"
+        title={`${label} در پلن شما موجود نیست، برای ارتقا کلیک کنید`}
         className="flex h-[42px] items-center gap-2 rounded-[13px] bg-[#F0F0F0] px-[18px] text-sm font-medium text-[#8A8A8A]"
       >
         <Lock size={15} />
-        ثبت سفارش دستی
+        {label}
       </Link>
     );
   }
 
   return (
     <>
-      <PrimaryButton onClick={() => setOpen(true)}>ثبت سفارش دستی</PrimaryButton>
+      <PrimaryButton onClick={() => setOpen(true)} className={className}>{label}</PrimaryButton>
       {open && (
         <ManualOrderModal
           acceptsDineIn={acceptsDineIn}
