@@ -67,7 +67,11 @@ export default async function MenuEntryPage({
     : [null, null];
 
   const heroBackground = resolveHeroBackground(business);
-  const orderingEnabled = await businessHasFeature(business.id, "order.three_mode");
+  const [orderingEnabled, cashbackEnabled] = await Promise.all([
+    businessHasFeature(business.id, "order.three_mode"),
+    businessHasFeature(business.id, "loyalty.cashback"),
+  ]);
+  const showCashbackTeaser = cashbackEnabled && business.cashbackPercent > 0;
 
   return (
     <MenuPageShell dir={t.dir}>
@@ -107,7 +111,9 @@ export default async function MenuEntryPage({
           lang={lang}
         />
       ) : (
-        <MenuLoginTeaser slug={cafeSlug} cashbackPercent={business.cashbackPercent} lang={lang} />
+        showCashbackTeaser && (
+          <MenuLoginTeaser slug={cafeSlug} cashbackPercent={business.cashbackPercent} lang={lang} />
+        )
       )}
       <p className={`px-4.5 pt-2.5 text-center text-sm md:px-10 ${lang === "en" ? "font-mont" : ""}`}>{t.lead}</p>
       <div className="flex flex-col gap-3 px-4.5 py-4 md:px-10 md:py-5">
