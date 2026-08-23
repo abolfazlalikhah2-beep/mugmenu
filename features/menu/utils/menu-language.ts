@@ -68,6 +68,9 @@ export const MENU_LANG_COPY = {
     addToCart: "افزودن به سبد",
     mostRelevant: "مرتبط ترین",
     newest: "جدیدترین",
+    searchPlaceholder: "جستجو در منو",
+    searchButtonLabel: "جستجو",
+    searchNoResults: "نتیجه‌ای یافت نشد.",
     optionRequired: "الزامی",
     optionOptional: "اختیاری",
     chooseOneOption: "یک گزینه انتخاب کنید",
@@ -276,6 +279,9 @@ export const MENU_LANG_COPY = {
     addToCart: "Add to cart",
     mostRelevant: "Most relevant",
     newest: "Newest",
+    searchPlaceholder: "Search the menu",
+    searchButtonLabel: "Search",
+    searchNoResults: "No results found.",
     optionRequired: "Required",
     optionOptional: "Optional",
     chooseOneOption: "Choose one option",
@@ -484,6 +490,12 @@ export function reviewsPageTitle(lang: MenuLang, itemName: string): string {
 export function basedOnReviewsLabel(lang: MenuLang, count: number): string {
   const n = localizedNumber(lang, count);
   return lang === "en" ? `Based on ${n} reviews` : `بر پایه ${n} نظر`;
+}
+
+/** Product search box's "N results for «query»" counter line. */
+export function searchResultsCountLabel(lang: MenuLang, count: number, query: string): string {
+  const n = localizedNumber(lang, count);
+  return lang === "en" ? `${n} results for "${query}"` : `${n} نتیجه برای «${query}»`;
 }
 
 export function answeredOfLabel(lang: MenuLang, answered: number): string {
