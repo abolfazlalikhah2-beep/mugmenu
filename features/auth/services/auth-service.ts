@@ -29,6 +29,17 @@ export async function login(input: unknown): Promise<ServiceResult> {
   }
 
   const user = await userRepository.findUserByPhone(phone);
+
+  // TEMPORARY — debugging a production login failure for a real (non-demo)
+  // user report. Never logs the full hash or the plaintext password. Remove
+  // once the root cause is found.
+  logger.info("auth.login_debug", {
+    phone,
+    userFound: Boolean(user),
+    passwordHashLength: user?.passwordHash.length ?? null,
+    passwordHashPrefix: user?.passwordHash.slice(0, 4) ?? null,
+  });
+
   if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
     logger.info("auth.login_failed", { phone });
     return { ok: false, error: "شماره تلفن یا رمز عبور اشتباه است." };
