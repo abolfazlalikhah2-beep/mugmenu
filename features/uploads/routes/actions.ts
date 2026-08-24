@@ -18,6 +18,14 @@ export interface UploadImageResult {
 }
 
 export async function uploadImageAction(kind: string, formData: FormData): Promise<UploadImageResult> {
+  // TEMPORARY — debugging why production dashboard/product uploads show no
+  // "S3 Config:" log at all. Distinguishes "action never called" (no log
+  // whatsoever) from "called but requireBusinessOwner() redirected before
+  // reaching S3 code" (this line logs, but nothing after it does) from "S3
+  // code reached but its own log didn't show" (both log). Remove once
+  // root-caused.
+  logger.info("uploads.image_upload_action_called", { kind });
+
   const { businessId } = await requireBusinessOwner();
 
   const kindParsed = uploadKindSchema.safeParse(kind);
