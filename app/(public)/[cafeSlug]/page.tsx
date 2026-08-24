@@ -67,9 +67,11 @@ export default async function MenuEntryPage({
     : [null, null];
 
   const heroBackground = resolveHeroBackground(business);
-  const [orderingEnabled, cashbackEnabled] = await Promise.all([
+  const [orderingEnabled, cashbackEnabled, loginEnabled] = await Promise.all([
     businessHasFeature(business.id, "order.three_mode"),
     businessHasFeature(business.id, "loyalty.cashback"),
+    // menu-display has no ordering/customer accounts at all, so "ورود / ثبت‌نام" has nothing to lead to.
+    businessHasFeature(business.id, "customer.wallet_login"),
   ]);
   const showCashbackTeaser = cashbackEnabled && business.cashbackPercent > 0;
 
@@ -82,12 +84,14 @@ export default async function MenuEntryPage({
           className="h-[200px] w-full md:h-[210px]"
           priority
         />
-        <MenuEntryBadge
-          slug={cafeSlug}
-          loggedIn={Boolean(account)}
-          initial={account?.fullName.slice(0, 1)}
-          label={account ? t.myAccount : t.loginRegister}
-        />
+        {loginEnabled && (
+          <MenuEntryBadge
+            slug={cafeSlug}
+            loggedIn={Boolean(account)}
+            initial={account?.fullName.slice(0, 1)}
+            label={account ? t.myAccount : t.loginRegister}
+          />
+        )}
         {business.bilingualMenuEnabled && (
           <LanguageToggle slug={cafeSlug} lang={lang} className="absolute top-3.5 left-3.5 z-10" />
         )}
