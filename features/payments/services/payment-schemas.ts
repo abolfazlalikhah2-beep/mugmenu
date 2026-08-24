@@ -12,6 +12,7 @@ export const createPaymentRequestSchema = z.object({
   amount: z.coerce.number().int().positive("مبلغ نامعتبر است."),
   assignedCardId: z.string().min(1, "کارت مقصد نامعتبر است."),
   referenceNumber: z.string().trim().min(1, "شماره پیگیری تراکنش را وارد کنید.").max(60),
+  screenshotUrl: z.string().trim().min(1, "تصویر رسید پرداخت را بارگذاری کنید."),
 });
 
 export const verifyPaymentRequestSchema = z

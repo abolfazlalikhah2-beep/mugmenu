@@ -93,6 +93,7 @@ export async function createPaymentRequestAction(
     amount: String(formData.get("amount") ?? ""),
     assignedCardId: String(formData.get("assignedCardId") ?? ""),
     referenceNumber: String(formData.get("referenceNumber") ?? ""),
+    screenshotUrl: String(formData.get("screenshotUrl") ?? ""),
   });
   if (!result.ok) return { error: result.error };
   revalidatePath("/payment");

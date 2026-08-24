@@ -46,6 +46,7 @@ export interface CreatePaymentRequestData {
   businessId: string;
   amount: number;
   assignedCardId: string;
+  screenshotUrl: string;
 }
 
 export function createPaymentRequest(data: CreatePaymentRequestData) {

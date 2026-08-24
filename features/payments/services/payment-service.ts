@@ -91,6 +91,7 @@ export async function createRequest(businessId: string, input: unknown): Promise
     businessId,
     amount: parsed.data.amount,
     assignedCardId: parsed.data.assignedCardId,
+    screenshotUrl: parsed.data.screenshotUrl,
   });
   logger.info("payments.request_created", { businessId, amount: parsed.data.amount });
   return { ok: true };
@@ -129,6 +130,7 @@ export interface PaymentRequestRow {
   amount: number;
   cardLabel: string;
   referenceNumber: string | null;
+  screenshotUrl: string | null;
   status: PaymentRequestStatus;
   notes: string | null;
   createdAt: Date;
@@ -143,6 +145,7 @@ export async function getRequestRows(filter?: { status?: PaymentRequestStatus })
     amount: r.amount,
     cardLabel: `${r.assignedCard.bankName} · ${lastFour(r.assignedCard.cardNumber)}`,
     referenceNumber: r.referenceNumber,
+    screenshotUrl: r.screenshotUrl,
     status: r.status,
     notes: r.notes,
     createdAt: r.createdAt,

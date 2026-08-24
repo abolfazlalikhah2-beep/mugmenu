@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import Image from "next/image";
 import { ModalShell } from "@/components/dashboard/modal-shell";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -78,6 +79,26 @@ export function PaymentRequestModal({
           placeholder="پس از بررسی صورت‌حساب بانکی وارد کنید"
           required
         />
+
+        {request.screenshotUrl && (
+          <div className="flex flex-col gap-2">
+            <span className="text-right text-[13px] font-light text-text-4">تصویر رسید پرداخت</span>
+            <a
+              href={request.screenshotUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative block h-[280px] w-full overflow-hidden rounded-2xl border border-[#F0F0F0] bg-[#FAFBFA]"
+            >
+              <Image
+                src={request.screenshotUrl}
+                alt="رسید پرداخت"
+                fill
+                sizes="560px"
+                className="object-contain"
+              />
+            </a>
+          </div>
+        )}
 
         <input type="hidden" name="status" value={decision ?? ""} />
         <div className="flex gap-3">

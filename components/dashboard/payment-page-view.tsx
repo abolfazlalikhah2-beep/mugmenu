@@ -1,38 +1,70 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { Copy, Check, CreditCard } from "lucide-react";
+import { useActionState } from "react";
+import Image from "next/image";
+import { Check, CreditCard, Landmark } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { ImageUploadField } from "@/components/uploads/image-upload-field";
 import { createPaymentRequestAction, type ActionState } from "@/features/payments/routes/actions";
 import type { PlanPricing } from "@/features/payments/services/payment-service";
 
 const initialState: ActionState = {};
 
-function CopyField({ label, value, ltr }: { label: string; value: string; ltr?: boolean }) {
-  const [copied, setCopied] = useState(false);
+/** Groups digits into 4s the way a physical card prints them — e.g. "6037 9975 1234 5678". */
+function formatCardNumber(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  return digits.match(/.{1,4}/g)?.join("  ") ?? digits;
+}
 
-  function handleCopy() {
-    navigator.clipboard?.writeText(value).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
-  }
-
+function BankCard({
+  bankName,
+  cardNumber,
+  holderName,
+  accountNumber,
+}: {
+  bankName: string;
+  cardNumber: string;
+  holderName: string;
+  accountNumber: string;
+}) {
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-right text-[13px] font-light text-text-4">{label}</span>
-      <div className="flex h-[50px] items-center gap-2 rounded-input border border-border-input ps-[18px] pe-2">
-        <span dir={ltr ? "ltr" : undefined} className="min-w-0 flex-1 truncate text-right text-sm">
-          {value}
+    <div className="flex flex-col gap-2.5">
+      <div
+        dir="ltr"
+        className="relative flex aspect-[1.6/1] w-full flex-col justify-between overflow-hidden rounded-card-sm bg-[#0F7A3B] p-[20px_22px] text-white shadow-modal sm:p-[24px_26px]"
+      >
+        <Image
+          src="/brand/green-gradient.png"
+          alt=""
+          fill
+          sizes="(min-width: 640px) 400px, 90vw"
+          className="pointer-events-none object-cover opacity-90"
+        />
+        <div className="absolute inset-0 bg-black/10" />
+
+        <div className="relative flex items-center justify-between">
+          <span className="text-[15px] font-semibold tracking-wide">{bankName}</span>
+          <Landmark size={22} className="opacity-85" />
+        </div>
+
+        <div className="relative text-center text-[19px] font-semibold tracking-[0.18em] sm:text-[22px]">
+          {formatCardNumber(cardNumber)}
+        </div>
+
+        <div className="relative flex items-end justify-between">
+          <div>
+            <div className="text-[9px] font-light uppercase tracking-wider opacity-70">Card Holder</div>
+            <div className="text-[13px] font-medium">{holderName}</div>
+          </div>
+          <span className="text-[11px] font-light opacity-70">پرداخت کارت به کارت</span>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between rounded-input bg-chip p-[12px_16px]">
+        <span className="text-[13px] font-light text-text-3">شماره حساب</span>
+        <span dir="ltr" className="text-[13px] font-medium text-ink">
+          {accountNumber}
         </span>
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[10px] bg-chip"
-          aria-label={`کپی ${label}`}
-        >
-          {copied ? <Check size={16} className="text-brand" /> : <Copy size={16} className="text-[#5A5A5A]" />}
-        </button>
       </div>
     </div>
   );
@@ -88,10 +120,12 @@ export function PaymentPageView({
         <span className="text-xl font-bold text-brand">{pricing.amount.toLocaleString("fa-IR")} تومان</span>
       </div>
 
-      <CopyField label="نام صاحب حساب" value={card.holderName} />
-      <CopyField label="بانک" value={card.bankName} />
-      <CopyField label="شماره کارت" value={card.cardNumber} ltr />
-      <CopyField label="شماره حساب" value={card.accountNumber} ltr />
+      <BankCard
+        bankName={card.bankName}
+        cardNumber={card.cardNumber}
+        holderName={card.holderName}
+        accountNumber={card.accountNumber}
+      />
 
       <form action={formAction} className="flex flex-col gap-4">
         <input type="hidden" name="amount" value={pricing.amount} />
@@ -103,6 +137,12 @@ export function PaymentPageView({
           className="text-right"
           placeholder="پس از واریز وارد کنید"
           required
+        />
+        <ImageUploadField
+          kind="payments"
+          name="screenshotUrl"
+          label="تصویر رسید پرداخت"
+          helpText="اسکرین‌شات رسید انتقال وجه — jpg، png یا webp، حداکثر ۵ مگابایت"
         />
         {state.error && <p className="text-right text-xs text-red-500">{state.error}</p>}
         <button
