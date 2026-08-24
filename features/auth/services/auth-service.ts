@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 import { checkRateLimit } from "@/lib/rate-limit";
 import * as userRepository from "@/features/auth/repositories/user-repository";
 import { createSession } from "@/features/auth/services/session-service";
-import { sendOtp } from "@/features/auth/services/otp-service";
+import { sendOtp, OtpRateLimitError } from "@/features/auth/services/otp-service";
 import {
   loginSchema,
   registerSchema,
@@ -60,14 +60,24 @@ export async function register(input: unknown): Promise<ServiceResult> {
 
   // TODO: gate the account as unverified until the OTP is actually checked,
   // once a real SMS provider is connected.
-  await sendOtp(phone);
+  try {
+    await sendOtp(phone);
+  } catch (e) {
+    if (e instanceof OtpRateLimitError) return { ok: false, error: e.message };
+    throw e;
+  }
   return { ok: true };
 }
 
 export async function forgotPassword(input: unknown): Promise<ServiceResult> {
   const parsed = forgotPasswordSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
-  await sendOtp(parsed.data.phone);
+  try {
+    await sendOtp(parsed.data.phone);
+  } catch (e) {
+    if (e instanceof OtpRateLimitError) return { ok: false, error: e.message };
+    throw e;
+  }
   return { ok: true };
 }
 
