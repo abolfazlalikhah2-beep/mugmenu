@@ -50,12 +50,12 @@ export default async function ItemDetailPage({
         />
         <Link
           href={`/${cafeSlug}/menu`}
-          className="absolute top-4 left-4 flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-black/28 text-white backdrop-blur-sm"
+          className="absolute top-4 right-4 flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-black/28 text-white backdrop-blur-sm"
         >
           <ChevronRight size={22} />
         </Link>
         {outOfStock && (
-          <span className="absolute top-4 right-4 rounded-2xl bg-[#E5484D] px-3 py-1.5 text-[12.5px] font-medium text-white">
+          <span className="absolute top-4 left-4 rounded-2xl bg-[#E5484D] px-3 py-1.5 text-[12.5px] font-medium text-white">
             {t.outOfStockBadge}
           </span>
         )}
