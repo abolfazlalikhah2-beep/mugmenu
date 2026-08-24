@@ -5,12 +5,12 @@ import * as repo from "@/features/dashboard/repositories/dashboard-repository";
 import { onboardingSchema } from "@/features/dashboard/services/dashboard-schemas";
 import { getPlanByKey } from "@/features/plans/repositories/plan-repository";
 
-// New businesses default to menu-advanced — there's no self-service plan
-// picker at signup yet (phase 3 payment work, see CLAUDE.md), so this keeps
-// new signups from being accidentally locked out of features until a super
-// admin assigns their real plan, matching the existing-business migration
-// default (see features/plans).
-const DEFAULT_SIGNUP_PLAN_KEY = "menu-advanced";
+// New businesses default to the base plan (menu-display), not a free grant
+// of a paid tier — there's no self-service plan picker or payment gateway
+// at signup yet (phase 3 payment work, see CLAUDE.md), so upgrading to
+// menu-order/menu-advanced happens manually via the super admin panel
+// (either a real subscription or the demo trial modal), never automatically.
+const DEFAULT_SIGNUP_PLAN_KEY = "menu-display";
 
 export type ServiceResult = { ok: true; slug: string } | { ok: false; error: string };
 
