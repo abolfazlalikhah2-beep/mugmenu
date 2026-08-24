@@ -5,6 +5,7 @@ import { Clock, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FA_WEEK_ORDER, dayLabel, getDayHours, isOpenNow, type DayHours } from "@/features/menu/utils/business-hours";
 import { menuCopy, type MenuLang } from "@/features/menu/utils/menu-language";
+import { toPersianDigitsInString } from "@/features/menu/utils/money";
 
 export function BusinessHoursAccordion({ hours, lang = "fa" }: { hours: DayHours[]; lang?: MenuLang }) {
   const [expanded, setExpanded] = React.useState(false);
@@ -47,11 +48,14 @@ export function BusinessHoursAccordion({ hours, lang = "fa" }: { hours: DayHours
                 {!day || day.isClosed ? (
                   <span className="text-xs font-medium text-[#E5484D]">{t.dayClosed}</span>
                 ) : (
+                  // dir="ltr" pins visual order to open-then-close (correct RTL
+                  // reading order for a range) regardless of the page's RTL
+                  // context; digits are localized separately below.
                   <span
                     dir="ltr"
                     className={cn("font-mont text-xs font-light", isToday ? "text-[#1E8E4E]" : "text-[#666]")}
                   >
-                    {day.openTime} - {day.closeTime}
+                    {toPersianDigitsInString(day.openTime, lang)} - {toPersianDigitsInString(day.closeTime, lang)}
                   </span>
                 )}
               </div>
