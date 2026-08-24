@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ImageUploadField } from "@/components/uploads/image-upload-field";
 import { onboardingAction, type ActionState } from "@/features/dashboard/routes/actions";
+import { uploadOnboardingImageAction } from "@/features/uploads/routes/actions";
 
 const initialState: ActionState = {};
 
@@ -53,6 +54,7 @@ export default function OnboardingPage() {
             name="logoUrl"
             label="لوگوی مجموعه"
             helpText="تصویر مربعی با کیفیت، حداکثر ۵ مگابایت"
+            action={uploadOnboardingImageAction}
           />
 
           <div className="flex flex-col gap-4 sm:flex-row">

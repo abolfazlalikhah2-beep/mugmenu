@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { ImagePlus, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { uploadImageAction } from "@/features/uploads/routes/actions";
+import { uploadImageAction, type UploadImageResult } from "@/features/uploads/routes/actions";
 import type { UploadKind } from "@/features/uploads/services/upload-schemas";
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -19,6 +19,7 @@ export function ImageUploadField({
   className,
   boxClassName,
   onUrlChange,
+  action = uploadImageAction,
 }: {
   kind: UploadKind;
   name: string;
@@ -29,6 +30,8 @@ export function ImageUploadField({
   boxClassName?: string;
   /** Called with the new URL right after a successful upload — for callers that mirror it into a live preview. */
   onUrlChange?: (url: string) => void;
+  /** Defaults to uploadImageAction (requires an owned business) — onboarding's logo field passes uploadOnboardingImageAction instead, since the business doesn't exist yet at that point. */
+  action?: (kind: string, formData: FormData) => Promise<UploadImageResult>;
 }) {
   const [url, setUrl] = React.useState(defaultUrl ?? "");
   const [pending, setPending] = React.useState(false);
@@ -52,7 +55,7 @@ export function ImageUploadField({
     const formData = new FormData();
     formData.set("file", file);
     try {
-      const result = await uploadImageAction(kind, formData);
+      const result = await action(kind, formData);
       if (result.url) {
         setUrl(result.url);
         onUrlChange?.(result.url);
