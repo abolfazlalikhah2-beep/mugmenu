@@ -20,6 +20,11 @@ model Business {
   logoUrl              String?
   address              String?
   phone                String?
+  // Precise pin for the dashboard's Google Maps picker (Business Info tab)
+  // and the public menu's business-info-modal map embed — independent of
+  // the free-text `address` line above, which stays unvalidated/unparsed.
+  latitude             Float?
+  longitude            Float?
   description          String?
   isAcceptingOrders    Boolean  @default(true)
   acceptsDineIn        Boolean  @default(true)

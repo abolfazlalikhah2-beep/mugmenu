@@ -33,11 +33,21 @@ export const onboardingSchema = z.object({
     .transform((v) => (v ? v : undefined)),
 });
 
+const optionalCoordinate = (min: number, max: number) =>
+  z
+    .union([z.literal(""), z.coerce.number().min(min, "مختصات نامعتبر است.").max(max, "مختصات نامعتبر است.")])
+    .optional()
+    .transform((v) => (v === "" || v === undefined ? null : v));
+
 export const businessInfoSchema = z.object({
   name: z.string().trim().min(2, "نام مجموعه را کامل وارد کنید."),
   nameEn: z.string().trim().max(60).optional(),
   phone: z.string().trim().min(10, "شماره تماس معتبر نیست.").max(20),
   address: z.string().trim().min(3, "آدرس را کامل وارد کنید."),
+  // Google Maps pin (dashboard's LocationPicker) — null when the owner hasn't
+  // set a location yet, independent of the free-text address above.
+  latitude: optionalCoordinate(-90, 90),
+  longitude: optionalCoordinate(-180, 180),
 });
 
 const timeString = z.string().trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "قالب ساعت معتبر نیست.");

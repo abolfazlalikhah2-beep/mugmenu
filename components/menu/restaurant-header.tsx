@@ -20,6 +20,8 @@ export interface RestaurantHeaderProps {
   reviews: { customerName: string; rating: number; comment: string | null }[];
   logoUrl?: string | null;
   lang?: MenuLang;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export function RestaurantHeader({
@@ -32,6 +34,8 @@ export function RestaurantHeader({
   reviews,
   logoUrl,
   lang = "fa",
+  latitude,
+  longitude,
 }: RestaurantHeaderProps) {
   const [infoOpen, setInfoOpen] = React.useState(false);
   const t = menuCopy(lang);
@@ -75,6 +79,8 @@ export function RestaurantHeader({
         reviews={reviews}
         logoUrl={logoUrl}
         lang={lang}
+        latitude={latitude}
+        longitude={longitude}
       />
     </>
   );

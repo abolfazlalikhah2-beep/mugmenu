@@ -67,6 +67,8 @@ export async function updateBusinessInfoAction(
     nameEn: String(formData.get("nameEn") ?? ""),
     phone: String(formData.get("phone") ?? ""),
     address: String(formData.get("address") ?? ""),
+    latitude: String(formData.get("latitude") ?? ""),
+    longitude: String(formData.get("longitude") ?? ""),
   });
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/settings");

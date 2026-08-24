@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Input } from "@/components/ui/input";
 import { SettingsCard } from "@/components/dashboard/settings-card";
 import { BusinessHoursRow } from "@/components/dashboard/business-hours-row";
+import { LocationPicker } from "@/components/dashboard/location-picker";
 import {
   updateBusinessInfoAction,
   updateBusinessHoursAction,
@@ -17,6 +18,8 @@ export interface BusinessInfoFormValue {
   nameEn: string | null;
   phone: string | null;
   address: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 const initialState: ActionState = {};
@@ -24,9 +27,11 @@ const initialState: ActionState = {};
 export function BusinessInfoTab({
   business,
   hours,
+  googleMapsApiKey,
 }: {
   business: BusinessInfoFormValue;
   hours: DayHours[];
+  googleMapsApiKey?: string;
 }) {
   const [infoState, infoAction, infoPending] = useActionState(updateBusinessInfoAction, initialState);
   const [hoursState, hoursAction, hoursPending] = useActionState(updateBusinessHoursAction, initialState);
@@ -63,6 +68,14 @@ export function BusinessInfoTab({
             required
           />
           <Input name="address" label="آدرس" defaultValue={business.address ?? ""} required />
+          <div className="flex flex-col gap-2">
+            <label className="text-right text-[13px] font-light text-text-4">موقعیت روی نقشه</label>
+            <LocationPicker
+              apiKey={googleMapsApiKey}
+              latitude={business.latitude}
+              longitude={business.longitude}
+            />
+          </div>
         </SettingsCard>
 
         {infoState.error && <p className="text-right text-xs text-red-500">{infoState.error}</p>}

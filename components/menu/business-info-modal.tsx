@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Phone, MapPin } from "lucide-react";
+import { X, Phone, MapPin, ExternalLink } from "lucide-react";
 import { LogoBox } from "@/components/menu/logo-box";
 import { AcceptingOrdersLine } from "@/components/menu/status-line";
 import { MenuImage } from "@/components/menu/menu-image";
@@ -21,6 +21,36 @@ export interface BusinessInfoModalProps {
   reviews: { customerName: string; rating: number; comment: string | null }[];
   logoUrl?: string | null;
   lang?: MenuLang;
+  latitude?: number | null;
+  longitude?: number | null;
+}
+
+function LocationPreview({ latitude, longitude }: { latitude: number; longitude: number }) {
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const mapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+  if (apiKey) {
+    return (
+      <iframe
+        title="موقعیت روی نقشه"
+        src={`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}`}
+        className="h-[88px] w-[150px] shrink-0 rounded-[14px] border-0"
+        loading="lazy"
+      />
+    );
+  }
+
+  return (
+    <a
+      href={mapsUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex h-[88px] w-[150px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-[14px] bg-[#F2F2F2] text-xs font-medium text-brand"
+    >
+      <ExternalLink size={16} />
+      مشاهده در نقشه
+    </a>
+  );
 }
 
 function InfoRow({
@@ -58,6 +88,8 @@ export function BusinessInfoModal({
   reviews,
   logoUrl,
   lang = "fa",
+  latitude,
+  longitude,
 }: BusinessInfoModalProps) {
   if (!open) return null;
   const t = menuCopy(lang);
@@ -89,10 +121,11 @@ export function BusinessInfoModal({
                 <AcceptingOrdersLine isAcceptingOrders={isAcceptingOrders} lang={lang} />
               </div>
             </div>
-            <MenuImage
-              label="نقشه"
-              className="h-[88px] w-[150px] shrink-0 rounded-[14px]"
-            />
+            {latitude != null && longitude != null ? (
+              <LocationPreview latitude={latitude} longitude={longitude} />
+            ) : (
+              <MenuImage label="نقشه" className="h-[88px] w-[150px] shrink-0 rounded-[14px]" />
+            )}
           </div>
 
           <div className="flex flex-col gap-3">

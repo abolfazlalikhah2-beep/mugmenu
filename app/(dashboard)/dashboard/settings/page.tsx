@@ -28,6 +28,7 @@ export default async function SettingsPage() {
           products={products}
           featureKeys={featureSet ? [...featureSet.keys] : []}
           printerLimit={featureSet?.limits["printer.connection"] ?? null}
+          googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
         />
       </PanelContent>
     </>

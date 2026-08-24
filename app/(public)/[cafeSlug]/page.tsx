@@ -102,6 +102,8 @@ export default async function MenuEntryPage({
         reviews={recentReviews}
         logoUrl={business.logoUrl}
         lang={lang}
+        latitude={business.latitude}
+        longitude={business.longitude}
       />
       {walletSummary ? (
         <MenuWalletTeaser

@@ -20,6 +20,8 @@ export interface SettingsFormValue {
   nameEn: string | null;
   phone: string | null;
   address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   hours: DayHours[];
   acceptsDineIn: boolean;
   acceptsTakeaway: boolean;
@@ -53,12 +55,14 @@ export function SettingsView({
   products,
   featureKeys,
   printerLimit,
+  googleMapsApiKey,
 }: {
   business: SettingsFormValue;
   printers: PrinterFormValue[];
   products: ProductTranslationRow[];
   featureKeys: string[];
   printerLimit: string | null;
+  googleMapsApiKey?: string;
 }) {
   const hasPrinter = featureKeys.includes("printer.connection");
   const [tab, setTab] = useState(0);
@@ -87,7 +91,9 @@ export function SettingsView({
       </div>
 
       <div className="flex-1 overflow-y-auto pb-6">
-        {tab === 0 && <BusinessInfoTab business={business} hours={business.hours} />}
+        {tab === 0 && (
+          <BusinessInfoTab business={business} hours={business.hours} googleMapsApiKey={googleMapsApiKey} />
+        )}
         {tab === 1 && <MenuAppearanceTab business={business} />}
         {tab === 2 && <LanguageSettingsTab business={business} products={products} />}
         {tab === 3 && <OrderSettingsTab business={business} />}
