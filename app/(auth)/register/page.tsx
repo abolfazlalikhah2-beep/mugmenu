@@ -25,6 +25,7 @@ export default function RegisterPage() {
     >
       <AuthHeader title="ثبت نام" eyebrow="REGISTER" />
       <form action={formAction} className="flex flex-col gap-5">
+        <Input name="fullName" label="نام و نام خانوادگی" required />
         <Input
           name="phone"
           label="شماره تلفن همراه خود را وارد کنید"
@@ -33,7 +34,6 @@ export default function RegisterPage() {
           inputMode="numeric"
           required
         />
-        <Input name="fullName" label="نام و نام خانوادگی" required />
         <PasswordInput name="password" label="رمز عبور شما" required />
         <PasswordInput name="confirmPassword" label="تکرار رمز عبور" required />
         {state.error && <p className="text-right text-xs text-red-500">{state.error}</p>}

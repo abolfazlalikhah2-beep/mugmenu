@@ -4,12 +4,13 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/request-ip";
 import { logger } from "@/lib/logger";
 import * as otpRepository from "@/features/auth/repositories/otp-repository";
+import { MelipayamakOtpProvider } from "@/features/auth/services/otp-providers/melipayamak-provider";
 import type { OtpPurpose } from "@/lib/generated/prisma/enums";
 
 /**
- * SMS OTP provider is not chosen yet (see CLAUDE.md). Keep the send path
- * behind this interface so swapping in a real provider later doesn't touch
- * call sites.
+ * Keep the send path behind this interface so swapping providers doesn't
+ * touch call sites — see otp-providers/melipayamak-provider.ts for the real
+ * one used in production.
  */
 export interface OtpProvider {
   sendOtp(phone: string, code: string): Promise<{ success: boolean }>;
@@ -25,7 +26,15 @@ class MockOtpProvider implements OtpProvider {
 let provider: OtpProvider | null = null;
 
 function getOtpProvider(): OtpProvider {
-  if (!provider) provider = new MockOtpProvider();
+  if (!provider) {
+    const { MELIPAYAMAK_USERNAME, MELIPAYAMAK_PASSWORD, MELIPAYAMAK_BODY_ID } = process.env;
+    // Only send real SMS when Melipayamak is actually configured (production);
+    // local dev keeps logging the code via MockOtpProvider by default.
+    provider =
+      MELIPAYAMAK_USERNAME && MELIPAYAMAK_PASSWORD && MELIPAYAMAK_BODY_ID
+        ? new MelipayamakOtpProvider(MELIPAYAMAK_USERNAME, MELIPAYAMAK_PASSWORD, MELIPAYAMAK_BODY_ID)
+        : new MockOtpProvider();
+  }
   return provider;
 }
 
