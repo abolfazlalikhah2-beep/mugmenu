@@ -98,13 +98,18 @@ export function BusinessInfoModal({
   return (
     <div className="fixed inset-0 z-50 flex md:items-center md:justify-center md:bg-black/16">
       <div className="relative h-full w-full overflow-y-auto bg-card md:h-auto md:max-h-[85vh] md:w-[640px] md:rounded-card md:shadow-modal">
-        <div className="flex flex-col gap-4.5 p-6 pt-11 md:p-8">
+        {/* Top padding is set explicitly per-side (not via `p-*`) and sized to
+            clear the absolutely-positioned close button below at both
+            breakpoints — the map preview that follows used to be a plain
+            gray placeholder, but now that it's live map content it visibly
+            collided with the button without this clearance. */}
+        <div className="flex flex-col gap-4.5 px-6 pb-6 pt-16 md:px-8 md:pb-8 md:pt-[76px]">
           <button
             onClick={onClose}
             aria-label={t.close}
-            className="absolute top-6 left-5 text-[#969696] md:top-7 md:left-7"
+            className="absolute top-5 left-5 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#6B6B6B] shadow-float md:top-6 md:left-6"
           >
-            <X size={26} strokeWidth={1.6} />
+            <X size={20} strokeWidth={1.8} />
           </button>
 
           <div className="flex flex-wrap items-start justify-between gap-3.5">
