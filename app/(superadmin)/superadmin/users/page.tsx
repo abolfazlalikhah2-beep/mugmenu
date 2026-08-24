@@ -18,7 +18,10 @@ export default async function SuperAdminUsersPage() {
             id: u.id,
             fullName: u.fullName,
             phone: u.phone,
-            platformRole: u.platformRole!,
+            // platformRole is nullable in the DB (only set for isSuperAdmin
+            // users, but not enforced) — a superadmin row created without it
+            // (e.g. manual SQL bootstrap) must not crash the page.
+            platformRole: u.platformRole ?? "VIEWER",
             platformTeam: u.platformTeam,
             lastLoginAt: u.lastLoginAt,
             isActive: u.isActive,
