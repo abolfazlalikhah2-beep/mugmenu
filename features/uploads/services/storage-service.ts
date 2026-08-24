@@ -21,6 +21,11 @@ interface StorageConfig {
 }
 
 function readConfig(): StorageConfig {
+  console.log(
+    "S3 Config:",
+    Object.fromEntries(REQUIRED_ENV_VARS.map((name) => [name, Boolean(process.env[name])]))
+  );
+
   const missing = REQUIRED_ENV_VARS.filter((name) => !process.env[name]);
   if (missing.length > 0) {
     throw new Error(
@@ -43,13 +48,6 @@ let clientConfigKey = "";
 function getClient(config: StorageConfig): S3Client {
   const key = `${config.endpoint}:${config.accessKeyId}`;
   if (!client || clientConfigKey !== key) {
-    console.log('S3 Config:', {
-      endpoint: process.env.S3_ENDPOINT,
-      accessKey: process.env.S3_ACCESS_KEY,
-      secretKey: process.env.S3_SECRET_KEY?.substring(0, 4) + '...',
-      bucket: process.env.S3_BUCKET,
-      region: process.env.S3_REGION,
-    });
     client = new S3Client({
       endpoint: config.endpoint,
       region: config.region,
