@@ -76,7 +76,7 @@ export function CustomerDetailView({
 
       <div className="grid grid-cols-2 gap-[18px] rounded-[18px] border border-[#EFEFEF] bg-card p-[20px_22px] sm:grid-cols-3">
         <InfoItem label="صاحب امتیاز" value={owner?.fullName ?? "—"} />
-        <InfoItem label="شماره تماس" value={owner?.phone ?? "—"} ltr />
+        <InfoItem label="شماره تماس" value={business.phone ?? "—"} ltr />
         <InfoItem label="آدرس" value={business.address ?? "—"} />
         <InfoItem
           label="تاریخ عضویت"
