@@ -37,7 +37,7 @@ export function BusinessInfoTab({
   const [hoursState, hoursAction, hoursPending] = useActionState(updateBusinessHoursAction, initialState);
 
   return (
-    <div className="flex max-w-[720px] flex-col gap-[34px]">
+    <div className="grid grid-cols-1 items-start gap-[24px] md:grid-cols-2">
       <form action={infoAction} className="flex flex-col gap-[22px]">
         <SettingsCard title="اطلاعات فروشگاه" subtitle="این اطلاعات در صفحه عمومی منو نمایش داده می‌شود">
           <div className="flex flex-col gap-2">

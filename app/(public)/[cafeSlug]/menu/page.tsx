@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getCategoryBrowserData } from "@/features/menu/services/menu-service";
 import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
 import { businessHasFeature } from "@/features/plans/services/plan-service";
-import { menuCopy } from "@/features/menu/utils/menu-language";
+import { menuCopy, localizedName } from "@/features/menu/utils/menu-language";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { TopBar } from "@/components/menu/top-bar";
 import { CategoryBrowser } from "@/components/menu/category-browser";
@@ -33,7 +33,10 @@ export default async function CategoryListPage({
   return (
     <MenuPageShell dir={t.dir}>
       <OrderTypeSync type={type} />
-      <TopBar title={t.menuTitle} backHref={`/${cafeSlug}`} />
+      <TopBar
+        title={t.menuTitle(localizedName(lang, data.business.name, data.business.nameEn))}
+        backHref={`/${cafeSlug}`}
+      />
       <CategoryBrowser
         slug={cafeSlug}
         categories={data.categories}

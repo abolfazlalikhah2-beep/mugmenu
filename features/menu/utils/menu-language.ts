@@ -57,7 +57,7 @@ export const MENU_LANG_COPY = {
 
     // ===== shared =====
     toman: "تومان",
-    menuTitle: "منو",
+    menuTitle: (businessName: string) => `منوی ${businessName}`,
     cartTitle: "سبد خرید",
     orderTypeDineIn: "روی میز",
     orderTypeTakeaway: "بیرون‌بر",
@@ -271,7 +271,7 @@ export const MENU_LANG_COPY = {
 
     // ===== shared =====
     toman: "Toman",
-    menuTitle: "Menu",
+    menuTitle: (businessName: string) => `${businessName} Menu`,
     cartTitle: "Cart",
     orderTypeDineIn: "Dine in",
     orderTypeTakeaway: "Takeaway",
