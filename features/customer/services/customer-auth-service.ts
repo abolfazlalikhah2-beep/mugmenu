@@ -1,6 +1,10 @@
 import "server-only";
 import { logger } from "@/lib/logger";
-import { sendOtp as sendOtpSms, OtpRateLimitError } from "@/features/auth/services/otp-service";
+import {
+  sendOtp as sendOtpSms,
+  verifyOtp as verifyOtpSms,
+  OtpRateLimitError,
+} from "@/features/auth/services/otp-service";
 import * as repo from "@/features/customer/repositories/customer-repository";
 import { setCustomerAccountForSlug, clearCustomerSession } from "@/features/customer/services/customer-session-service";
 import { sendOtpSchema, verifyOtpSchema } from "@/features/customer/services/customer-schemas";
@@ -20,7 +24,7 @@ export async function sendOtp(input: unknown): Promise<ServiceResult> {
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
 
   try {
-    await sendOtpSms(parsed.data.phone);
+    await sendOtpSms(parsed.data.phone, "CUSTOMER_LOGIN");
   } catch (e) {
     if (e instanceof OtpRateLimitError) return { ok: false, error: e.message };
     throw e;
@@ -31,14 +35,16 @@ export async function sendOtp(input: unknown): Promise<ServiceResult> {
 export async function verifyOtp(input: unknown): Promise<ServiceResult> {
   const parsed = verifyOtpSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
-  const { slug, phone } = parsed.data;
+  const { slug, phone, code } = parsed.data;
 
   const business = await repo.findBusinessBySlug(slug);
   if (!business) return { ok: false, error: "کسب‌وکار پیدا نشد." };
 
-  // TODO: check `code` against the OTP the provider actually sent, once a
-  // real SMS provider is connected — same stub as
-  // features/auth/services/auth-service.ts's verifyOtp.
+  const isValid = await verifyOtpSms(phone, "CUSTOMER_LOGIN", code);
+  if (!isValid) {
+    return { ok: false, error: "کد تایید نامعتبر یا منقضی شده است." };
+  }
+
   let account = await repo.findAccountByPhone(business.id, phone);
   if (!account) {
     account = await repo.createAccount({ businessId: business.id, phone, fullName: "مشتری" });

@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 import { checkRateLimit } from "@/lib/rate-limit";
 import * as userRepository from "@/features/auth/repositories/user-repository";
 import { createSession } from "@/features/auth/services/session-service";
-import { sendOtp, OtpRateLimitError } from "@/features/auth/services/otp-service";
+import { sendOtp, verifyOtp as verifyOtpCode, OtpRateLimitError } from "@/features/auth/services/otp-service";
 import {
   loginSchema,
   registerSchema,
@@ -72,7 +72,7 @@ export async function register(input: unknown): Promise<ServiceResult> {
   // TODO: gate the account as unverified until the OTP is actually checked,
   // once a real SMS provider is connected.
   try {
-    await sendOtp(phone);
+    await sendOtp(phone, "REGISTER");
   } catch (e) {
     if (e instanceof OtpRateLimitError) return { ok: false, error: e.message };
     throw e;
@@ -84,7 +84,7 @@ export async function forgotPassword(input: unknown): Promise<ServiceResult> {
   const parsed = forgotPasswordSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   try {
-    await sendOtp(parsed.data.phone);
+    await sendOtp(parsed.data.phone, "RESET");
   } catch (e) {
     if (e instanceof OtpRateLimitError) return { ok: false, error: e.message };
     throw e;
@@ -97,11 +97,15 @@ export async function verifyOtp(
 ): Promise<ServiceResult & { purpose?: "register" | "reset" }> {
   const parsed = verifyOtpSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
-  const { phone, purpose } = parsed.data;
+  const { phone, purpose, code } = parsed.data;
 
-  // TODO: check `code` against the OTP the provider actually sent, once a
-  // real SMS provider is connected.
+  const isValid = await verifyOtpCode(phone, purpose === "reset" ? "RESET" : "REGISTER", code);
+  if (!isValid) {
+    return { ok: false, error: "کد تایید نامعتبر یا منقضی شده است." };
+  }
+
   if (purpose === "reset") {
+    logger.info("auth.verified", { phone, purpose });
     return { ok: true, purpose: "reset" };
   }
   await createSession(phone);

@@ -31,7 +31,7 @@ export function VerifyForm({
 
   function handleResend() {
     startResend(async () => {
-      const result = await resendOtpAction(phone);
+      const result = await resendOtpAction(phone, purpose);
       if (result.error) {
         setResendError(result.error);
         return;

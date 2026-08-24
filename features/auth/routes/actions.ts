@@ -50,9 +50,9 @@ export async function forgotPasswordAction(
   redirect(`/verify?phone=${encodeURIComponent(phone)}&purpose=reset`);
 }
 
-export async function resendOtpAction(phone: string) {
+export async function resendOtpAction(phone: string, purpose: "register" | "reset") {
   try {
-    await sendOtp(phone);
+    await sendOtp(phone, purpose === "reset" ? "RESET" : "REGISTER");
   } catch (e) {
     if (e instanceof OtpRateLimitError) return { error: e.message };
     throw e;

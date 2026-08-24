@@ -239,6 +239,27 @@ model User {
   assignedTickets Ticket[] @relation("TicketAssignedAgent")
 }
 
+enum OtpPurpose {
+  REGISTER
+  RESET
+  CUSTOMER_LOGIN
+}
+
+// Staff phone+password login's OTP step (register/forgot-password —
+// features/auth/services/otp-service.ts). Not the same as the public menu's
+// customer OTP (CustomerAccount is a separate identity, see its comment).
+model OtpCode {
+  id         String     @id @default(cuid())
+  phone      String
+  purpose    OtpPurpose
+  codeHash   String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime   @default(now())
+
+  @@index([phone, purpose])
+}
+
 model Category {
   id         String   @id @default(cuid())
   businessId String
@@ -799,6 +820,7 @@ model PaymentRequest {
   assignedCardId  String
   assignedCard    PaymentCard          @relation(fields: [assignedCardId], references: [id])
   referenceNumber String?
+  screenshotUrl   String?
   status          PaymentRequestStatus @default(PENDING)
   notes           String?
   createdAt       DateTime             @default(now())
