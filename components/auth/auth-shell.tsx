@@ -2,7 +2,7 @@ import Image from "next/image";
 
 function BrandPanel() {
   return (
-    <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-[#12833f] py-8 md:w-[55%] md:items-start md:justify-center md:rounded-tr-[82px] md:rounded-br-[82px] md:p-16">
+    <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-[#12833f] py-8 md:w-[55%] md:items-center md:justify-center md:rounded-tr-[82px] md:rounded-br-[82px] md:p-16">
       <Image src="/brand/green-gradient.png" alt="" fill priority className="object-cover" />
       <div className="relative z-10 flex flex-col items-center md:items-start">
         {/* logo-magmenu-white.png already bakes in the tagline under the
