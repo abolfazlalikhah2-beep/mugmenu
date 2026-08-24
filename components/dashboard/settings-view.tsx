@@ -56,6 +56,7 @@ export function SettingsView({
   featureKeys,
   printerLimit,
   googleMapsApiKey,
+  menuUrl,
 }: {
   business: SettingsFormValue;
   printers: PrinterFormValue[];
@@ -63,6 +64,7 @@ export function SettingsView({
   featureKeys: string[];
   printerLimit: string | null;
   googleMapsApiKey?: string;
+  menuUrl: string;
 }) {
   const hasPrinter = featureKeys.includes("printer.connection");
   const [tab, setTab] = useState(0);
@@ -97,7 +99,7 @@ export function SettingsView({
         {tab === 1 && <MenuAppearanceTab business={business} />}
         {tab === 2 && <LanguageSettingsTab business={business} products={products} />}
         {tab === 3 && <OrderSettingsTab business={business} />}
-        {tab === 4 && <QrSettingsTab business={business} />}
+        {tab === 4 && <QrSettingsTab business={business} menuUrl={menuUrl} />}
         {tab === 5 && (
           <UpgradeGate allowed={hasPrinter} title="اتصال پرینتر در پلن شما موجود نیست">
             <PrinterSettingsTab printers={printers} limit={printerLimit} />

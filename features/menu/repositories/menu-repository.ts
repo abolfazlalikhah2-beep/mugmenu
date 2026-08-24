@@ -35,10 +35,34 @@ export function getBusinessAccentColor(slug: string) {
   return prisma.business.findUnique({ where: { slug }, select: { accentColor: true } });
 }
 
-/** slugs for sitemap.xml — isSuspended is this schema's "active/inactive" flag, there's no separate isActive column. */
+/** CafeLayout's generateMetadata + JSON-LD — slug/planKey/customDomain are for getMenuUrl's canonical URL. Memoized per-request like getBusiness above. */
+export const getBusinessSeoInfo = cache((slug: string) => {
+  return prisma.business.findUnique({
+    where: { slug },
+    select: {
+      slug: true,
+      name: true,
+      description: true,
+      address: true,
+      logoUrl: true,
+      customDomain: true,
+      plan: { select: { key: true } },
+    },
+  });
+});
+
+/** For sitemap.xml's per-business canonical URL (see getMenuUrl) — isSuspended is this schema's "active/inactive" flag, there's no separate isActive column. */
 export function getActiveBusinessSlugs() {
   return prisma.business.findMany({
     where: { isSuspended: false },
+    select: { slug: true, customDomain: true, plan: { select: { key: true } } },
+  });
+}
+
+/** Custom-domain routing (menu-order/menu-advanced plans) — see proxy.ts. Excludes suspended businesses like every other public-menu lookup. */
+export function getBusinessSlugByCustomDomain(customDomain: string) {
+  return prisma.business.findFirst({
+    where: { customDomain, isSuspended: false },
     select: { slug: true },
   });
 }

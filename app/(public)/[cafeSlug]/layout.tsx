@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { CartProvider } from "@/features/menu/client/cart-context";
 import { getBusinessAccentColor, getBusinessSeoData } from "@/features/menu/services/menu-service";
 import { darkenColor, isValidHexColor } from "@/features/menu/utils/theme-color";
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+import { getMenuUrl } from "@/lib/menu-url";
 
 export async function generateMetadata({
   params,
@@ -15,14 +14,17 @@ export async function generateMetadata({
   if (!business) return {};
 
   const description = business.description || business.address || undefined;
+  const canonicalUrl = getMenuUrl(business);
 
   return {
     title: business.name,
     description,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: business.name,
       description,
       type: "website",
+      url: canonicalUrl,
       images: business.logoUrl ? [business.logoUrl] : undefined,
     },
   };
@@ -55,7 +57,7 @@ export default async function CafeLayout({
     "@type": "Restaurant",
     name: business.name,
     image: business.logoUrl ?? undefined,
-    url: `${BASE_URL}/${cafeSlug}`,
+    url: getMenuUrl(business),
     address: business.address ? { "@type": "PostalAddress", streetAddress: business.address } : undefined,
   };
 

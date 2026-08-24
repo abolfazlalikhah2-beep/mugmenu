@@ -35,16 +35,13 @@ function ToggleRow({
   );
 }
 
-export function QrSettingsTab({ business }: { business: QrSettingsFormValue }) {
+export function QrSettingsTab({ business, menuUrl }: { business: QrSettingsFormValue; menuUrl: string }) {
   const [state, formAction, pending] = useActionState(updateQrSettingsAction, initialState);
   const [showInfo, setShowInfo] = useState(business.qrShowInfo);
   const [showHours, setShowHours] = useState(business.qrShowHours);
   const [showLogo, setShowLogo] = useState(business.qrShowLogo);
   const [downloading, setDownloading] = useState<"png" | "pdf" | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-
-  const publicUrl =
-    typeof window !== "undefined" ? `${window.location.origin}/${business.slug}` : `/${business.slug}`;
 
   async function handleDownloadPng() {
     if (!cardRef.current) return;
@@ -86,7 +83,7 @@ export function QrSettingsTab({ business }: { business: QrSettingsFormValue }) {
         <QrCard
           ref={cardRef}
           business={business}
-          publicUrl={publicUrl}
+          publicUrl={menuUrl}
           showInfo={showInfo}
           showHours={showHours}
           showLogo={showLogo}

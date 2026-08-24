@@ -26,6 +26,14 @@ export function getBusinessWithPlan(id: string) {
   return prisma.business.findUnique({ where: { id }, include: { plan: true } });
 }
 
+/** For getMenuUrl() call sites (ProfileCard's "مشاهده منو" link, QR settings) that only need the URL, not the full business row. */
+export function getBusinessMenuUrlInfo(id: string) {
+  return prisma.business.findUnique({
+    where: { id },
+    select: { slug: true, customDomain: true, plan: { select: { key: true } } },
+  });
+}
+
 export function updateBusiness(id: string, data: Record<string, unknown>) {
   return prisma.business.update({ where: { id }, data });
 }

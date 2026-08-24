@@ -1,6 +1,6 @@
 import { Receipt, Users, Wallet } from "lucide-react";
 import { requireBusinessOwner } from "@/features/auth/services/authorize";
-import { getBusiness } from "@/features/dashboard/services/settings-service";
+import { getBusiness, getBusinessMenuUrl } from "@/features/dashboard/services/settings-service";
 import { getDashboardStats, getBusyHours, getCategorySummary } from "@/features/dashboard/services/stats-service";
 import { getRecentOrders } from "@/features/dashboard/services/order-mgmt-service";
 import { businessHasFeature } from "@/features/plans/services/plan-service";
@@ -21,12 +21,13 @@ export default async function DashboardHomePage() {
   const business = await getBusiness(businessId);
   if (!business) notFound();
 
-  const [stats, busyHours, recentOrders, categorySummary, hasManualEntry] = await Promise.all([
+  const [stats, busyHours, recentOrders, categorySummary, hasManualEntry, menuUrl] = await Promise.all([
     getDashboardStats(businessId),
     getBusyHours(businessId),
     getRecentOrders(businessId, 5),
     getCategorySummary(businessId),
     businessHasFeature(businessId, "order.manual_entry"),
+    getBusinessMenuUrl(businessId),
   ]);
 
   return (
@@ -85,7 +86,7 @@ export default async function DashboardHomePage() {
             />
           </div>
           <div className="flex min-w-0 flex-col gap-[22px]">
-            <ProfileCard name={business.name} slug={business.slug} address={business.address} />
+            <ProfileCard name={business.name} slug={business.slug} address={business.address} menuUrl={menuUrl ?? `/${business.slug}`} />
             <CategorySummary
               totalSales={categorySummary.totalSales}
               topProducts={categorySummary.topProducts}

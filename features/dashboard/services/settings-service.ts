@@ -1,5 +1,6 @@
 import "server-only";
 import { logger } from "@/lib/logger";
+import { getMenuUrl } from "@/lib/menu-url";
 import * as repo from "@/features/dashboard/repositories/dashboard-repository";
 import {
   businessInfoSchema,
@@ -15,6 +16,12 @@ export type ServiceResult = { ok: true } | { ok: false; error: string };
 
 export function getBusiness(businessId: string) {
   return repo.getBusinessById(businessId);
+}
+
+export async function getBusinessMenuUrl(businessId: string): Promise<string | null> {
+  const info = await repo.getBusinessMenuUrlInfo(businessId);
+  if (!info) return null;
+  return getMenuUrl({ slug: info.slug, planKey: info.plan.key, customDomain: info.customDomain });
 }
 
 export async function updateBusinessInfo(businessId: string, input: unknown): Promise<ServiceResult> {

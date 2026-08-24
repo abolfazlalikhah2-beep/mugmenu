@@ -31,30 +31,44 @@ export async function getBusinessAccentColor(slug: string) {
 }
 
 export interface BusinessSeoData {
+  slug: string;
   name: string;
   description: string | null;
   address: string | null;
   logoUrl: string | null;
+  planKey: string;
+  customDomain: string | null;
 }
 
-/** Backs the cafe layout's generateMetadata + JSON-LD — repo.getBusiness is request-memoized (React cache()), so calling this from both doesn't cost a second query. */
+/** Backs the cafe layout's generateMetadata + JSON-LD (including the canonical URL via getMenuUrl) — repo.getBusinessSeoInfo is request-memoized (React cache()). */
 export async function getBusinessSeoData(slug: string): Promise<BusinessSeoData | null> {
-  const business = await repo.getBusiness(slug);
+  const business = await repo.getBusinessSeoInfo(slug);
   if (!business) return null;
   return {
+    slug: business.slug,
     name: business.name,
     description: business.description,
     address: business.address,
     logoUrl: business.logoUrl,
+    planKey: business.plan.key,
+    customDomain: business.customDomain,
   };
 }
 
 export interface SitemapBusiness {
   slug: string;
+  planKey: string;
+  customDomain: string | null;
 }
 
-export function getSitemapBusinesses(): Promise<SitemapBusiness[]> {
-  return repo.getActiveBusinessSlugs();
+export async function getSitemapBusinesses(): Promise<SitemapBusiness[]> {
+  const businesses = await repo.getActiveBusinessSlugs();
+  return businesses.map((b) => ({ slug: b.slug, planKey: b.plan.key, customDomain: b.customDomain }));
+}
+
+/** Custom-domain routing (menu-order/menu-advanced plans) — see proxy.ts. */
+export function findSlugByCustomDomain(customDomain: string) {
+  return repo.getBusinessSlugByCustomDomain(customDomain);
 }
 
 export async function getCategoryBrowserData(slug: string) {

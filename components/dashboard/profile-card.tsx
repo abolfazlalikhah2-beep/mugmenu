@@ -7,10 +7,12 @@ export function ProfileCard({
   name,
   slug,
   address,
+  menuUrl,
 }: {
   name: string;
   slug: string;
   address: string | null;
+  menuUrl: string;
 }) {
   return (
     <div className="flex flex-col gap-4 rounded-[22px] bg-card p-6 shadow-[0px_8px_17.5px_rgba(0,0,0,0.03)]">
@@ -31,7 +33,7 @@ export function ProfileCard({
           </div>
         </div>
         <Link
-          href={`/${slug}`}
+          href={menuUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-[#E3E3E3] px-3 text-xs font-medium text-text-1 transition-colors hover:bg-[#F6F6F6]"

@@ -4,14 +4,27 @@ import { PaymentHistoryRow } from "@/components/superadmin/payment-history-row";
 import { CustomerDetailActions } from "@/components/superadmin/customer-detail-actions";
 import { computePlanStatus } from "@/features/dashboard/services/plan-status";
 import type { CustomerDetail } from "@/features/superadmin/services/customer-service";
+import { getMenuUrl } from "@/lib/menu-url";
 
-function InfoItem({ label, value, ltr }: { label: string; value: string; ltr?: boolean }) {
+function InfoItem({ label, value, ltr, href }: { label: string; value: string; ltr?: boolean; href?: string }) {
   return (
     <div className="flex flex-col gap-1.5 text-right">
       <span className="text-xs font-light text-text-3">{label}</span>
-      <span dir={ltr ? "ltr" : undefined} className="text-right text-sm font-medium">
-        {value}
-      </span>
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          dir={ltr ? "ltr" : undefined}
+          className="text-right text-sm font-medium text-brand underline-offset-2 hover:underline"
+        >
+          {value}
+        </a>
+      ) : (
+        <span dir={ltr ? "ltr" : undefined} className="text-right text-sm font-medium">
+          {value}
+        </span>
+      )}
     </div>
   );
 }
@@ -69,7 +82,12 @@ export function CustomerDetailView({
           label="تاریخ عضویت"
           value={business.createdAt.toLocaleDateString("fa-IR", { day: "2-digit", month: "long", year: "numeric" })}
         />
-        <InfoItem label="شناسه پنل" value={business.slug} ltr />
+        <InfoItem
+          label="شناسه پنل"
+          value={business.slug}
+          ltr
+          href={getMenuUrl({ slug: business.slug, planKey: business.plan.key, customDomain: business.customDomain })}
+        />
         <InfoItem label="آخرین ورود" value={owner?.lastLoginAt?.toLocaleString("fa-IR", { dateStyle: "short", timeStyle: "short" }) ?? "—"} />
       </div>
 
