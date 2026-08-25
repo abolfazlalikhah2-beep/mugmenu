@@ -135,10 +135,15 @@ export function updateBusinessDemo(businessId: string, isDemoActive: boolean, de
   return prisma.business.update({ where: { id: businessId }, data: { isDemoActive, demoExpiresAt } });
 }
 
-export function renewSubscriptionManually(businessId: string, amount: number, planName: string) {
+export function renewSubscriptionManually(
+  businessId: string,
+  amount: number,
+  planName: string,
+  billingCycle: "MONTHLY" | "ANNUAL"
+) {
   const now = new Date();
   const expiresAt = new Date(now);
-  expiresAt.setDate(expiresAt.getDate() + 30);
+  expiresAt.setDate(expiresAt.getDate() + (billingCycle === "ANNUAL" ? 365 : 30));
 
   return prisma.$transaction([
     prisma.business.update({

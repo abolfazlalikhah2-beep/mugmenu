@@ -42,7 +42,9 @@ export function PlanCard({
           </div>
           <div className="mt-1.5 text-[28px] font-extrabold sm:text-[34px]">
             {formatToman(priceToman)}
-            <span className="mr-1.5 text-sm font-light opacity-85">تومان / ماهانه</span>
+            <span className="mr-1.5 text-sm font-light opacity-85">
+              تومان / {billingCycle === "ANNUAL" ? "سالانه" : "ماهانه"}
+            </span>
           </div>
         </div>
         <span className="rounded-[9px] bg-white px-3 py-[5px] text-xs font-medium text-[#0F7A3B]">

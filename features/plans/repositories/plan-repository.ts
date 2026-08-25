@@ -24,5 +24,12 @@ export async function getBusinessPlanState(businessId: string) {
 }
 
 export function updateBusinessPlan(businessId: string, planId: string, billingCycle: "MONTHLY" | "ANNUAL") {
-  return prisma.business.update({ where: { id: businessId }, data: { planId, billingCycle } });
+  const planStartedAt = new Date();
+  const planExpiresAt = new Date(planStartedAt);
+  planExpiresAt.setDate(planExpiresAt.getDate() + (billingCycle === "ANNUAL" ? 365 : 30));
+
+  return prisma.business.update({
+    where: { id: businessId },
+    data: { planId, billingCycle, planStartedAt, planExpiresAt },
+  });
 }

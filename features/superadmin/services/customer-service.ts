@@ -88,7 +88,7 @@ export async function renewSubscription(businessId: string): Promise<ServiceResu
   if (!business) return { ok: false, error: "کسب‌وکار پیدا نشد." };
 
   const amount = priceForCycle(business.plan, business.billingCycle);
-  await repo.renewSubscriptionManually(businessId, amount, business.plan.name);
+  await repo.renewSubscriptionManually(businessId, amount, business.plan.name, business.billingCycle);
   logger.info("superadmin.subscription_renewed", { businessId });
   return { ok: true };
 }
