@@ -42,23 +42,15 @@ function readConfig(): StorageConfig {
   };
 }
 
-let client: S3Client | null = null;
-let clientConfigKey = "";
-
 function getClient(config: StorageConfig): S3Client {
-  const key = `${config.endpoint}:${config.accessKeyId}`;
-  if (!client || clientConfigKey !== key) {
-    client = new S3Client({
-      endpoint: config.endpoint,
-      region: config.region,
-      credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
-      // Required for MinIO and most S3-compatible providers, which serve
-      // buckets at <endpoint>/<bucket>/<key> rather than <bucket>.<endpoint>.
-      forcePathStyle: true,
-    });
-    clientConfigKey = key;
-  }
-  return client;
+  return new S3Client({
+    endpoint: config.endpoint,
+    region: config.region,
+    credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
+    // Required for MinIO and most S3-compatible providers, which serve
+    // buckets at <endpoint>/<bucket>/<key> rather than <bucket>.<endpoint>.
+    forcePathStyle: true,
+  });
 }
 
 export interface UploadImageInput {
