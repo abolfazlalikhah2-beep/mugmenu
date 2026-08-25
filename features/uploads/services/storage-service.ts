@@ -1,6 +1,7 @@
 import "server-only";
 import { randomUUID } from "crypto";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { logger } from "@/lib/logger";
 
 /**
  * S3-compatible object storage (MinIO locally, ArvanCloud/Liara/etc. in
@@ -116,6 +117,20 @@ export async function uploadImage(input: UploadImageInput): Promise<string> {
       })
     );
   } catch (e) {
+    const err = e as {
+      name?: string;
+      Code?: string;
+      $fault?: string;
+      $metadata?: { httpStatusCode?: number; requestId?: string };
+      message?: string;
+    };
+    logger.error("uploads.s3_raw_error", {
+      errorName: err?.name,
+      errorCode: err?.Code || err?.$fault,
+      httpStatus: err?.$metadata?.httpStatusCode,
+      requestId: err?.$metadata?.requestId,
+      message: err?.message,
+    });
     throw new Error(`آپلود به فضای ذخیره‌سازی S3 با خطا مواجه شد: ${describeUploadError(e)}`);
   }
 
