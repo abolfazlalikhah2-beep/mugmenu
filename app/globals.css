@@ -43,3 +43,24 @@ body {
   background: var(--color-page);
   color: var(--color-ink);
 }
+
+/* Marketing hero mockup animations (components/marketing) */
+@keyframes svfloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+@keyframes svtoast {
+  0% {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
