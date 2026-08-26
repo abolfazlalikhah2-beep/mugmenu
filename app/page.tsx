@@ -5,6 +5,12 @@ import { findUserByPhone } from "@/features/auth/repositories/user-repository";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { HeroSection } from "@/components/marketing/hero-section";
 import { AdminPanelSection } from "@/components/marketing/admin-panel-section";
+import { HowItWorks } from "@/components/marketing/how-it-works";
+import { FeaturesGrid } from "@/components/marketing/features-grid";
+import { PricingSection } from "@/components/marketing/pricing-section";
+import { FaqSection } from "@/components/marketing/faq-section";
+import { CtaSection } from "@/components/marketing/cta-section";
+import { SiteFooter } from "@/components/marketing/site-footer";
 import { StructuredData } from "@/components/marketing/structured-data";
 
 export const metadata: Metadata = {
@@ -32,8 +38,14 @@ export default async function Home() {
         <SiteHeader />
         <main>
           <HeroSection />
+          <HowItWorks />
           <AdminPanelSection />
+          <FeaturesGrid />
+          <PricingSection />
+          <FaqSection />
+          <CtaSection />
         </main>
+        <SiteFooter />
       </>
     );
   }
