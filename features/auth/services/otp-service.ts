@@ -23,18 +23,17 @@ class MockOtpProvider implements OtpProvider {
   }
 }
 
-let provider: OtpProvider | null = null;
-
 function getOtpProvider(): OtpProvider {
-  if (!provider) {
-    const { MELIPAYAMAK_USERNAME, MELIPAYAMAK_PASSWORD, MELIPAYAMAK_BODY_ID } = process.env;
-    // Only send real SMS when Melipayamak is actually configured (production);
-    // local dev keeps logging the code via MockOtpProvider by default.
-    provider =
-      MELIPAYAMAK_USERNAME && MELIPAYAMAK_PASSWORD && MELIPAYAMAK_BODY_ID
-        ? new MelipayamakOtpProvider(MELIPAYAMAK_USERNAME, MELIPAYAMAK_PASSWORD, MELIPAYAMAK_BODY_ID)
-        : new MockOtpProvider();
-  }
+  const { MELIPAYAMAK_USERNAME, MELIPAYAMAK_PASSWORD, MELIPAYAMAK_BODY_ID } = process.env;
+  // Only send real SMS when Melipayamak is actually configured (production);
+  // local dev keeps logging the code via MockOtpProvider by default.
+  // Re-read env vars and construct fresh on every call (no cached singleton)
+  // so a config change takes effect without a process restart.
+  const provider =
+    MELIPAYAMAK_USERNAME && MELIPAYAMAK_PASSWORD && MELIPAYAMAK_BODY_ID
+      ? new MelipayamakOtpProvider(MELIPAYAMAK_USERNAME, MELIPAYAMAK_PASSWORD, MELIPAYAMAK_BODY_ID)
+      : new MockOtpProvider();
+  logger.info("otp.provider", { type: provider instanceof MelipayamakOtpProvider ? "real" : "mock" });
   return provider;
 }
 
