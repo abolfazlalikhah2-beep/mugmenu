@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { verifyOtpAction, resendOtpAction, type AuthActionState } from "@/features/auth/routes/actions";
 
 const initialState: AuthActionState = {};
-const RESEND_SECONDS = 60;
+const RESEND_SECONDS = 120;
 
 export function VerifyForm({
   phone,
