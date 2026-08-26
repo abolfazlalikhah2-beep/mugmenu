@@ -27,19 +27,19 @@ function readConfig(): StorageConfig {
     Object.fromEntries(REQUIRED_ENV_VARS.map((name) => [name, Boolean(process.env[name])]))
   );
 
-  const missing = REQUIRED_ENV_VARS.filter((name) => !process.env[name]);
+  const missing = REQUIRED_ENV_VARS.filter((name) => !process.env[name]?.trim());
   if (missing.length > 0) {
     throw new Error(
       `آپلود تصویر پیکربندی نشده است. این متغیرهای محیطی را در .env تنظیم کنید: ${missing.join(", ")}`
     );
   }
   return {
-    endpoint: process.env.S3_ENDPOINT!,
-    accessKeyId: process.env.S3_ACCESS_KEY!,
-    secretAccessKey: process.env.S3_SECRET_KEY!,
-    bucket: process.env.S3_BUCKET!,
-    region: process.env.S3_REGION || "us-east-1",
-    publicUrl: process.env.S3_PUBLIC_URL || undefined,
+    endpoint: process.env.S3_ENDPOINT!.trim(),
+    accessKeyId: process.env.S3_ACCESS_KEY!.trim(),
+    secretAccessKey: process.env.S3_SECRET_KEY!.trim(),
+    bucket: process.env.S3_BUCKET!.trim(),
+    region: (process.env.S3_REGION || "us-east-1").trim(),
+    publicUrl: process.env.S3_PUBLIC_URL?.trim() || undefined,
   };
 }
 
