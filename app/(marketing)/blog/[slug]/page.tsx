@@ -6,6 +6,8 @@ import { CtaSection } from "@/components/marketing/cta-section";
 import { BlogPostArticle } from "@/components/marketing/blog-post-article";
 import { getPublishedPostBySlug } from "@/features/blog/services/blog-service";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({
   params,
 }: {

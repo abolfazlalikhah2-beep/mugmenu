@@ -7,6 +7,8 @@ import { BlogSection } from "@/components/marketing/blog-section";
 import { getPublishedPosts, getPublicCategories, getPublicTags } from "@/features/blog/services/blog-service";
 import type { BlogGridPost } from "@/components/marketing/blog-grid";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "بلاگ ماگ‌منو — راهنمای منوی دیجیتال و مدیریت رستوران",
   description:
