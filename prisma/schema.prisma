@@ -938,3 +938,71 @@ model ContactMessage {
 
   @@index([createdAt])
 }
+
+// Blog/article content managed from the super-admin panel
+// (features/blog) and served on the public marketing site's /blog pages.
+// slug is separate from id (a cuid) so URLs never carry the raw Persian
+// title — see the CLAUDE.md note on why an id must never be user-facing text.
+model BlogPost {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  excerpt     String     @db.Text
+  content     String     @db.Text
+  coverImage  String?
+  status      PostStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // SEO
+  seoTitle       String?
+  seoDescription String?
+  seoNoIndex     Boolean @default(false)
+  canonicalUrl   String?
+
+  // Relations
+  categories BlogPostCategory[]
+  tags       BlogPostTag[]
+
+  @@index([status, publishedAt])
+}
+
+model BlogCategory {
+  id    String             @id @default(cuid())
+  name  String             @unique
+  slug  String             @unique
+  posts BlogPostCategory[]
+}
+
+model BlogTag {
+  id    String        @id @default(cuid())
+  name  String        @unique
+  slug  String        @unique
+  posts BlogPostTag[]
+}
+
+model BlogPostCategory {
+  postId     String
+  categoryId String
+  post       BlogPost     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category   BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([postId, categoryId])
+  @@index([categoryId])
+}
+
+model BlogPostTag {
+  postId String
+  tagId  String
+  post   BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    BlogTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@index([tagId])
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}

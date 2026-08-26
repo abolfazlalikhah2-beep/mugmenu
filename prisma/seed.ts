@@ -58,6 +58,119 @@ async function seedPlans(): Promise<Record<PlanKey, SeededPlan>> {
   return plansByKey;
 }
 
+/**
+ * Three sample published posts so the /blog listing, the demo post page,
+ * and the marketing pages that link to them (about page's blog preview,
+ * site footer) all have real content instead of 404s.
+ */
+async function seedBlog() {
+  const categoryDefs = [
+    { name: "منوی دیجیتال", slug: "digital-menu" },
+    { name: "مدیریت سفارش", slug: "order-management" },
+    { name: "آموزش پنل", slug: "panel-guide" },
+  ];
+  const categories: Record<string, string> = {};
+  for (const c of categoryDefs) {
+    const created = await prisma.blogCategory.upsert({ where: { slug: c.slug }, update: { name: c.name }, create: c });
+    categories[c.name] = created.id;
+  }
+
+  const tagDefs = [
+    { name: "منوی QR", slug: "qr-menu" },
+    { name: "سفارش‌گیری", slug: "ordering" },
+    { name: "راه‌اندازی", slug: "setup" },
+  ];
+  const tags: Record<string, string> = {};
+  for (const t of tagDefs) {
+    const created = await prisma.blogTag.upsert({ where: { slug: t.slug }, update: { name: t.name }, create: t });
+    tags[t.name] = created.id;
+  }
+
+  const postDefs = [
+    {
+      slug: "digital-menu-qr-code",
+      title: "چرا رستوران شما به منوی QR نیاز دارد؟",
+      excerpt:
+        "منوی کاغذی دیگر پاسخگوی نیاز رستوران‌های امروز نیست؛ در این مقاله می‌بینیم منوی QR چه مشکلاتی را حل می‌کند و راه‌اندازی آن با ماگ‌منو چقدر ساده است.",
+      content: [
+        "منوی کاغذی سال‌هاست بخش جدایی‌ناپذیر رستوران‌هاست، اما با تغییر عادت مشتری‌ها و رشد سفارش آنلاین، این روش دیگر پاسخگوی نیاز کسب‌وکارهای غذایی نیست. منوی QR راهی ساده و کم‌هزینه برای دیجیتال‌کردن تجربه‌ی سفارش است.",
+        "منوی کاغذی چه مشکلاتی دارد؟ هر بار که قیمت‌ها تغییر می‌کند یا آیتمی به منو اضافه می‌شود، باید کل منو دوباره چاپ شود. این یعنی هزینه‌ی مداوم و منویی که همیشه کمی عقب‌تر از واقعیت است. از طرفی منوی کاغذی هیچ داده‌ای درباره‌ی رفتار مشتری در اختیار شما نمی‌گذارد.",
+        "منوی QR چطور کمک می‌کند؟ با منوی QR مشتری تنها با اسکن یک کد، منوی همیشه به‌روز شما را در مرورگر گوشی‌اش می‌بیند؛ بدون نیاز به نصب هیچ اپلیکیشنی. تغییر قیمت یا افزودن آیتم جدید در لحظه اعمال می‌شود و دیگر خبری از چاپ دوباره نیست.",
+        "رستوران‌هایی که به منوی دیجیتال مهاجرت کرده‌اند، به‌طور معمول زمان ثبت سفارش کوتاه‌تر و خطای سفارش کمتری را تجربه می‌کنند.",
+        "از کجا شروع کنیم؟ کافی است در ماگ‌منو ثبت‌نام کنید، منوی خود را وارد کنید و کد QR را روی میزها یا ویترین رستوران قرار دهید. کل این فرایند کمتر از چند دقیقه زمان می‌برد و می‌توانید رایگان شروع کنید.",
+      ].join("\n\n"),
+      status: "PUBLISHED" as const,
+      publishedAt: new Date("2025-08-05"),
+      categories: ["منوی دیجیتال"],
+      tags: ["منوی QR"],
+    },
+    {
+      slug: "three-order-modes-explained",
+      title: "سه حالت سفارش؛ کدام برای رستوران شما مناسب است؟",
+      excerpt: "تفاوت سفارش روی میز، بیرون‌بر و ارسال با پیک و بهترین ترکیب برای انواع کسب‌وکار غذایی.",
+      content: [
+        "هر رستوران و کافه‌ای نیاز متفاوتی برای دریافت سفارش دارد؛ به همین دلیل ماگ‌منو سه حالت سفارش را جداگانه در اختیارتان می‌گذارد تا هرکدام را که به کسب‌وکارتان می‌خورد فعال کنید.",
+        "روی میز: مناسب رستوران و کافه‌ی حضوری. مشتری با اسکن QR روی میز، شماره میز را می‌بیند و برای ثبت سفارش فقط نام و شماره تلفن خود را وارد می‌کند؛ سفارش مستقیم به پنل مدیریت و آشپزخانه می‌رسد.",
+        "بیرون‌بر: برای مشتری‌هایی که سفارش را از رستوران تحویل می‌گیرند. در این حالت فقط یک زمان تحویل تخمینی از مشتری گرفته می‌شود تا سفارش دقیقاً سر وقت آماده باشد.",
+        "ارسال با پیک: برای سفارش‌هایی که باید به آدرس مشتری ارسال شوند. مشتری آدرس، لوکیشن روی نقشه و زمان تحویل موردنظرش را مشخص می‌کند تا پیک مسیر را به‌سادگی پیدا کند.",
+        "هر سه حالت را می‌توانید هم‌زمان فعال نگه دارید یا بسته به نوع کسب‌وکارتان فقط یکی-دو مورد را انتخاب کنید — تغییر تنظیمات در هر لحظه از پنل مدیریت ممکن است.",
+        "کافه‌های حضوری معمولاً با «روی میز» شروع می‌کنند، فست‌فودها اغلب «بیرون‌بر» و «ارسال با پیک» را با هم فعال می‌کنند، و رستوران‌های بزرگ‌تر معمولاً هر سه حالت را همزمان ارائه می‌دهند.",
+      ].join("\n\n"),
+      status: "PUBLISHED" as const,
+      publishedAt: new Date("2025-07-29"),
+      categories: ["مدیریت سفارش"],
+      tags: ["سفارش‌گیری"],
+    },
+    {
+      slug: "setup-digital-menu-5-minutes",
+      title: "راهنمای راه‌اندازی منوی دیجیتال در ۵ دقیقه",
+      excerpt: "قدم‌به‌قدم یاد بگیرید چطور در کمتر از پنج دقیقه منوی دیجیتال رستوران‌تان را بسازید و منتشر کنید.",
+      content: [
+        "ساخت منوی دیجیتال در ماگ‌منو نیاز به هیچ دانش فنی‌ای ندارد. در پنج قدم ساده، منوی رستوران‌تان آماده و قابل اسکن می‌شود.",
+        "۱. ثبت‌نام و ساخت حساب رستوران: با شماره موبایل خود ثبت‌نام کنید و نام و آدرس رستوران را وارد کنید؛ یک آدرس اختصاصی برای منوی عمومی‌تان ساخته می‌شود.",
+        "۲. افزودن دسته‌بندی‌ها و محصولات: از پنل مدیریت دسته‌بندی‌ها (مثل پیش‌غذا، غذای اصلی، نوشیدنی) و محصولات هر دسته را با قیمت و توضیحات وارد کنید.",
+        "۳. تنظیم اطلاعات و ساعات کاری رستوران: لوگو، رنگ برند و ساعات کاری رستوران را تنظیم کنید تا منوی عمومی دقیقاً همان چیزی را نشان دهد که مشتری انتظار دارد.",
+        "می‌توانید ابتدا فقط با پلن رایگان «منو دیداری» شروع کنید و هر زمان به سفارش‌گیری آنلاین نیاز داشتید، ارتقا دهید.",
+        "۴. دریافت و چاپ کد QR: از پنل، کد QR اختصاصی منو را دانلود و روی میزها، ویترین یا کارت منو چاپ کنید.",
+        "۵. انتشار منو برای مشتریان: همین که کد QR در دسترس مشتری قرار گرفت، منوی دیجیتال شما آماده‌ی استفاده است — هر تغییری در پنل، بلافاصله برای مشتری قابل مشاهده خواهد بود.",
+      ].join("\n\n"),
+      status: "PUBLISHED" as const,
+      publishedAt: new Date("2025-07-23"),
+      categories: ["آموزش پنل"],
+      tags: ["راه‌اندازی"],
+    },
+  ];
+
+  for (const p of postDefs) {
+    const post = await prisma.blogPost.upsert({
+      where: { slug: p.slug },
+      update: { title: p.title, excerpt: p.excerpt, content: p.content, status: p.status, publishedAt: p.publishedAt },
+      create: {
+        slug: p.slug,
+        title: p.title,
+        excerpt: p.excerpt,
+        content: p.content,
+        status: p.status,
+        publishedAt: p.publishedAt,
+      },
+    });
+    for (const categoryName of p.categories) {
+      await prisma.blogPostCategory.upsert({
+        where: { postId_categoryId: { postId: post.id, categoryId: categories[categoryName] } },
+        update: {},
+        create: { postId: post.id, categoryId: categories[categoryName] },
+      });
+    }
+    for (const tagName of p.tags) {
+      await prisma.blogPostTag.upsert({
+        where: { postId_tagId: { postId: post.id, tagId: tags[tagName] } },
+        update: {},
+        create: { postId: post.id, tagId: tags[tagName] },
+      });
+    }
+  }
+}
+
 async function main() {
   const plansByKey = await seedPlans();
 
@@ -421,6 +534,8 @@ async function main() {
       },
     });
   }
+
+  await seedBlog();
 
   console.log("Seeded business:", business.slug);
   console.log("Seeded super admin login: 09120000010 / admin1234");

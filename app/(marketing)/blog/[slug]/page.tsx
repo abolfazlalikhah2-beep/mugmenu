@@ -4,12 +4,7 @@ import { SiteHeader } from "@/components/marketing/site-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { CtaSection } from "@/components/marketing/cta-section";
 import { BlogPostArticle } from "@/components/marketing/blog-post-article";
-import { BlogPostFaq } from "@/components/marketing/blog-post-faq";
-import { getAllBlogSlugs, getBlogPostBySlug } from "@/components/marketing/blog-posts-data";
-
-export function generateStaticParams() {
-  return getAllBlogSlugs().map((slug) => ({ slug }));
-}
+import { getPublishedPostBySlug } from "@/features/blog/services/blog-service";
 
 export async function generateMetadata({
   params,
@@ -17,23 +12,28 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getPublishedPostBySlug(slug);
   if (!post) return {};
 
+  const title = post.seoTitle || post.title;
+  const description = post.seoDescription || post.excerpt;
+  const canonical = post.canonicalUrl || `/blog/${post.slug}`;
+
   return {
-    title: `${post.title} — بلاگ ماگ‌منو`,
-    description: post.description,
-    keywords: post.tags.join(", "),
+    title: `${title} — بلاگ ماگ‌منو`,
+    description,
+    keywords: post.tags.map((t) => t.tag.name).join(", "),
     alternates: {
-      canonical: `/blog/${post.slug}`,
+      canonical,
     },
+    robots: post.seoNoIndex ? { index: false, follow: false } : undefined,
     openGraph: {
-      title: post.title,
-      description: post.description,
+      title,
+      description,
       locale: "fa_IR",
       type: "article",
-      publishedTime: post.publishedAtIso,
-      tags: post.tags,
+      publishedTime: post.publishedAt?.toISOString(),
+      tags: post.tags.map((t) => t.tag.name),
     },
   };
 }
@@ -44,28 +44,36 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getPublishedPostBySlug(slug);
   if (!post) notFound();
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
-    description: post.description,
-    datePublished: post.publishedAtIso,
-    author: { "@type": "Organization", name: post.authorName },
+    description: post.excerpt,
+    datePublished: post.publishedAt?.toISOString(),
+    dateModified: post.updatedAt.toISOString(),
     publisher: { "@type": "Organization", name: "ماگ‌منو" },
-    keywords: post.tags.join(", "),
+    keywords: post.tags.map((t) => t.tag.name).join(", "),
   };
 
   return (
     <>
-      {/* JSON-LD is static, code-generated mock content — no user input reaches this tag. */}
+      {/* Post content is authored by trusted super-admin staff (requireSuperAdmin-gated), not public user input. */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SiteHeader />
       <main>
-        <BlogPostArticle post={post} />
-        <BlogPostFaq faqs={post.faqs} />
+        <BlogPostArticle
+          post={{
+            title: post.title,
+            content: post.content,
+            coverImage: post.coverImage,
+            publishedAt: post.publishedAt,
+            categoryNames: post.categories.map((c) => c.category.name),
+            tagNames: post.tags.map((t) => t.tag.name),
+          }}
+        />
         <CtaSection />
       </main>
       <SiteFooter />

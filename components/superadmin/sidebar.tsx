@@ -3,7 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { LayoutDashboard, Contact, Wallet, LifeBuoy, ShieldCheck, CreditCard, ReceiptText, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Contact,
+  Wallet,
+  LifeBuoy,
+  ShieldCheck,
+  CreditCard,
+  ReceiptText,
+  LogOut,
+  FileText,
+  FolderTree,
+  Tags,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/features/auth/routes/actions";
 
@@ -14,6 +26,21 @@ const NAV = [
   { href: "/superadmin/payment-cards", label: "تنظیمات پرداخت", icon: CreditCard },
   { href: "/superadmin/payment-requests", label: "درخواست‌های پرداخت", icon: ReceiptText },
   { href: "/superadmin/tickets", label: "تیکت‌ها", icon: LifeBuoy },
+  {
+    href: "/superadmin/blog",
+    label: "مقالات",
+    icon: FileText,
+    // /superadmin/blog/categories and /superadmin/blog/tags are separate nav
+    // items below and share this path as a prefix, so a plain startsWith()
+    // would light up "مقالات" on those pages too.
+    matches: (p: string) =>
+      p === "/superadmin/blog" ||
+      (p.startsWith("/superadmin/blog/") &&
+        !p.startsWith("/superadmin/blog/categories") &&
+        !p.startsWith("/superadmin/blog/tags")),
+  },
+  { href: "/superadmin/blog/categories", label: "دسته‌بندی‌ها", icon: FolderTree },
+  { href: "/superadmin/blog/tags", label: "برچسب‌ها", icon: Tags },
   { href: "/superadmin/users", label: "کاربران", icon: ShieldCheck },
 ];
 
@@ -34,7 +61,11 @@ export function Sidebar() {
       </div>
       <nav className="flex flex-col gap-1.5">
         {NAV.map((item) => {
-          const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+          const active = item.matches
+            ? item.matches(pathname)
+            : item.exact
+              ? pathname === item.href
+              : pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}
