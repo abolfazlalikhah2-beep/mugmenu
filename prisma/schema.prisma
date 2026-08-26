@@ -922,3 +922,19 @@ model MenuVisit {
   @@index([businessId, createdAt])
   @@index([businessId, productId, createdAt])
 }
+
+// A submission from the public marketing site's /contact form
+// (features/contact) — platform-level inbound leads/support requests, not
+// tied to any Business. Distinct from Contact above (a per-business SMS
+// phonebook entry) and from Ticket (an authenticated business owner's
+// support ticket inside the dashboard).
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
