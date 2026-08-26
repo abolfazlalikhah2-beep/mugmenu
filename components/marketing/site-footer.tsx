@@ -3,6 +3,7 @@ import Link from "next/link";
 const footerLinks = [
   { label: "درباره ما", href: "/about" },
   { label: "تعرفه‌ها", href: "/pricing" },
+  { label: "بلاگ", href: "/blog" },
   { label: "سوالات متداول", href: "/#faq" },
   { label: "تماس با ما", href: "/contact" },
   { label: "دمو", href: "/demo" },
