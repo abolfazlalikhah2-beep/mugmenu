@@ -19,6 +19,21 @@ export function SiteHeader() {
           <span className="text-lg font-bold leading-none text-ink">ماگ‌منو</span>
         </Link>
 
+        <nav aria-label="پیوندهای اصلی" className="hidden items-center gap-1 sm:flex">
+          <Link
+            href="/pricing"
+            className="rounded-pill px-3.5 py-2 text-sm text-text-1 transition-colors hover:bg-brand/8 hover:text-brand"
+          >
+            تعرفه‌ها
+          </Link>
+          <Link
+            href="/demos"
+            className="rounded-pill px-3.5 py-2 text-sm text-text-1 transition-colors hover:bg-brand/8 hover:text-brand"
+          >
+            دموها
+          </Link>
+        </nav>
+
         <Link
           href="/register"
           className="whitespace-nowrap rounded-input bg-brand px-5 py-2.75 text-sm font-medium text-white shadow-[0_8px_17.5px_rgba(50,140,61,0.28)] transition-colors hover:bg-brand-hover"
