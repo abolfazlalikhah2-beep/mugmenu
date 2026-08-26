@@ -44,8 +44,14 @@ function readConfig(): StorageConfig {
 }
 
 function getClient(config: StorageConfig): S3Client {
-  return new S3Client({
+  logger.info("uploads.s3_client_init", {
     endpoint: config.endpoint,
+    region: config.region,
+    accessKeyPrefix: config.accessKeyId.substring(0, 4),
+    bucket: config.bucket,
+  });
+  return new S3Client({
+    endpoint: config.endpoint.replace(/\/$/, ""),
     region: config.region,
     credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
     // Required for MinIO and most S3-compatible providers, which serve
