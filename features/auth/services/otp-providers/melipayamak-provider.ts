@@ -7,13 +7,12 @@ import type { OtpProvider } from "@/features/auth/services/otp-service";
  * SMS template with the OTP code substituted in. Faster delivery and much
  * less likely to be spam-filtered than a plain-text SMS, which is why
  * Melipayamak (and most Iranian providers) recommend it specifically for
- * OTP codes. Confirmed against Melipayamak's own official REST client
- * (github.com/Melipayamak/melipayamak-node, src/sms/rest.js): this endpoint
- * authenticates with username+password in the request body — not a bearer
- * token/API-key header — so there is no separate "API key" env var here.
- * MELIPAYAMAK_BODY_ID selects which approved pattern (تنظیم‌شده در پنل) to
- * use; that pattern's own template text is what determines which sender
- * line it goes out on, so no separate sender-line env var is needed either.
+ * OTP codes. Melipayamak switched this endpoint to API-Key auth (an
+ * `apikey` request header) and dropped username+password — MELIPAYAMAK_API_KEY
+ * is that key. MELIPAYAMAK_BODY_ID still selects which approved pattern
+ * (تنظیم‌شده در پنل) to use; that pattern's own template text is what
+ * determines which sender line it goes out on, so no separate sender-line
+ * env var is needed.
  */
 const ENDPOINT = "https://rest.payamak-panel.com/api/SendSMS/BaseServiceNumber";
 
@@ -25,26 +24,20 @@ interface MelipayamakResponse {
 
 export class MelipayamakOtpProvider implements OtpProvider {
   constructor(
-    private readonly username: string,
-    private readonly password: string,
+    private readonly apiKey: string,
     private readonly bodyId: string
   ) {}
 
   async sendOtp(phone: string, code: string): Promise<{ success: boolean }> {
-    const body = new URLSearchParams({
-      username: this.username,
-      password: this.password,
-      to: phone,
-      bodyId: this.bodyId,
-      text: code,
-    });
-
     let res: Response;
     try {
       res = await fetch(ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
-        body,
+        headers: {
+          "Content-Type": "application/json",
+          apikey: this.apiKey,
+        },
+        body: JSON.stringify({ to: phone, bodyId: this.bodyId, text: code }),
       });
     } catch (e) {
       logger.error("otp.melipayamak_request_failed", { phone, error: String(e) });
