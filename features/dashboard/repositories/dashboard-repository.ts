@@ -14,6 +14,7 @@ import type {
   TicketAuthorType,
   TicketStatus,
   CourierVehicleType,
+  BillingCycle,
 } from "@/lib/generated/prisma/enums";
 
 // ---------- Business ----------
@@ -48,6 +49,9 @@ export function createBusiness(data: {
   logoUrl?: string;
   customDomain?: string;
   planId: string;
+  billingCycle: BillingCycle;
+  planStartedAt: Date;
+  planExpiresAt: Date;
 }) {
   return prisma.business.create({
     data: { ...data, hours: { create: DEFAULT_BUSINESS_HOURS } },

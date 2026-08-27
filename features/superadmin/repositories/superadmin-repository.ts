@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db";
+import { computePlanDates } from "@/features/plans/services/plan-dates";
 import type {
   PlatformRole,
   TicketCategory,
@@ -141,14 +142,12 @@ export function renewSubscriptionManually(
   planName: string,
   billingCycle: "MONTHLY" | "ANNUAL"
 ) {
-  const now = new Date();
-  const expiresAt = new Date(now);
-  expiresAt.setDate(expiresAt.getDate() + (billingCycle === "ANNUAL" ? 365 : 30));
+  const { planStartedAt, planExpiresAt } = computePlanDates(billingCycle);
 
   return prisma.$transaction([
     prisma.business.update({
       where: { id: businessId },
-      data: { planStartedAt: now, planExpiresAt: expiresAt },
+      data: { planStartedAt, planExpiresAt },
     }),
     prisma.transaction.create({ data: { businessId, amount, planName, status: "PAID" } }),
   ]);
