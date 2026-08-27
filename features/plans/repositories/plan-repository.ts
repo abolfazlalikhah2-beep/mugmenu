@@ -19,7 +19,7 @@ export async function getBusinessPlanState(businessId: string) {
     select: {
       isDemoActive: true,
       demoExpiresAt: true,
-      plan: { select: { key: true, name: true, features: true } },
+      plan: { select: { id: true, key: true, name: true, features: true } },
     },
   });
 }

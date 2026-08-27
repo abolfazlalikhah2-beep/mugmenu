@@ -3,6 +3,7 @@ import * as repo from "@/features/plans/repositories/plan-repository";
 import { resolveFeatureAccess, type FeatureAccess } from "@/features/plans/services/feature-access";
 import { isDemoEffective } from "@/features/plans/services/demo-access";
 import type { FeatureKey } from "@/features/plans/feature-matrix";
+import { logger } from "@/lib/logger";
 
 export type { FeatureAccess } from "@/features/plans/services/feature-access";
 
@@ -41,6 +42,17 @@ export async function getBusinessFeatureSet(businessId: string): Promise<Busines
   const keys = new Set(plan.features.map((f) => f.featureKey));
   const limits: Record<string, string | null> = {};
   for (const f of plan.features) limits[f.featureKey] = f.limitValue;
+
+  // TEMP DEBUG — remove after diagnosing the menu-order lock bug.
+  logger.info("plans.debug_feature_set", {
+    businessId,
+    effectivePlanId: plan.id,
+    effectivePlanKey: plan.key,
+    featureCount: keys.size,
+    hasDiscountManualAuto: keys.has("discount.manual_auto"),
+    hasOrderManualEntry: keys.has("order.manual_entry"),
+  });
+
   return { planKey: plan.key, planName: plan.name, keys, limits };
 }
 
