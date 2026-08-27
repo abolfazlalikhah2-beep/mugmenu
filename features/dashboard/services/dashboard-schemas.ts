@@ -162,6 +162,10 @@ export const categorySchema = z.object({
   scheduleEnd: optionalTime,
 });
 
+export const newOrdersSinceSchema = z.object({
+  since: z.string().datetime({ message: "پارامتر since نامعتبر است." }),
+});
+
 export const orderStatusSchema = z.object({
   orderId: z.string().min(1),
   status: z.enum(["NEW", "PREPARING", "READY", "DELIVERED", "CANCELED"]),

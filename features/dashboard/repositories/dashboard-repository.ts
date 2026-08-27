@@ -154,6 +154,15 @@ export function getOrders(
   });
 }
 
+/** Polled by the dashboard's new-order notifier (order-notification-provider.tsx) — kept intentionally light, no items/options join. */
+export function getOrdersCreatedSince(businessId: string, since: Date) {
+  return prisma.order.findMany({
+    where: { businessId, createdAt: { gt: since } },
+    select: { id: true, orderNumber: true, customerName: true, totalPrice: true, createdAt: true },
+    orderBy: { createdAt: "asc" },
+  });
+}
+
 export function getOrderWithItems(id: string) {
   return prisma.order.findUnique({
     where: { id },

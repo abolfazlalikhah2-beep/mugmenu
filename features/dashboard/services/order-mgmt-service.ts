@@ -20,6 +20,11 @@ export function getRecentOrders(businessId: string, take: number) {
   return repo.getRecentOrders(businessId, take);
 }
 
+/** Orders placed after `since`, for the dashboard's new-order poll (app/api/dashboard/new-orders/route.ts). */
+export function getOrdersCreatedSince(businessId: string, since: Date) {
+  return repo.getOrdersCreatedSince(businessId, since);
+}
+
 export async function getOrderDetail(businessId: string, orderId: string) {
   const order = await repo.getOrderWithItems(orderId);
   if (!order || order.businessId !== businessId) return null;

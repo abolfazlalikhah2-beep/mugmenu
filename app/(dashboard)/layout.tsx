@@ -6,6 +6,7 @@ import { getBusiness } from "@/features/dashboard/services/settings-service";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { AcceptingOrdersProvider } from "@/features/dashboard/client/accepting-orders-context";
 import { SidebarProvider } from "@/features/dashboard/client/sidebar-context";
+import { OrderNotificationProvider } from "@/components/dashboard/order-notification-provider";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const { businessId } = await requireBusinessOwner();
@@ -18,10 +19,12 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   return (
     <AcceptingOrdersProvider initial={business.isAcceptingOrders}>
       <SidebarProvider>
-        <div className="flex h-screen overflow-hidden bg-[#F4F5F4]">
-          <Sidebar featureKeys={featureSet ? [...featureSet.keys] : []} />
-          <div className="flex min-w-0 flex-1 flex-col">{children}</div>
-        </div>
+        <OrderNotificationProvider>
+          <div className="flex h-screen overflow-hidden bg-[#F4F5F4]">
+            <Sidebar featureKeys={featureSet ? [...featureSet.keys] : []} />
+            <div className="flex min-w-0 flex-1 flex-col">{children}</div>
+          </div>
+        </OrderNotificationProvider>
       </SidebarProvider>
     </AcceptingOrdersProvider>
   );
