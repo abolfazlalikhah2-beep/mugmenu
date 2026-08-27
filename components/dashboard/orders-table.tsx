@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 
 export interface OrderRow {
   id: string;
+  orderNumber: number;
   customerName: string;
   totalPrice: number;
   status: OrderStatusValue;
@@ -38,8 +39,8 @@ function timeLabel(d: Date) {
   return d.toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" });
 }
 
-function shortCode(id: string) {
-  return `#${id.slice(-5).toUpperCase()}`;
+function shortCode(orderNumber: number) {
+  return `#${orderNumber.toLocaleString("fa-IR")}`;
 }
 
 function RowCheckbox({
@@ -138,9 +139,9 @@ export function OrdersTable({ orders, header }: { orders: OrderRow[]; header: Re
             )}
             style={{ gridTemplateColumns: COLUMNS }}
           >
-            <RowCheckbox checked={checked} onChange={(c) => toggleOne(o.id, c)} label={`انتخاب سفارش ${shortCode(o.id)}`} />
+            <RowCheckbox checked={checked} onChange={(c) => toggleOne(o.id, c)} label={`انتخاب سفارش ${shortCode(o.orderNumber)}`} />
             <span dir="ltr" className="text-right font-mono text-[13px] text-[#666]">
-              {shortCode(o.id)}
+              {shortCode(o.orderNumber)}
             </span>
             <span className="text-right font-medium">{o.customerName}</span>
             <span className="truncate text-right font-light text-[#777]">{itemsSummary(o.items)}</span>

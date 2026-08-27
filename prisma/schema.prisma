@@ -383,6 +383,10 @@ enum OrderPaymentMethod {
 
 model Order {
   id                String           @id @default(cuid())
+  // Human-readable sequential number shown in the dashboard/receipts instead
+  // of the cuid id (which is opaque and not meant for print). Not the
+  // primary key — just a display/reference number.
+  orderNumber       Int              @unique @default(autoincrement())
   businessId        String
   business          Business         @relation(fields: [businessId], references: [id])
   type              OrderType

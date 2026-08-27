@@ -416,7 +416,7 @@ export async function getOrderForPrintAction(orderId: string) {
   if (!business || !order) return null;
   return {
     ...order,
-    business: { name: business.name, address: business.address, phone: business.phone },
+    business: { name: business.name, address: business.address, phone: business.phone, logoUrl: business.logoUrl },
   };
 }
 

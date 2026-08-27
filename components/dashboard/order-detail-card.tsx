@@ -12,6 +12,7 @@ import { updateOrderStatusAction } from "@/features/dashboard/routes/actions";
 
 export interface OrderDetail {
   id: string;
+  orderNumber: number;
   type: "DINE_IN" | "TAKEAWAY" | "DELIVERY";
   status: OrderStatusValue;
   customerName: string;
@@ -78,7 +79,7 @@ export function OrderDetailCard({ order, couriers = [] }: { order: OrderDetail; 
           <div className="flex items-center gap-2.5">
             <span className="text-xl font-semibold">سفارش</span>
             <span dir="ltr" className="font-mont text-base text-[#666]">
-              #{order.id.slice(-5).toUpperCase()}
+              #{order.orderNumber.toLocaleString("fa-IR")}
             </span>
             <OrderStatusBadge status={order.status} />
           </div>
