@@ -9,6 +9,13 @@ import { AboutWhyTrust } from "@/components/marketing/about-why-trust";
 import { AboutFaq } from "@/components/marketing/about-faq";
 import { AboutBlogPreview } from "@/components/marketing/about-blog-preview";
 
+// AboutBlogPreview queries prisma.blogPost at render time (getPublishedPosts)
+// — the database isn't reachable during `next build`'s static prerendering
+// step (Docker build vs. runtime, see Dockerfile), so this page must render
+// per-request instead of being statically generated. Same fix already
+// applied to /blog and /blog/[slug] for the same reason.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "درباره ماگ‌منو — چرا منوی دیجیتال و مدیریت هوشمند رستوران",
   description:
