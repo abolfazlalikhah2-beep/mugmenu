@@ -15,6 +15,7 @@ import {
   FileText,
   FolderTree,
   Tags,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/features/auth/routes/actions";
@@ -42,6 +43,7 @@ const NAV = [
   { href: "/superadmin/blog/categories", label: "دسته‌بندی‌ها", icon: FolderTree },
   { href: "/superadmin/blog/tags", label: "برچسب‌ها", icon: Tags },
   { href: "/superadmin/users", label: "کاربران", icon: ShieldCheck },
+  { href: "/superadmin/site-settings", label: "تنظیمات سایت", icon: Settings },
 ];
 
 export function Sidebar() {

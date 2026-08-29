@@ -1,7 +1,7 @@
 "use server";
 
 import { logger } from "@/lib/logger";
-import { requireSession, requireBusinessOwner } from "@/features/auth/services/authorize";
+import { requireSession, requireBusinessOwner, requireSuperAdmin } from "@/features/auth/services/authorize";
 import { findUserByPhone } from "@/features/auth/repositories/user-repository";
 import { uploadImage } from "@/features/uploads/services/storage-service";
 import {
@@ -92,6 +92,41 @@ export async function uploadOnboardingImageAction(kind: string, formData: FormDa
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     logger.error("uploads.onboarding_image_upload_failed", { userId: user.id, kind: kindParsed.data, error: message });
+    return { error: message || "آپلود تصویر با خطا مواجه شد." };
+  }
+}
+
+/**
+ * Site settings' logo/favicon aren't tied to a business, so this checks
+ * requireSuperAdmin() instead of requireBusinessOwner() and namespaces
+ * uploads under a fixed "platform" id instead of a businessId.
+ */
+export async function uploadSiteSettingImageAction(kind: string, formData: FormData): Promise<UploadImageResult> {
+  await requireSuperAdmin();
+
+  const kindParsed = uploadKindSchema.safeParse(kind);
+  if (!kindParsed.success) return { error: "نوع فایل نامعتبر است." };
+
+  const file = formData.get("file");
+  if (!(file instanceof File)) return { error: "فایلی انتخاب نشده است." };
+
+  const fileParsed = imageFileSchema.safeParse({ type: file.type, size: file.size });
+  if (!fileParsed.success) return { error: fileParsed.error.issues[0].message };
+
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const url = await uploadImage({
+      kind: kindParsed.data,
+      businessId: "platform",
+      buffer,
+      contentType: fileParsed.data.type,
+      extension: EXTENSION_BY_MIME_TYPE[fileParsed.data.type],
+    });
+    logger.info("uploads.site_setting_image_uploaded", { kind: kindParsed.data });
+    return { url };
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    logger.error("uploads.site_setting_image_upload_failed", { kind: kindParsed.data, error: message });
     return { error: message || "آپلود تصویر با خطا مواجه شد." };
   }
 }

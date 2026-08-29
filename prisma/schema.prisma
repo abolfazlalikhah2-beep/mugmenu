@@ -839,6 +839,19 @@ model PaymentRequest {
   @@index([assignedCardId])
 }
 
+// Key/value store for marketing-site content editable from the super admin
+// panel (contact info, logo/favicon, homepage hero copy) — see
+// features/site-settings/. One row per key rather than a fixed-column
+// singleton (unlike PlatformSettings below) so new fields don't need a
+// migration.
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
 // Single-row platform-wide settings (payment gateway credentials for
 // collecting subscription fees). Not per-business — see
 // features/superadmin/repositories/superadmin-repository.ts for the
