@@ -106,6 +106,12 @@
 - **نکته:** override کردن `volumes` توی یک فایل compose دیگه با `[]` خالی جایگزین نمی‌شه (لیست‌ها merge می‌شن نه replace) — باید از تگ `!reset` استفاده کنی، وگرنه bind mount غیرمنتظره باقی می‌مونه.
 - این sandbox خودش Docker daemon نداره، پس Dockerfile/compose فقط با `docker compose config` قابل validate هستن، نه `docker build` واقعی — قبل از merge روی یک محیط با Docker واقعی تست بشه.
 
+### ⚠️ وضعیت Migration در پروداکشن (۱۴۰۵/۰۶/۰۷)
+جدول `_prisma_migrations` در دیتابیس پروداکشن (Liara) وجود نداره/درست track نشده — اسکیمای پروداکشن قبل از این‌که Prisma Migrate رسماً استفاده بشه با تغییرات دستی/`db push` ساخته شده. نتیجه‌ش چند incident واقعی بود: enum قدیمی `OtpPurpose` توی پروداکشن مقادیر `LOGIN`/`RESET_PASSWORD` داشت که **هیچ‌وقت** توی هیچ migration این ریپو وجود نداشتن، و `BillingCycle.SIX_MONTH` + `Plan.sixMonthPrice` هم missing بودن — همه با SQL دستی از طریق PGAdmin فیکس شدن.
+- **تصمیم فعلی:** `runner` stage's `CMD` دیگه `prisma migrate deploy` رو خودکار اجرا نمی‌کنه (فقط `["node", "server.js"]`). چون اگه اجرا بشه، چون `_prisma_migrations` خالیه، Prisma همه‌ی ۳۹ migration رو از اول replay می‌کنه — اولیش (`CREATE TABLE "Business"` و...) روی جدول‌هایی که از قبل با داده واقعی وجود دارن fail می‌کنه، و چون CMD با `&&` زنجیر شده، `node server.js` هیچ‌وقت اجرا نمی‌شه → کل container بالا نمیاد، هر deploy.
+- **فرآیند فعلی برای migration جدید:** هر migration جدیدی که اضافه می‌شه، باید SQL معادلش رو دستی (idempotent، با `IF NOT EXISTS`/`ON CONFLICT`) از طریق PGAdmin روی پروداکشن اجرا کنی — `migrate deploy` خودکار دیگه این کار رو نمی‌کنه.
+- **راه‌حل درست (بلاک‌شده):** باید یک‌بار production رو با `prisma migrate resolve --applied <name>` برای هر ۳۹ migration باینه (بعد از تایید با `prisma migrate diff` که drift دیگه‌ای نیست)، بعد `CMD` رو برگردونی. الان بلاکه چون console پروداکشن روی Liara فقط ۵۱۲ مگابایت فضای writable داره و نصب `npx prisma` باهاش fail می‌شه (ENOSPC) — نیاز به راه دیگه‌ای برای دسترسی CLI داره (مثلاً exec مستقیم به container در حال اجرا که node_modules رو از قبل داره، نه یک session جدا).
+
 ## امنیت
 - **Secrets**: فقط در `.env` (که gitignore شده)؛ `.env.example` رو برای مقادیر placeholder به‌روز نگه دار. `SESSION_SECRET` رو با `openssl rand -hex 32` بساز.
 - **Session**: JWT امضاشده با `jose` (`features/auth/services/session-service.ts`)، نه یک کوکی JSON ساده — قبلاً یه‌بار همین‌جوری بود و قابل جعل از سمت کلاینت بود، همین الان فیکس شده.

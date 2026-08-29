@@ -51,8 +51,16 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
-# Runs against Liara's internal network (this container's own runtime
-# env), not the external connection that hangs from local machines.
-# Safe to run on every start: migrate deploy only applies migrations
-# that haven't been applied yet, never rolls back or drops data.
-CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
+# `migrate deploy` on boot was tried (see git history) and reverted:
+# production's `_prisma_migrations` table doesn't exist / isn't properly
+# tracked (schema drifted from ad hoc changes before Prisma Migrate was
+# adopted — see the OtpPurpose/BillingCycle/Plan.sixMonthPrice incidents in
+# CLAUDE.md), so `migrate deploy` would try to replay ALL migrations from
+# scratch on every boot, including `CREATE TABLE "Business"` etc. against
+# tables that already exist — which fails immediately, and because this is
+# `A && B`, `node server.js` never runs: the whole container fails to boot,
+# every single deploy, until someone manually intervenes. Until production's
+# migration history is properly baselined (blocked on Liara console access —
+# the 512MB writable overlay can't fit `npx prisma`'s install), schema
+# changes are applied manually via PGAdmin per migration — see CLAUDE.md.
+CMD ["node", "server.js"]
