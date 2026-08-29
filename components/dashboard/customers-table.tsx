@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Phone, Calendar } from "lucide-react";
 import type { CustomerSummary } from "@/features/dashboard/utils/aggregate-customers";
 import { cn } from "@/lib/utils";
@@ -22,8 +23,9 @@ export function CustomersTable({ customers }: { customers: CustomerSummary[] }) 
       )}
 
       {customers.map((c, i) => (
-        <div
+        <Link
           key={c.phone}
+          href={`/dashboard/customers/${encodeURIComponent(c.phone)}`}
           className={cn(
             "flex items-center gap-3 py-3.5 sm:gap-4 sm:px-3.5 sm:py-4",
             i > 0 && "border-t border-[#F4F4F4]"
@@ -51,7 +53,7 @@ export function CustomersTable({ customers }: { customers: CustomerSummary[] }) 
           <span className="hidden w-[90px] shrink-0 text-left text-[13px] font-light text-text-3 sm:block">
             {c.orderCount.toLocaleString("fa-IR")} سفارش
           </span>
-        </div>
+        </Link>
       ))}
     </div>
   );

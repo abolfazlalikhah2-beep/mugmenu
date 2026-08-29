@@ -298,6 +298,15 @@ export function getCustomerOrders(businessId: string, search?: string) {
   });
 }
 
+/** One customer's full order+item history for the detail view's stats (favorite items, spend, etc.) — heavier than getCustomerOrders above, so only fetched for a single phone at a time, not the whole list. */
+export function getCustomerOrdersWithItems(businessId: string, phone: string) {
+  return prisma.order.findMany({
+    where: { businessId, customerPhone: phone },
+    include: { items: { include: { product: { select: { name: true } } } } },
+    orderBy: { createdAt: "asc" },
+  });
+}
+
 // ---------- Products ----------
 
 const optionGroupsInclude = {
