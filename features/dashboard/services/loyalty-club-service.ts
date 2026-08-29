@@ -5,6 +5,7 @@ import {
   cashbackSettingsSchema,
   birthdaySettingsSchema,
   birthdayTestSendSchema,
+  membershipTierSettingsSchema,
 } from "@/features/dashboard/services/dashboard-schemas";
 import {
   summarizeMembers,
@@ -77,6 +78,15 @@ export async function updateBirthdaySettings(businessId: string, input: unknown)
 
   await repo.updateBusiness(businessId, parsed.data);
   logger.info("dashboard.birthday_settings_updated", { businessId });
+  return { ok: true };
+}
+
+export async function updateMembershipTierSettings(businessId: string, input: unknown): Promise<ServiceResult> {
+  const parsed = membershipTierSettingsSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  await repo.updateBusiness(businessId, parsed.data);
+  logger.info("dashboard.membership_tier_settings_updated", { businessId, ...parsed.data });
   return { ok: true };
 }
 

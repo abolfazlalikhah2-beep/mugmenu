@@ -75,6 +75,14 @@ export default async function CustomersPage({
                 birthdayMessageText: business.birthdayMessageText ?? "",
                 birthdayGiftAmount: business.birthdayGiftAmount,
               }}
+              membershipTierSettings={{
+                silverMinOrders: business.silverMinOrders,
+                silverMinSpend: business.silverMinSpend,
+                goldMinOrders: business.goldMinOrders,
+                goldMinSpend: business.goldMinSpend,
+                vipMinOrders: business.vipMinOrders,
+                vipMinSpend: business.vipMinSpend,
+              }}
               featureKeys={featureSet ? [...featureSet.keys] : []}
             />
           }

@@ -1,13 +1,21 @@
 import Link from "next/link";
 import { Phone, Calendar } from "lucide-react";
-import type { CustomerSummary } from "@/features/dashboard/utils/aggregate-customers";
+import type { CustomerListRow } from "@/features/dashboard/services/customer-service";
+import { MEMBERSHIP_TIER_LABELS } from "@/features/dashboard/services/membership-tier";
 import { cn } from "@/lib/utils";
 
 function dateLabel(d: Date) {
   return d.toLocaleDateString("fa-IR", { day: "2-digit", month: "long", year: "numeric" });
 }
 
-export function CustomersTable({ customers }: { customers: CustomerSummary[] }) {
+const TIER_BADGE_CLASS: Record<CustomerListRow["tier"], string> = {
+  NONE: "hidden",
+  SILVER: "bg-[#EDEDED] text-[#6B6B6B]",
+  GOLD: "bg-[#FBF0D8] text-[#B8860B]",
+  VIP: "bg-[#E5F0E6] text-brand",
+};
+
+export function CustomersTable({ customers }: { customers: CustomerListRow[] }) {
   return (
     <div className="flex flex-col gap-1 rounded-[22px] bg-card p-[8px_16px] shadow-[0px_8px_17.5px_rgba(0,0,0,0.03)] sm:p-[8px_20px]">
       <div className="hidden items-center gap-4 border-b border-[#F0F0F0] p-[14px] text-[13px] font-light text-[#A0A0A0] sm:flex">
@@ -35,7 +43,14 @@ export function CustomersTable({ customers }: { customers: CustomerSummary[] }) 
             {c.name.slice(0, 1)}
           </div>
           <div className="min-w-0 flex-1 text-right">
-            <div className="truncate text-sm font-medium sm:text-[15px]">{c.name}</div>
+            <div className="flex items-center justify-end gap-1.5 sm:justify-start">
+              <div className="truncate text-sm font-medium sm:text-[15px]">{c.name}</div>
+              {c.tier !== "NONE" && (
+                <span className={cn("shrink-0 rounded-[7px] px-2 py-[2px] text-[10px] font-medium", TIER_BADGE_CLASS[c.tier])}>
+                  {MEMBERSHIP_TIER_LABELS[c.tier]}
+                </span>
+              )}
+            </div>
             <div dir="ltr" className="mt-0.5 text-right text-xs font-light text-text-3 sm:hidden">
               {c.phone}
             </div>

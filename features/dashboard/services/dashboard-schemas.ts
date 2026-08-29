@@ -318,6 +318,17 @@ export const birthdayTestSendSchema = z.object({
   phone: z.string().trim().min(10, "شماره گیرنده معتبر نیست.").max(20),
 });
 
+const nonNegativeInt = (message: string) => z.coerce.number().int().min(0, message);
+
+export const membershipTierSettingsSchema = z.object({
+  silverMinOrders: nonNegativeInt("حداقل تعداد سفارش نمی‌تواند منفی باشد."),
+  silverMinSpend: nonNegativeInt("حداقل مبلغ خرید نمی‌تواند منفی باشد."),
+  goldMinOrders: nonNegativeInt("حداقل تعداد سفارش نمی‌تواند منفی باشد."),
+  goldMinSpend: nonNegativeInt("حداقل مبلغ خرید نمی‌تواند منفی باشد."),
+  vipMinOrders: nonNegativeInt("حداقل تعداد سفارش نمی‌تواند منفی باشد."),
+  vipMinSpend: nonNegativeInt("حداقل مبلغ خرید نمی‌تواند منفی باشد."),
+});
+
 const optionalAttachmentUrl = z
   .string()
   .trim()

@@ -347,6 +347,24 @@ export async function updateBirthdaySettingsAction(
   return { ok: true };
 }
 
+export async function updateMembershipTierSettingsAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { businessId } = await requireBusinessOwner();
+  const result = await loyaltyClubService.updateMembershipTierSettings(businessId, {
+    silverMinOrders: String(formData.get("silverMinOrders") ?? ""),
+    silverMinSpend: String(formData.get("silverMinSpend") ?? ""),
+    goldMinOrders: String(formData.get("goldMinOrders") ?? ""),
+    goldMinSpend: String(formData.get("goldMinSpend") ?? ""),
+    vipMinOrders: String(formData.get("vipMinOrders") ?? ""),
+    vipMinSpend: String(formData.get("vipMinSpend") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/dashboard/customers");
+  return { ok: true };
+}
+
 export async function sendBirthdayTestAction(
   _prevState: SendSmsActionState,
   formData: FormData

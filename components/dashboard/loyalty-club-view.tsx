@@ -5,6 +5,10 @@ import { Lock } from "lucide-react";
 import { LoyaltyDashboardTab } from "@/components/dashboard/loyalty-dashboard-tab";
 import { CashbackSettingsForm, type CashbackSettingsFormValue } from "@/components/dashboard/cashback-settings-form";
 import { BirthdaySettingsForm, type BirthdaySettingsFormValue } from "@/components/dashboard/birthday-settings-form";
+import {
+  MembershipTierSettingsForm,
+  type MembershipTierSettingsFormValue,
+} from "@/components/dashboard/membership-tier-settings-form";
 import { LoyaltySendTab } from "@/components/dashboard/loyalty-send-tab";
 import { LoyaltyExportTab } from "@/components/dashboard/loyalty-export-tab";
 import { UpgradeGate } from "@/components/dashboard/upgrade-gate";
@@ -17,6 +21,7 @@ const TABS: { label: string; featureKey?: FeatureKey }[] = [
   { label: "داشبورد" },
   { label: "کش‌بک", featureKey: "loyalty.cashback" },
   { label: "پیام تولد", featureKey: "loyalty.birthday_message" },
+  { label: "سطوح عضویت" },
   { label: "ارسال پیام", featureKey: "loyalty.targeted_message" },
   { label: "خروجی", featureKey: "customer.export" },
 ];
@@ -27,6 +32,7 @@ export function LoyaltyClubView({
   audienceCounts,
   cashbackSettings,
   birthdaySettings,
+  membershipTierSettings,
   featureKeys,
 }: {
   dashboard: LoyaltyClubDashboard;
@@ -34,6 +40,7 @@ export function LoyaltyClubView({
   audienceCounts: Record<LoyaltyFilter, number>;
   cashbackSettings: CashbackSettingsFormValue;
   birthdaySettings: BirthdaySettingsFormValue;
+  membershipTierSettings: MembershipTierSettingsFormValue;
   featureKeys: string[];
 }) {
   const [tab, setTab] = useState(0);
@@ -73,12 +80,13 @@ export function LoyaltyClubView({
           <BirthdaySettingsForm settings={birthdaySettings} />
         </UpgradeGate>
       )}
-      {tab === 3 && (
+      {tab === 3 && <MembershipTierSettingsForm settings={membershipTierSettings} />}
+      {tab === 4 && (
         <UpgradeGate allowed={has("loyalty.targeted_message")} title="ارسال پیام هدفمند در پلن شما موجود نیست">
           <LoyaltySendTab counts={audienceCounts} />
         </UpgradeGate>
       )}
-      {tab === 4 && (
+      {tab === 5 && (
         <UpgradeGate allowed={has("customer.export")} title="خروجی اکسل مشتریان در پلن شما موجود نیست">
           <LoyaltyExportTab members={members} />
         </UpgradeGate>

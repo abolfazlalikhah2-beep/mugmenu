@@ -1,8 +1,16 @@
 import Link from "next/link";
 import { ChevronRight, ShoppingBag, Wallet, Receipt, CalendarClock, TrendingUp, Calendar } from "lucide-react";
 import type { CustomerDetail } from "@/features/dashboard/services/customer-service";
+import { MEMBERSHIP_TIER_LABELS } from "@/features/dashboard/services/membership-tier";
 import { formatToman } from "@/features/menu/utils/money";
 import { cn } from "@/lib/utils";
+
+const TIER_BADGE_CLASS: Record<CustomerDetail["tier"], string> = {
+  NONE: "bg-[#F0F0F0] text-[#8A8A8A]",
+  SILVER: "bg-[#EDEDED] text-[#6B6B6B]",
+  GOLD: "bg-[#FBF0D8] text-[#B8860B]",
+  VIP: "bg-[#E5F0E6] text-brand",
+};
 
 function dateLabel(d: Date) {
   return d.toLocaleDateString("fa-IR", { day: "2-digit", month: "long", year: "numeric" });
@@ -35,7 +43,14 @@ export function CustomerDetailView({ customer }: { customer: CustomerDetail }) {
           {customer.name.slice(0, 1)}
         </div>
         <div className="min-w-0 flex-1 text-right">
-          <div className="text-base font-semibold sm:text-lg">{customer.name}</div>
+          <div className="flex items-center justify-end gap-2 sm:justify-start">
+            <div className="text-base font-semibold sm:text-lg">{customer.name}</div>
+            {customer.tier !== "NONE" && (
+              <span className={cn("rounded-[9px] px-3 py-[5px] text-xs font-medium", TIER_BADGE_CLASS[customer.tier])}>
+                {MEMBERSHIP_TIER_LABELS[customer.tier]}
+              </span>
+            )}
+          </div>
           <div dir="ltr" className="mt-1 text-right text-sm font-light text-text-3">
             {customer.phone}
           </div>

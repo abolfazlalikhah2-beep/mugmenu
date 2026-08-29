@@ -308,7 +308,7 @@ export function getCustomerOrders(businessId: string, search?: string) {
           }
         : {}),
     },
-    select: { customerName: true, customerPhone: true, createdAt: true },
+    select: { customerName: true, customerPhone: true, createdAt: true, totalPrice: true },
     orderBy: { createdAt: "asc" },
   });
 }
