@@ -119,7 +119,7 @@ export interface CartCheckoutContext {
   autoDiscounts: AutoDiscountDef[];
   /** null when checking out as a guest (not logged in) — no wallet to redeem from. */
   walletBalance: number | null;
-  /** false for menu-display plan businesses — cart/checkout must stay blocked. */
+  /** false for menu-display plan businesses, or when the owner has manually toggled "سفارش‌گیری" off — cart/checkout must stay blocked either way. */
   hasOrdering: boolean;
   /** Which order types this business currently accepts (dashboard settings > order settings) — the cart's type tabs must only offer these. */
   acceptsDineIn: boolean;
@@ -135,11 +135,15 @@ export async function getCartCheckoutContext(
   const business = await repo.getBusiness(slug);
   if (!business) return null;
 
-  const [autoDiscounts, walletBalance, hasOrdering] = await Promise.all([
+  const [autoDiscounts, walletBalance, canOrderFeature] = await Promise.all([
     repo.getActiveAutoDiscounts(business.id),
     customerAccountId ? getWalletBalance(customerAccountId) : Promise.resolve(null),
     businessHasFeature(business.id, "order.three_mode"),
   ]);
+  // Plan gate AND the owner's manual "سفارش‌گیری" toggle both have to allow
+  // ordering — same combined check as the entry/menu pages and the
+  // authoritative one in order-service.ts's createOrder().
+  const hasOrdering = canOrderFeature && business.isAcceptingOrders;
 
   return {
     packagingFee: business.packagingFee,

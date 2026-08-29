@@ -67,12 +67,17 @@ export default async function MenuEntryPage({
     : [null, null];
 
   const heroBackground = resolveHeroBackground(business);
-  const [orderingEnabled, cashbackEnabled, loginEnabled] = await Promise.all([
+  const [canOrderFeature, cashbackEnabled, loginEnabled] = await Promise.all([
     businessHasFeature(business.id, "order.three_mode"),
     businessHasFeature(business.id, "loyalty.cashback"),
     // menu-display has no ordering/customer accounts at all, so "ورود / ثبت‌نام" has nothing to lead to.
     businessHasFeature(business.id, "customer.wallet_login"),
   ]);
+  // The plan gate alone isn't enough — a business on a paid plan can still
+  // have manually toggled "سفارش‌گیری" off (dashboard "حساب کاربری"), which
+  // must hide ordering here the same way order-service.ts's createOrder()
+  // rejects it server-side (see order-flow.ts's orderAcceptanceError).
+  const orderingEnabled = canOrderFeature && business.isAcceptingOrders;
   const showCashbackTeaser = cashbackEnabled && business.cashbackPercent > 0;
 
   return (

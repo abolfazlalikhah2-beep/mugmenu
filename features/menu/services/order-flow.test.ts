@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   requiredFieldsFor,
   validateOrderDraft,
+  orderAcceptanceError,
   computeTotal,
   estimatedTimeFor,
   computeOptionsExtra,
@@ -11,6 +12,7 @@ import {
   pickBestAutoDiscount,
   clampRedeemAmount,
   type AutoDiscountDef,
+  type OrderAcceptanceGate,
 } from "./order-flow";
 
 describe("requiredFieldsFor", () => {
@@ -88,6 +90,46 @@ describe("validateOrderDraft", () => {
     expect(validateOrderDraft("DINE_IN", { customerName: "", customerPhone: "" })).toBe(
       "نام و نام خانوادگی را وارد کنید."
     );
+  });
+});
+
+describe("orderAcceptanceError", () => {
+  const openForAll: OrderAcceptanceGate = {
+    isAcceptingOrders: true,
+    acceptsDineIn: true,
+    acceptsTakeaway: true,
+    acceptsDelivery: true,
+  };
+
+  it("passes when the business is open and the type is accepted", () => {
+    expect(orderAcceptanceError(openForAll, "DINE_IN")).toBeNull();
+  });
+
+  it("rejects every order type when isAcceptingOrders is off, even one the business normally accepts", () => {
+    const closed: OrderAcceptanceGate = { ...openForAll, isAcceptingOrders: false };
+    expect(orderAcceptanceError(closed, "DINE_IN")).toBe("این فروشگاه در حال حاضر سفارش نمی‌پذیرد.");
+    expect(orderAcceptanceError(closed, "TAKEAWAY")).toBe("این فروشگاه در حال حاضر سفارش نمی‌پذیرد.");
+    expect(orderAcceptanceError(closed, "DELIVERY")).toBe("این فروشگاه در حال حاضر سفارش نمی‌پذیرد.");
+  });
+
+  it("checks isAcceptingOrders before the per-type flag — closed wins even if the type itself is disabled too", () => {
+    const closedAndTypeDisabled: OrderAcceptanceGate = {
+      isAcceptingOrders: false,
+      acceptsDineIn: false,
+      acceptsTakeaway: false,
+      acceptsDelivery: false,
+    };
+    expect(orderAcceptanceError(closedAndTypeDisabled, "DINE_IN")).toBe(
+      "این فروشگاه در حال حاضر سفارش نمی‌پذیرد."
+    );
+  });
+
+  it("rejects a specific order type the business doesn't offer, while open overall", () => {
+    const noDelivery: OrderAcceptanceGate = { ...openForAll, acceptsDelivery: false };
+    expect(orderAcceptanceError(noDelivery, "DELIVERY")).toBe(
+      "این روش سفارش در حال حاضر برای این مجموعه فعال نیست."
+    );
+    expect(orderAcceptanceError(noDelivery, "TAKEAWAY")).toBeNull();
   });
 });
 

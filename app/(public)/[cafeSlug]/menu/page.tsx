@@ -24,10 +24,13 @@ export default async function CategoryListPage({
   const data = await getCategoryBrowserData(cafeSlug);
   if (!data) notFound();
 
-  const [lang, orderingEnabled] = await Promise.all([
+  const [lang, canOrderFeature] = await Promise.all([
     getMenuLangCookie(cafeSlug).then((l) => l ?? "fa"),
     businessHasFeature(data.business.id, "order.three_mode"),
   ]);
+  // Same gate as the entry page: plan feature AND the owner's manual
+  // "سفارش‌گیری" toggle both have to allow ordering.
+  const orderingEnabled = canOrderFeature && data.business.isAcceptingOrders;
   const t = menuCopy(lang);
 
   return (

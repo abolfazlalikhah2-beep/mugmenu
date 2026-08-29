@@ -62,6 +62,33 @@ export function validateOrderDraft(type: OrderType, fields: OrderDraftFields, la
   return null;
 }
 
+export interface OrderAcceptanceGate {
+  isAcceptingOrders: boolean;
+  acceptsDineIn: boolean;
+  acceptsTakeaway: boolean;
+  acceptsDelivery: boolean;
+}
+
+/**
+ * Returns an error message if this business can't take a `type` order right
+ * now, or null if it can — checked in order-service.ts's createOrder()
+ * ahead of validateOrderDraft(). isAcceptingOrders (the owner's manual
+ * "سفارش‌گیری" toggle, دشبورد "حساب کاربری") is a higher-level gate than any
+ * single order-type flag, so it's checked first: a business can have
+ * acceptsDineIn=true and still be closed for orders right now.
+ */
+export function orderAcceptanceError(business: OrderAcceptanceGate, type: OrderType): string | null {
+  if (!business.isAcceptingOrders) return "این فروشگاه در حال حاضر سفارش نمی‌پذیرد.";
+
+  const typeAccepted =
+    (type === "DINE_IN" && business.acceptsDineIn) ||
+    (type === "TAKEAWAY" && business.acceptsTakeaway) ||
+    (type === "DELIVERY" && business.acceptsDelivery);
+  if (!typeAccepted) return "این روش سفارش در حال حاضر برای این مجموعه فعال نیست.";
+
+  return null;
+}
+
 export function computeTotal(lines: OrderLine[], priceByProductId: Map<string, number>): number {
   return lines.reduce((sum, l) => sum + (priceByProductId.get(l.productId) ?? 0) * l.quantity, 0);
 }
