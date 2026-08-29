@@ -150,8 +150,9 @@ export const MENU_LANG_COPY = {
     editProfile: "ویرایش",
     myAddresses: "آدرس‌های من",
     logout: "خروج از حساب",
-    editProfileTitle: "ویرایش نام",
+    editProfileTitle: "ویرایش پروفایل",
     fullNameLabel: "نام و نام خانوادگی",
+    birthDateLabel: "تاریخ تولد (اختیاری)",
     save: "ذخیره",
     saving: "در حال ذخیره…",
 
@@ -364,8 +365,9 @@ export const MENU_LANG_COPY = {
     editProfile: "Edit",
     myAddresses: "My addresses",
     logout: "Sign out",
-    editProfileTitle: "Edit name",
+    editProfileTitle: "Edit profile",
     fullNameLabel: "Full name",
+    birthDateLabel: "Birth date (optional)",
     save: "Save",
     saving: "Saving…",
 

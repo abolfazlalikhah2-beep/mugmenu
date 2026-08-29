@@ -102,6 +102,7 @@ export function ManualOrderModal({
   const [type, setType] = useState<OrderType>(allowedTypeOptions[0]?.value ?? "DINE_IN");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [customerBirthDate, setCustomerBirthDate] = useState("");
   const [tableNumber, setTableNumber] = useState("");
   const [address, setAddress] = useState("");
   const [courierId, setCourierId] = useState("");
@@ -241,6 +242,7 @@ export function ManualOrderModal({
         <input type="hidden" name="items" value={JSON.stringify(items)} />
         <input type="hidden" name="paymentMethod" value={paymentMethod} />
         <input type="hidden" name="creditNote" value={creditNote} />
+        <input type="hidden" name="customerBirthDate" value={customerBirthDate} />
         <input type="hidden" name="courierId" value={type === "DELIVERY" ? courierId : ""} />
 
         <div className="flex flex-col gap-4 sm:flex-row">
@@ -262,6 +264,16 @@ export function ManualOrderModal({
               dir="ltr"
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
+              className="w-full text-right"
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <Input
+              type="date"
+              label="تاریخ تولد (اختیاری)"
+              dir="ltr"
+              value={customerBirthDate}
+              onChange={(e) => setCustomerBirthDate(e.target.value)}
               className="w-full text-right"
             />
           </div>

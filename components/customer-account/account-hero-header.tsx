@@ -10,11 +10,14 @@ export function AccountHeroHeader({
   slug,
   fullName,
   phone,
+  birthDate,
   lang = "fa",
 }: {
   slug: string;
   fullName: string;
   phone: string;
+  /** ISO date string (YYYY-MM-DD), suitable as an <input type="date"> defaultValue. */
+  birthDate?: string;
   lang?: MenuLang;
 }) {
   const [editing, setEditing] = useState(false);
@@ -50,7 +53,9 @@ export function AccountHeroHeader({
           <span className="text-[12.5px]">{t.editProfile}</span>
         </button>
       </div>
-      {editing && <ProfileEditModal slug={slug} fullName={fullName} onClose={() => setEditing(false)} lang={lang} />}
+      {editing && (
+        <ProfileEditModal slug={slug} fullName={fullName} birthDate={birthDate} onClose={() => setEditing(false)} lang={lang} />
+      )}
     </div>
   );
 }

@@ -277,6 +277,21 @@ export async function findCustomerNameByPhone(businessId: string, phone: string)
   return order?.customerName ?? null;
 }
 
+/**
+ * Records a birth date captured for a walk-in/phone customer in the manual
+ * order modal — upserts a CustomerAccount by phone (creating one if this
+ * customer has never logged in to the public menu) so the loyalty club's
+ * birthday feature can see it. Does not touch Order.customerAccountId: a
+ * manual order isn't a "logged in" checkout, see that field's schema comment.
+ */
+export function upsertCustomerBirthDate(businessId: string, phone: string, fullName: string, birthDate: Date) {
+  return prisma.customerAccount.upsert({
+    where: { businessId_phone: { businessId, phone } },
+    create: { businessId, phone, fullName, birthDate },
+    update: { birthDate },
+  });
+}
+
 // ---------- Customers ----------
 
 /** Raw order rows aggregated into per-customer summaries in the service layer. */

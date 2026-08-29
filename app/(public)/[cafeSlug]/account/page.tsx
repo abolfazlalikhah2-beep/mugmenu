@@ -37,7 +37,13 @@ export default async function CustomerAccountPage({
   return (
     <MenuPageShell dir={t.dir}>
       <div className="bg-[#F7F8F7]">
-        <AccountHeroHeader slug={cafeSlug} fullName={account.fullName} phone={account.phone} lang={lang} />
+        <AccountHeroHeader
+          slug={cafeSlug}
+          fullName={account.fullName}
+          phone={account.phone}
+          birthDate={account.birthDate ? account.birthDate.toISOString().slice(0, 10) : undefined}
+          lang={lang}
+        />
         <div className="-mt-[42px] flex flex-col gap-3.5 p-4">
           <WalletCard
             slug={cafeSlug}

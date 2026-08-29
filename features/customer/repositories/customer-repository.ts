@@ -27,8 +27,8 @@ export function createAccount(data: { businessId: string; phone: string; fullNam
   return prisma.customerAccount.create({ data });
 }
 
-export function updateAccountName(id: string, fullName: string) {
-  return prisma.customerAccount.update({ where: { id }, data: { fullName } });
+export function updateAccountProfile(id: string, data: { fullName: string; birthDate?: Date }) {
+  return prisma.customerAccount.update({ where: { id }, data });
 }
 
 // ---------- Wallet ----------

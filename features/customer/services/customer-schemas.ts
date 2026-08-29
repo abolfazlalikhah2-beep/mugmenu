@@ -13,6 +13,13 @@ export const verifyOtpSchema = z.object({
 
 export const updateProfileSchema = z.object({
   fullName: z.string().trim().min(2, "نام و نام خانوادگی را کامل وارد کنید.").max(80),
+  // Date-only (YYYY-MM-DD from an <input type="date">) — see CustomerAccount.birthDate.
+  birthDate: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => (v ? v : undefined)),
 });
 
 export const addressSchema = z.object({

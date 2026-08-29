@@ -61,10 +61,16 @@ export async function updateCustomerProfileAction(
   formData: FormData
 ): Promise<ActionState> {
   const { customerAccountId } = await requireCustomerSession(slug);
-  const parsed = updateProfileSchema.safeParse({ fullName: String(formData.get("fullName") ?? "") });
+  const parsed = updateProfileSchema.safeParse({
+    fullName: String(formData.get("fullName") ?? ""),
+    birthDate: String(formData.get("birthDate") ?? ""),
+  });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
-  await repo.updateAccountName(customerAccountId, parsed.data.fullName);
+  await repo.updateAccountProfile(customerAccountId, {
+    fullName: parsed.data.fullName,
+    birthDate: parsed.data.birthDate ? new Date(parsed.data.birthDate) : undefined,
+  });
   return { ok: true };
 }
 

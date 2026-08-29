@@ -159,6 +159,10 @@ export async function createManualOrder(businessId: string, input: unknown): Pro
     })),
   });
 
+  if (data.customerBirthDate) {
+    await repo.upsertCustomerBirthDate(businessId, data.customerPhone, data.customerName, new Date(data.customerBirthDate));
+  }
+
   if (data.paymentMethod === "CREDIT") {
     await createCreditRecord({
       businessId,

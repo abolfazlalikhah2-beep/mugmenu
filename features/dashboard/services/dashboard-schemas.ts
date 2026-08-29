@@ -210,10 +210,19 @@ export const manualOrderItemSchema = z.object({
   quantity: z.number().int().positive().max(50),
 });
 
+const optionalDate = z
+  .string()
+  .trim()
+  .optional()
+  .or(z.literal(""))
+  .transform((v) => (v ? v : undefined));
+
 export const manualOrderSchema = z.object({
   type: z.enum(["DINE_IN", "TAKEAWAY", "DELIVERY"]),
   customerName: z.string().trim().min(1, "نام مشتری را وارد کنید.").max(120),
   customerPhone: z.string().trim().min(1, "شماره موبایل را وارد کنید.").max(20),
+  // Date-only (YYYY-MM-DD from an <input type="date">) — see CustomerAccount.birthDate.
+  customerBirthDate: optionalDate,
   tableNumber: z.string().trim().max(20).optional(),
   address: z.string().trim().max(500).optional(),
   // Only meaningful for type DELIVERY — see order-mgmt-service.ts's createManualOrder.
@@ -222,13 +231,6 @@ export const manualOrderSchema = z.object({
   paymentMethod: z.enum(["CASH", "CARD", "CREDIT"]),
   creditNote: z.string().trim().max(500).optional(),
 });
-
-const optionalDate = z
-  .string()
-  .trim()
-  .optional()
-  .or(z.literal(""))
-  .transform((v) => (v ? v : undefined));
 
 export const discountCodeSchema = z.object({
   name: z.string().trim().min(2, "نام تخفیف را کامل وارد کنید.").max(80),

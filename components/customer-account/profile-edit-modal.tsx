@@ -11,11 +11,14 @@ const initialState: ActionState = {};
 export function ProfileEditModal({
   slug,
   fullName,
+  birthDate,
   onClose,
   lang = "fa",
 }: {
   slug: string;
   fullName: string;
+  /** ISO date string (YYYY-MM-DD), suitable as an <input type="date"> defaultValue. */
+  birthDate?: string;
   onClose: () => void;
   lang?: MenuLang;
 }) {
@@ -45,6 +48,7 @@ export function ProfileEditModal({
     >
       <form id="profile-edit-form" action={formAction} className="flex flex-col gap-3">
         <Input name="fullName" label={t.fullNameLabel} defaultValue={fullName} required />
+        <Input type="date" name="birthDate" label={t.birthDateLabel} dir="ltr" defaultValue={birthDate} className="text-right" />
         {state.error && <p className="text-right text-xs text-red-500">{state.error}</p>}
       </form>
     </ModalShell>
