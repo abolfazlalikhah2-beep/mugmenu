@@ -8,6 +8,7 @@ import {
   FEATURE_KEYS,
   FEATURE_MATRIX,
   computeAnnualPrice,
+  computeSixMonthPrice,
   type PlanKey,
 } from "../features/plans/feature-matrix";
 
@@ -18,6 +19,7 @@ interface SeededPlan {
   id: string;
   name: string;
   monthlyPrice: number;
+  sixMonthPrice: number;
   annualPrice: number;
 }
 
@@ -27,10 +29,11 @@ async function seedPlans(): Promise<Record<PlanKey, SeededPlan>> {
   for (const key of PLAN_KEYS) {
     const def = PLAN_DEFS[key];
     const annualPrice = computeAnnualPrice(def.monthlyPrice);
+    const sixMonthPrice = computeSixMonthPrice(def.monthlyPrice);
     const plan = await prisma.plan.upsert({
       where: { key },
-      update: { name: def.name, monthlyPrice: def.monthlyPrice, annualPrice, sortOrder: def.sortOrder },
-      create: { key, name: def.name, monthlyPrice: def.monthlyPrice, annualPrice, sortOrder: def.sortOrder },
+      update: { name: def.name, monthlyPrice: def.monthlyPrice, sixMonthPrice, annualPrice, sortOrder: def.sortOrder },
+      create: { key, name: def.name, monthlyPrice: def.monthlyPrice, sixMonthPrice, annualPrice, sortOrder: def.sortOrder },
     });
     plansByKey[key] = plan;
   }

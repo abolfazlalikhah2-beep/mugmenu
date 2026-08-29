@@ -4,20 +4,24 @@ import { Crown, Calendar } from "lucide-react";
 import { formatToman } from "@/features/menu/utils/money";
 import type { PlanStatus } from "@/features/dashboard/services/plan-status";
 
+const BILLING_CYCLE_LABEL: Record<string, string> = {
+  MONTHLY: "ماهانه",
+  SIX_MONTH: "۶ ماهه",
+  ANNUAL: "سالانه",
+};
+
 export function PlanCard({
   planName,
   priceToman,
   expiresAt,
   status,
-  planId,
   billingCycle,
 }: {
   planName: string;
   priceToman: number;
   expiresAt: Date;
   status: PlanStatus;
-  planId: string;
-  billingCycle: "MONTHLY" | "ANNUAL";
+  billingCycle: "MONTHLY" | "SIX_MONTH" | "ANNUAL";
 }) {
   return (
     <div className="relative flex flex-col gap-[22px] overflow-hidden rounded-[26px] bg-[#0F7A3B] p-[26px_22px] text-white sm:p-[34px_36px]">
@@ -43,7 +47,7 @@ export function PlanCard({
           <div className="mt-1.5 text-[28px] font-extrabold sm:text-[34px]">
             {formatToman(priceToman)}
             <span className="mr-1.5 text-sm font-light opacity-85">
-              تومان / {billingCycle === "ANNUAL" ? "سالانه" : "ماهانه"}
+              تومان / {BILLING_CYCLE_LABEL[billingCycle] ?? "ماهانه"}
             </span>
           </div>
         </div>
@@ -77,10 +81,10 @@ export function PlanCard({
 
       <div className="relative flex flex-col items-center gap-2">
         <Link
-          href={`/payment?planId=${planId}&billingCycle=${billingCycle}`}
+          href="/payment"
           className="flex h-[54px] w-full items-center justify-center rounded-[15px] bg-white text-[17px] font-bold text-[#0F7A3B]"
         >
-          {status.isExpired ? "تمدید اشتراک" : "خرید/تمدید اشتراک"}
+          تمدید اشتراک
         </Link>
         <span className="text-[11px] font-light text-white/80">پرداخت کارت‌به‌کارت</span>
       </div>

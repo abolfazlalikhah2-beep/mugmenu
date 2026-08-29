@@ -17,7 +17,12 @@ export async function getAccountOverview(businessId: string) {
     getRequestsForBusiness(businessId),
   ]);
   const status = computePlanStatus(business.planStartedAt, business.planExpiresAt);
-  const priceToman = business.billingCycle === "ANNUAL" ? business.plan.annualPrice : business.plan.monthlyPrice;
+  const priceToman =
+    business.billingCycle === "ANNUAL"
+      ? business.plan.annualPrice
+      : business.billingCycle === "SIX_MONTH"
+        ? business.plan.sixMonthPrice
+        : business.plan.monthlyPrice;
   const featureLabels = featureSet
     ? [...featureSet.keys].map((key) => FEATURE_LABELS[key as FeatureKey]).filter(Boolean)
     : [];

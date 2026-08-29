@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/db";
-import { computePlanDates } from "@/features/plans/services/plan-dates";
+import { computePlanDates, type BillingCycle } from "@/features/plans/services/plan-dates";
+import { DEFAULT_BUSINESS_HOURS } from "@/features/menu/utils/business-hours";
 import type {
   PlatformRole,
   TicketCategory,
@@ -31,6 +32,45 @@ export function getBusinessesForList(search?: string) {
     include: { ...OWNER_INCLUDE, ...HAS_PAID_TX_INCLUDE, plan: true },
     orderBy: { createdAt: "desc" },
   });
+}
+
+export function getBusinessBySlug(slug: string) {
+  return prisma.business.findUnique({ where: { slug }, select: { id: true } });
+}
+
+export interface CreateCustomerWithOwnerData {
+  fullName: string;
+  phone: string;
+  passwordHash: string;
+  businessName: string;
+  slug: string;
+  planId: string;
+  billingCycle: BillingCycle;
+  planStartedAt: Date;
+  planExpiresAt: Date;
+}
+
+export async function createCustomerWithOwner(data: CreateCustomerWithOwnerData) {
+  const business = await prisma.business.create({
+    data: {
+      slug: data.slug,
+      name: data.businessName,
+      planId: data.planId,
+      billingCycle: data.billingCycle,
+      planStartedAt: data.planStartedAt,
+      planExpiresAt: data.planExpiresAt,
+      hours: { create: DEFAULT_BUSINESS_HOURS },
+      owners: {
+        create: {
+          phone: data.phone,
+          fullName: data.fullName,
+          passwordHash: data.passwordHash,
+          role: "OWNER",
+        },
+      },
+    },
+  });
+  return business;
 }
 
 export function getBusinessesForPicker() {
@@ -140,7 +180,7 @@ export function renewSubscriptionManually(
   businessId: string,
   amount: number,
   planName: string,
-  billingCycle: "MONTHLY" | "ANNUAL"
+  billingCycle: BillingCycle
 ) {
   const { planStartedAt, planExpiresAt } = computePlanDates(billingCycle);
 

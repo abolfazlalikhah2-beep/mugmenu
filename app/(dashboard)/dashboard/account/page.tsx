@@ -16,7 +16,6 @@ export default async function AccountPage() {
       <Topbar title="حساب کاربری" businessName={business.name} />
       <PanelContent>
         <AccountView
-          planId={overview.planId}
           billingCycle={overview.billingCycle}
           planName={overview.planName}
           priceToman={overview.planPriceToman}

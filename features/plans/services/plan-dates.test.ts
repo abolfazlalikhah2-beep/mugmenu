@@ -9,6 +9,13 @@ describe("computePlanDates", () => {
     expect(planExpiresAt).toEqual(new Date(2026, 8, 7)); // 2026-09-07
   });
 
+  it("sets a 183-day window for SIX_MONTH", () => {
+    const from = new Date(2026, 7, 8); // 2026-08-08
+    const { planStartedAt, planExpiresAt } = computePlanDates("SIX_MONTH", from);
+    expect(planStartedAt).toEqual(from);
+    expect(planExpiresAt).toEqual(new Date(2027, 1, 7)); // 2027-02-07
+  });
+
   it("sets a 365-day window for ANNUAL", () => {
     const from = new Date(2026, 7, 8); // 2026-08-08
     const { planStartedAt, planExpiresAt } = computePlanDates("ANNUAL", from);

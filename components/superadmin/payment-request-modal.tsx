@@ -29,7 +29,7 @@ export function PaymentRequestModal({
   const [state, formAction, pending] = useActionState(action, initialState);
   const [decision, setDecision] = useState<"VERIFIED" | "REJECTED" | null>(null);
   const [planId, setPlanId] = useState(plans[0]?.id ?? "");
-  const [billingCycle, setBillingCycle] = useState<"MONTHLY" | "ANNUAL">("MONTHLY");
+  const [billingCycle, setBillingCycle] = useState<"MONTHLY" | "SIX_MONTH" | "ANNUAL">("SIX_MONTH");
 
   useEffect(() => {
     if (state.ok) onClose();
@@ -146,10 +146,11 @@ export function PaymentRequestModal({
               <select
                 name="billingCycle"
                 value={billingCycle}
-                onChange={(e) => setBillingCycle(e.target.value as "MONTHLY" | "ANNUAL")}
+                onChange={(e) => setBillingCycle(e.target.value as "MONTHLY" | "SIX_MONTH" | "ANNUAL")}
                 className="h-[46px] rounded-xl border border-border-input px-3.5 text-right text-sm outline-none focus:border-brand"
               >
                 <option value="MONTHLY">ماهانه</option>
+                <option value="SIX_MONTH">۶ ماهه</option>
                 <option value="ANNUAL">سالانه</option>
               </select>
             </div>

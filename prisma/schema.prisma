@@ -154,6 +154,7 @@ model BusinessHours {
 
 enum BillingCycle {
   MONTHLY
+  SIX_MONTH
   ANNUAL
 }
 
@@ -162,13 +163,17 @@ enum BillingCycle {
 // truth used to seed PlanFeature below. Prices are snapshotted here (not
 // computed from a formula at read time) so changing a price doesn't retroactively
 // change what a business was quoted; features/plans reads these + monthlyPrice/
-// annualPrice, never a hardcoded plan-name string comparison.
+// sixMonthPrice/annualPrice, never a hardcoded plan-name string comparison.
+// sixMonthPrice defaults to 0 for the migration itself — reseed (npx prisma
+// db seed) right after to backfill real computed prices, see
+// feature-matrix.ts's computeSixMonthPrice.
 model Plan {
-  id           String   @id @default(cuid())
-  key          String   @unique
-  name         String
-  monthlyPrice Int
-  annualPrice  Int
+  id            String   @id @default(cuid())
+  key           String   @unique
+  name          String
+  monthlyPrice  Int
+  sixMonthPrice Int      @default(0)
+  annualPrice   Int
   sortOrder    Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

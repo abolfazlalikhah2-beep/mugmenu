@@ -3,6 +3,7 @@ import * as repo from "@/features/plans/repositories/plan-repository";
 import { resolveFeatureAccess, type FeatureAccess } from "@/features/plans/services/feature-access";
 import { isDemoEffective } from "@/features/plans/services/demo-access";
 import type { FeatureKey } from "@/features/plans/feature-matrix";
+import type { BillingCycle } from "@/features/plans/services/plan-dates";
 import { logger } from "@/lib/logger";
 
 export type { FeatureAccess } from "@/features/plans/services/feature-access";
@@ -74,6 +75,6 @@ export function getAllPlans() {
   return repo.getAllPlansWithFeatures();
 }
 
-export function changeBusinessPlan(businessId: string, planId: string, billingCycle: "MONTHLY" | "ANNUAL") {
+export function changeBusinessPlan(businessId: string, planId: string, billingCycle: BillingCycle) {
   return repo.updateBusinessPlan(businessId, planId, billingCycle);
 }

@@ -1,13 +1,19 @@
 import "server-only";
+import crypto from "crypto";
+import bcrypt from "bcryptjs";
 import { logger } from "@/lib/logger";
 import * as repo from "@/features/superadmin/repositories/superadmin-repository";
 import * as planService from "@/features/plans/services/plan-service";
-import { changePlanSchema, demoTrialSchema } from "@/features/superadmin/services/superadmin-schemas";
+import { findUserByPhone } from "@/features/auth/repositories/user-repository";
+import { changePlanSchema, demoTrialSchema, newCustomerSchema } from "@/features/superadmin/services/superadmin-schemas";
 import { computeSubscriptionStatus, type SubscriptionStatus } from "@/features/superadmin/services/subscription-status";
 import { isDemoEffective } from "@/features/plans/services/demo-access";
+import { computePlanDates, type BillingCycle } from "@/features/plans/services/plan-dates";
 
-function priceForCycle(plan: { monthlyPrice: number; annualPrice: number }, billingCycle: "MONTHLY" | "ANNUAL") {
-  return billingCycle === "ANNUAL" ? plan.annualPrice : plan.monthlyPrice;
+function priceForCycle(plan: { monthlyPrice: number; sixMonthPrice: number; annualPrice: number }, billingCycle: BillingCycle) {
+  if (billingCycle === "ANNUAL") return plan.annualPrice;
+  if (billingCycle === "SIX_MONTH") return plan.sixMonthPrice;
+  return plan.monthlyPrice;
 }
 
 export type ServiceResult = { ok: true } | { ok: false; error: string };
@@ -136,4 +142,55 @@ export async function changePlan(businessId: string, input: unknown): Promise<Se
   await planService.changeBusinessPlan(businessId, parsed.data.planId, parsed.data.billingCycle);
   logger.info("superadmin.business_plan_changed", { businessId, planId: parsed.data.planId, billingCycle: parsed.data.billingCycle });
   return { ok: true };
+}
+
+function generateTempPassword(): string {
+  return crypto.randomBytes(6).toString("base64url").slice(0, 8);
+}
+
+export type CreateCustomerResult =
+  | { ok: true; businessId: string; slug: string; tempPassword: string }
+  | { ok: false; error: string };
+
+/**
+ * Manual customer onboarding from the super-admin panel (پنل داخلی ماگ‌منو
+ * "افزودن مشتری") — for phone-verified signups the normal path is
+ * register + /onboarding, but staff sometimes need to create a paying
+ * customer's account + business directly (e.g. onboarding over a phone
+ * call). Creates User + Business in one transaction and puts the business
+ * straight on the picked plan/cycle, mirroring what onboarding-service.ts
+ * does for self-service signups.
+ */
+export async function createCustomer(input: unknown): Promise<CreateCustomerResult> {
+  const parsed = newCustomerSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+  const data = parsed.data;
+
+  const existingUser = await findUserByPhone(data.phone);
+  if (existingUser) return { ok: false, error: "کاربری با این شماره قبلاً ثبت شده است." };
+
+  const existingSlug = await repo.getBusinessBySlug(data.slug);
+  if (existingSlug) return { ok: false, error: "این شناسه قبلاً استفاده شده است." };
+
+  const plans = await planService.getAllPlans();
+  if (!plans.some((p) => p.id === data.planId)) return { ok: false, error: "پلن نامعتبر است." };
+
+  const tempPassword = generateTempPassword();
+  const passwordHash = await bcrypt.hash(tempPassword, 10);
+  const { planStartedAt, planExpiresAt } = computePlanDates(data.billingCycle as BillingCycle);
+
+  const business = await repo.createCustomerWithOwner({
+    fullName: data.fullName,
+    phone: data.phone,
+    passwordHash,
+    businessName: data.businessName,
+    slug: data.slug,
+    planId: data.planId,
+    billingCycle: data.billingCycle,
+    planStartedAt,
+    planExpiresAt,
+  });
+
+  logger.info("superadmin.customer_created", { businessId: business.id, slug: business.slug, planId: data.planId });
+  return { ok: true, businessId: business.id, slug: business.slug, tempPassword };
 }

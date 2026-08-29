@@ -11,9 +11,15 @@ export type PlanKey = (typeof PLAN_KEYS)[number];
 
 export const ANNUAL_MONTHS = 12;
 export const ANNUAL_DISCOUNT = 0.8;
+export const SIX_MONTH_MONTHS = 6;
+export const SIX_MONTH_DISCOUNT = 0.9;
 
 export function computeAnnualPrice(monthlyPrice: number): number {
   return Math.round(monthlyPrice * ANNUAL_MONTHS * ANNUAL_DISCOUNT);
+}
+
+export function computeSixMonthPrice(monthlyPrice: number): number {
+  return Math.round(monthlyPrice * SIX_MONTH_MONTHS * SIX_MONTH_DISCOUNT);
 }
 
 export const PLAN_DEFS: Record<PlanKey, { name: string; monthlyPrice: number; sortOrder: number }> = {

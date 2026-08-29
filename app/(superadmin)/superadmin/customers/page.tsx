@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Plus } from "lucide-react";
 import { requireSuperAdmin } from "@/features/auth/services/authorize";
 import { findUserByPhone } from "@/features/auth/repositories/user-repository";
 import { getCustomers } from "@/features/superadmin/services/customer-service";
@@ -23,7 +25,19 @@ export default async function SuperAdminCustomersPage({
 
   return (
     <>
-      <Topbar title="مشتریان" agentName={agent?.fullName ?? "سوپرادمین"} />
+      <Topbar
+        title="مشتریان"
+        agentName={agent?.fullName ?? "سوپرادمین"}
+        action={
+          <Link
+            href="/superadmin/customers/new"
+            className="flex h-[42px] items-center gap-1.5 rounded-xl bg-brand px-4 text-sm font-medium text-white"
+          >
+            <Plus size={17} />
+            افزودن مشتری
+          </Link>
+        }
+      />
       <PanelContent>
         <CustomersView customers={customers} q={q ?? ""} status={statusFilter} />
       </PanelContent>

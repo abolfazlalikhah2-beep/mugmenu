@@ -1,14 +1,20 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Image from "next/image";
 import { Check, CreditCard, Landmark } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { ImageUploadField } from "@/components/uploads/image-upload-field";
 import { createPaymentRequestAction, type ActionState } from "@/features/payments/routes/actions";
 import type { PlanPricing } from "@/features/payments/services/payment-service";
 
 const initialState: ActionState = {};
+
+const CYCLE_LABEL: Record<"SIX_MONTH" | "ANNUAL", string> = {
+  SIX_MONTH: "۶ ماهه",
+  ANNUAL: "سالانه",
+};
 
 /** Groups digits into 4s the way a physical card prints them — e.g. "6037 9975 1234 5678". */
 function formatCardNumber(raw: string): string {
@@ -71,13 +77,18 @@ function BankCard({
 }
 
 export function PaymentPageView({
-  pricing,
+  options,
+  defaultBillingCycle,
   card,
 }: {
-  pricing: PlanPricing;
+  /** Exactly two entries: [SIX_MONTH pricing, ANNUAL pricing] for the business's own current plan. */
+  options: [PlanPricing, PlanPricing];
+  defaultBillingCycle: "SIX_MONTH" | "ANNUAL";
   card: { id: string; bankName: string; cardNumber: string; accountNumber: string; holderName: string } | null;
 }) {
   const [state, formAction, pending] = useActionState(createPaymentRequestAction, initialState);
+  const [billingCycle, setBillingCycle] = useState<"SIX_MONTH" | "ANNUAL">(defaultBillingCycle);
+  const pricing = options.find((o) => o.billingCycle === billingCycle) ?? options[0];
 
   if (state.ok) {
     return (
@@ -109,10 +120,24 @@ export function PaymentPageView({
         </div>
         <div className="text-right">
           <div className="text-lg font-semibold">پرداخت کارت به کارت</div>
-          <div className="mt-0.5 text-[13px] font-light text-text-3">
-            {pricing.planName} · {pricing.billingCycle === "ANNUAL" ? "سالانه" : "ماهانه"}
-          </div>
+          <div className="mt-0.5 text-[13px] font-light text-text-3">{pricing.planName}</div>
         </div>
+      </div>
+
+      <div className="flex rounded-2xl bg-[#F6F6F6] p-1">
+        {options.map((o) => (
+          <button
+            key={o.billingCycle}
+            type="button"
+            onClick={() => setBillingCycle(o.billingCycle as "SIX_MONTH" | "ANNUAL")}
+            className={cn(
+              "flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors",
+              billingCycle === o.billingCycle ? "bg-white text-brand shadow-sm" : "text-text-3"
+            )}
+          >
+            {CYCLE_LABEL[o.billingCycle as "SIX_MONTH" | "ANNUAL"]}
+          </button>
+        ))}
       </div>
 
       <div className="flex items-center justify-between rounded-2xl bg-[#FAFBFA] p-[16px_18px]">

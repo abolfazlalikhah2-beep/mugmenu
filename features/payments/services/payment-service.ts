@@ -1,4 +1,5 @@
 import "server-only";
+import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { checkRateLimit } from "@/lib/rate-limit";
 import * as repo from "@/features/payments/repositories/payment-repository";
@@ -56,12 +57,17 @@ export interface PlanPricing {
   amount: number;
 }
 
+function priceForCycle(plan: { monthlyPrice: number; sixMonthPrice: number; annualPrice: number }, billingCycle: BillingCycle): number {
+  if (billingCycle === "ANNUAL") return plan.annualPrice;
+  if (billingCycle === "SIX_MONTH") return plan.sixMonthPrice;
+  return plan.monthlyPrice;
+}
+
 export async function getPlanPricing(planId: string, billingCycle: BillingCycle): Promise<PlanPricing | null> {
   const plans = await planService.getAllPlans();
   const plan = plans.find((p) => p.id === planId);
   if (!plan) return null;
-  const amount = billingCycle === "ANNUAL" ? plan.annualPrice : plan.monthlyPrice;
-  return { planId: plan.id, planName: plan.name, billingCycle, amount };
+  return { planId: plan.id, planName: plan.name, billingCycle, amount: priceForCycle(plan, billingCycle) };
 }
 
 export async function pickRandomActiveCard() {
@@ -162,7 +168,17 @@ export async function verifyRequest(id: string, input: unknown): Promise<VerifyR
   if (parsed.data.status === "VERIFIED") {
     const plans = await planService.getAllPlans();
     if (!plans.some((p) => p.id === parsed.data.newPlanId)) return { ok: false, error: "پلن نامعتبر است." };
-    await planService.changeBusinessPlan(request.businessId, parsed.data.newPlanId!, parsed.data.billingCycle ?? "MONTHLY");
+    const newPlanId = parsed.data.newPlanId!;
+    await planService.changeBusinessPlan(request.businessId, newPlanId, parsed.data.billingCycle ?? "MONTHLY");
+
+    // Diagnostic — confirms the newly-assigned plan actually has PlanFeature
+    // rows to gate on. A plan with 0 features here means PlanFeature was
+    // never seeded for it (the real fix is seeding PlanFeature, done
+    // separately via SQL), not a bug in this verification flow itself.
+    const assignedFeatures = await prisma.planFeature.findMany({ where: { planId: newPlanId } });
+    if (assignedFeatures.length === 0) {
+      logger.error("payments.plan_activated_with_no_features", { businessId: request.businessId, planId: newPlanId });
+    }
   }
 
   await repo.updatePaymentRequestStatus(id, {

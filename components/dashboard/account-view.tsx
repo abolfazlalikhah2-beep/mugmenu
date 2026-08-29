@@ -5,7 +5,6 @@ import type { PlanStatus } from "@/features/dashboard/services/plan-status";
 import type { BusinessPaymentRequestRow } from "@/features/payments/services/payment-service";
 
 export function AccountView({
-  planId,
   billingCycle,
   planName,
   priceToman,
@@ -15,8 +14,7 @@ export function AccountView({
   featureLabels,
   paymentRequests,
 }: {
-  planId: string;
-  billingCycle: "MONTHLY" | "ANNUAL";
+  billingCycle: "MONTHLY" | "SIX_MONTH" | "ANNUAL";
   planName: string;
   priceToman: number;
   expiresAt: Date;
@@ -28,7 +26,6 @@ export function AccountView({
   return (
     <div className="grid h-full items-start gap-[18px] sm:gap-[24px] lg:grid-cols-[1.3fr_1fr]">
       <PlanCard
-        planId={planId}
         billingCycle={billingCycle}
         planName={planName}
         priceToman={priceToman}

@@ -1,9 +1,15 @@
-export type BillingCycle = "MONTHLY" | "ANNUAL";
+export type BillingCycle = "MONTHLY" | "SIX_MONTH" | "ANNUAL";
 
 export interface PlanDates {
   planStartedAt: Date;
   planExpiresAt: Date;
 }
+
+const CYCLE_DAYS: Record<BillingCycle, number> = {
+  MONTHLY: 30,
+  SIX_MONTH: 183,
+  ANNUAL: 365,
+};
 
 /**
  * Single source of truth for the planStartedAt/planExpiresAt window implied
@@ -15,6 +21,6 @@ export interface PlanDates {
 export function computePlanDates(billingCycle: BillingCycle, from = new Date()): PlanDates {
   const planStartedAt = new Date(from);
   const planExpiresAt = new Date(from);
-  planExpiresAt.setDate(planExpiresAt.getDate() + (billingCycle === "ANNUAL" ? 365 : 30));
+  planExpiresAt.setDate(planExpiresAt.getDate() + CYCLE_DAYS[billingCycle]);
   return { planStartedAt, planExpiresAt };
 }

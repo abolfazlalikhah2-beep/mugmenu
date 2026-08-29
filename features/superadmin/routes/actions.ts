@@ -14,6 +14,14 @@ export interface ActionState {
   tempPassword?: string;
 }
 
+export interface CreateCustomerActionState {
+  error?: string;
+  ok?: boolean;
+  tempPassword?: string;
+  businessId?: string;
+  slug?: string;
+}
+
 function bool(formData: FormData, key: string) {
   return formData.get(key) === "on" || formData.get(key) === "true";
 }
@@ -55,6 +63,24 @@ export async function toggleSuspendBusinessAction(businessId: string, next: bool
   revalidatePath(`/superadmin/customers/${businessId}`);
   revalidatePath("/superadmin/customers");
   return result;
+}
+
+export async function createCustomerAction(
+  _prevState: CreateCustomerActionState,
+  formData: FormData
+): Promise<CreateCustomerActionState> {
+  await requireSuperAdmin();
+  const result = await customerService.createCustomer({
+    fullName: String(formData.get("fullName") ?? ""),
+    phone: String(formData.get("phone") ?? ""),
+    businessName: String(formData.get("businessName") ?? ""),
+    slug: String(formData.get("slug") ?? ""),
+    planId: String(formData.get("planId") ?? ""),
+    billingCycle: String(formData.get("billingCycle") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath("/superadmin/customers");
+  return { ok: true, tempPassword: result.tempPassword, businessId: result.businessId, slug: result.slug };
 }
 
 export async function changePlanAction(businessId: string, planId: string, billingCycle: string) {

@@ -21,7 +21,7 @@ export const verifyPaymentRequestSchema = z
     status: z.enum(["VERIFIED", "REJECTED"]),
     notes: z.string().trim().max(500).optional(),
     newPlanId: z.string().optional(),
-    billingCycle: z.enum(["MONTHLY", "ANNUAL"]).optional(),
+    billingCycle: z.enum(["MONTHLY", "SIX_MONTH", "ANNUAL"]).optional(),
   })
   .refine((data) => data.status !== "VERIFIED" || !!data.newPlanId, {
     message: "برای تایید، پلن جدید را انتخاب کنید.",

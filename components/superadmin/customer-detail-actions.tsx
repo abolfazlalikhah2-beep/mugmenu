@@ -14,6 +14,7 @@ interface PlanOption {
   key: string;
   name: string;
   monthlyPrice: number;
+  sixMonthPrice: number;
   annualPrice: number;
 }
 
@@ -33,7 +34,7 @@ export function CustomerDetailActions({
   isSuspended: boolean;
   plans: PlanOption[];
   currentPlanId: string;
-  currentBillingCycle: "MONTHLY" | "ANNUAL";
+  currentBillingCycle: "MONTHLY" | "SIX_MONTH" | "ANNUAL";
   isDemoActive: boolean;
   demoActiveNow: boolean;
   demoExpiresAt: Date | null;
@@ -89,10 +90,11 @@ export function CustomerDetailActions({
         </select>
         <select
           value={billingCycle}
-          onChange={(e) => setBillingCycle(e.target.value as "MONTHLY" | "ANNUAL")}
+          onChange={(e) => setBillingCycle(e.target.value as "MONTHLY" | "SIX_MONTH" | "ANNUAL")}
           className="h-10 rounded-xl border border-border-input bg-white px-3 text-[13px]"
         >
           <option value="MONTHLY">ماهانه</option>
+          <option value="SIX_MONTH">۶ ماهه</option>
           <option value="ANNUAL">سالانه</option>
         </select>
         <button

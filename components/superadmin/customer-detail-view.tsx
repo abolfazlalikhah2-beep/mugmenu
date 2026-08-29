@@ -38,16 +38,27 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+const BILLING_CYCLE_LABEL: Record<string, string> = {
+  MONTHLY: "مبلغ ماهانه",
+  SIX_MONTH: "مبلغ ۶ ماهه",
+  ANNUAL: "مبلغ سالانه",
+};
+
 export function CustomerDetailView({
   detail,
   plans,
 }: {
   detail: CustomerDetail;
-  plans: { id: string; key: string; name: string; monthlyPrice: number; annualPrice: number }[];
+  plans: { id: string; key: string; name: string; monthlyPrice: number; sixMonthPrice: number; annualPrice: number }[];
 }) {
   const { business, owner, status, demoActive, activity, payments } = detail;
   const planStatus = computePlanStatus(business.planStartedAt, business.planExpiresAt);
-  const currentPrice = business.billingCycle === "ANNUAL" ? business.plan.annualPrice : business.plan.monthlyPrice;
+  const currentPrice =
+    business.billingCycle === "ANNUAL"
+      ? business.plan.annualPrice
+      : business.billingCycle === "SIX_MONTH"
+        ? business.plan.sixMonthPrice
+        : business.plan.monthlyPrice;
 
   return (
     <div className="flex flex-col gap-[22px]">
@@ -100,7 +111,7 @@ export function CustomerDetailView({
           <SummaryRow label="پلن فعلی" value={business.plan.name} />
           <SummaryRow label="تاریخ تمدید" value={business.planExpiresAt.toLocaleDateString("fa-IR")} />
           <SummaryRow
-            label={business.billingCycle === "ANNUAL" ? "مبلغ سالانه" : "مبلغ ماهانه"}
+            label={BILLING_CYCLE_LABEL[business.billingCycle] ?? "مبلغ"}
             value={`${currentPrice.toLocaleString("fa-IR")} تومان`}
           />
           <div className="mt-1 h-2 overflow-hidden rounded-md bg-[#F0F0F0]">

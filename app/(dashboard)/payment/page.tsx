@@ -6,26 +6,24 @@ import { Topbar } from "@/components/dashboard/topbar";
 import { PanelContent } from "@/components/dashboard/panel-content";
 import { PaymentPageView } from "@/components/dashboard/payment-page-view";
 
-export default async function PaymentPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ planId?: string }>;
-}) {
+// This page never takes a planId from the client — it's a renewal of the
+// business's OWN current plan, never a picker for a different one (no
+// self-service plan upgrade, see AccountView/PlanCard and CLAUDE.md phase
+// 3). Purchases are 6-month or annual only — MONTHLY still exists as a
+// concept for a business's *current* cycle (legacy accounts, or the
+// super-admin's manual verify step can still grant it), this page just
+// never offers it as a purchase option.
+export default async function PaymentPage() {
   const { businessId } = await requireOwnerRole();
-  const { planId } = await searchParams;
 
-  // New subscription purchases are annual-only (with the discounted annual
-  // price already baked into Plan.annualPrice) — any billingCycle query
-  // param is ignored here on purpose. MONTHLY still exists as a concept
-  // elsewhere (a business's *current* plan can be on it, e.g. legacy
-  // accounts — see AccountView/PlanCard, and the super-admin's manual
-  // verify step can still grant it), this page just never offers it.
-  const [business, pricing] = await Promise.all([
-    getBusiness(businessId),
-    planId ? getPlanPricing(planId, "ANNUAL") : Promise.resolve(null),
-  ]);
+  const business = await getBusiness(businessId);
   if (!business) notFound();
-  if (!pricing) redirect("/dashboard/account");
+
+  const [sixMonthPricing, annualPricing] = await Promise.all([
+    getPlanPricing(business.planId, "SIX_MONTH"),
+    getPlanPricing(business.planId, "ANNUAL"),
+  ]);
+  if (!sixMonthPricing || !annualPricing) redirect("/dashboard/account");
 
   const card = await pickRandomActiveCard();
 
@@ -33,7 +31,11 @@ export default async function PaymentPage({
     <>
       <Topbar title="پرداخت اشتراک" businessName={business.name} />
       <PanelContent>
-        <PaymentPageView pricing={pricing} card={card} />
+        <PaymentPageView
+          options={[sixMonthPricing, annualPricing]}
+          defaultBillingCycle={business.billingCycle === "MONTHLY" ? "SIX_MONTH" : business.billingCycle}
+          card={card}
+        />
       </PanelContent>
     </>
   );
