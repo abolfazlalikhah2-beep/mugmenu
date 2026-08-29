@@ -104,6 +104,7 @@ export function ManualOrderModal({
   const [customerPhone, setCustomerPhone] = useState("");
   const [tableNumber, setTableNumber] = useState("");
   const [address, setAddress] = useState("");
+  const [courierId, setCourierId] = useState("");
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -157,6 +158,7 @@ export function ManualOrderModal({
 
   const products = useMemo(() => catalog?.products ?? [], [catalog]);
   const categories = catalog?.categories ?? [];
+  const couriers = catalog?.couriers ?? [];
 
   const filtered = useMemo(
     () =>
@@ -239,6 +241,7 @@ export function ManualOrderModal({
         <input type="hidden" name="items" value={JSON.stringify(items)} />
         <input type="hidden" name="paymentMethod" value={paymentMethod} />
         <input type="hidden" name="creditNote" value={creditNote} />
+        <input type="hidden" name="courierId" value={type === "DELIVERY" ? courierId : ""} />
 
         <div className="flex flex-col gap-4 sm:flex-row">
           <div className="min-w-0 flex-1">
@@ -290,6 +293,27 @@ export function ManualOrderModal({
                   className="w-full"
                 />
               </div>
+            )}
+          </div>
+        )}
+
+        {type === "DELIVERY" && (
+          <div className="flex flex-col gap-2">
+            <label className="text-right text-[13px] font-light text-text-4">پیک تحویل (اختیاری)</label>
+            <select
+              value={courierId}
+              onChange={(e) => setCourierId(e.target.value)}
+              className="h-[50px] w-full rounded-input border border-border-input bg-white px-[18px] text-right text-sm text-ink outline-none focus:border-brand"
+            >
+              <option value="">تخصیص بعداً</option>
+              {couriers.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            {couriers.length === 0 && (
+              <p className="text-right text-[11px] font-light text-text-3">هنوز پیکی ثبت نشده — از بخش «پیک‌ها» اضافه کنید.</p>
             )}
           </div>
         )}

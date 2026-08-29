@@ -447,6 +447,7 @@ export async function createManualOrderAction(
     customerPhone: String(formData.get("customerPhone") ?? ""),
     tableNumber: String(formData.get("tableNumber") ?? ""),
     address: String(formData.get("address") ?? ""),
+    courierId: String(formData.get("courierId") ?? ""),
     items,
     paymentMethod: String(formData.get("paymentMethod") ?? "CASH"),
     creditNote: String(formData.get("creditNote") ?? ""),

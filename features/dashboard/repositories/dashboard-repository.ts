@@ -252,6 +252,7 @@ export interface CreateManualOrderData {
   paymentMethod: OrderPaymentMethod;
   /** Daily sequential receipt number, pre-assigned by the caller via lib/invoice-number.ts. */
   receiptInvoiceNumber: string;
+  courierId?: string;
   items: { productId: string; quantity: number; unitPrice: number }[];
 }
 

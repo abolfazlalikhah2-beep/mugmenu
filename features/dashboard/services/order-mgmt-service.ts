@@ -127,6 +127,18 @@ export async function createManualOrder(businessId: string, input: unknown): Pro
   const priceMap = new Map(products.map((p) => [p.id, p.price]));
   const totalPrice = computeTotal(data.items, priceMap);
 
+  // Courier assignment only makes sense for delivery orders — same rule
+  // as assignCourier() above, checked here too since this is a separate
+  // entry point.
+  let courierId: string | undefined;
+  if (data.type === "DELIVERY" && data.courierId) {
+    const courier = await repo.getCourierForEdit(data.courierId);
+    if (!courier || courier.businessId !== businessId || !courier.isActive) {
+      return { ok: false, error: "پیک انتخاب‌شده معتبر نیست." };
+    }
+    courierId = data.courierId;
+  }
+
   const receiptInvoiceNumber = await nextDailyInvoiceNumber(businessId);
 
   const order = await repo.createManualOrder({
@@ -139,6 +151,7 @@ export async function createManualOrder(businessId: string, input: unknown): Pro
     totalPrice,
     paymentMethod: data.paymentMethod,
     receiptInvoiceNumber,
+    courierId,
     items: data.items.map((i) => ({
       productId: i.productId,
       quantity: i.quantity,
@@ -176,6 +189,8 @@ export async function lookupCustomerByPhone(businessId: string, phone: string): 
 export interface ManualOrderCatalog {
   products: { id: string; name: string; price: number; imageUrl: string | null; categoryId: string }[];
   categories: { id: string; name: string }[];
+  /** For the "پیک" select, shown only when type is DELIVERY — see manual-order-modal.tsx. */
+  couriers: { id: string; name: string }[];
 }
 
 /**
@@ -186,9 +201,12 @@ export interface ManualOrderCatalog {
  */
 export async function getManualOrderCatalog(businessId: string): Promise<ManualOrderCatalog> {
   const allowed = await businessHasFeature(businessId, "order.manual_entry");
-  if (!allowed) return { products: [], categories: [] };
+  if (!allowed) return { products: [], categories: [], couriers: [] };
 
-  const products = (await repo.getProducts(businessId)).filter((p) => p.isActive);
+  const [products, couriers] = await Promise.all([
+    repo.getProducts(businessId).then((rows) => rows.filter((p) => p.isActive)),
+    repo.getActiveCouriers(businessId),
+  ]);
 
   const categoryById = new Map<string, { name: string; sortOrder: number }>();
   for (const p of products) {
@@ -209,5 +227,6 @@ export async function getManualOrderCatalog(businessId: string): Promise<ManualO
       categoryId: p.categoryId,
     })),
     categories,
+    couriers: couriers.map((c) => ({ id: c.id, name: c.name })),
   };
 }

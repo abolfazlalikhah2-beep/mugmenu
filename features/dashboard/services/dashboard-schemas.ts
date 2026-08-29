@@ -216,6 +216,8 @@ export const manualOrderSchema = z.object({
   customerPhone: z.string().trim().min(1, "شماره موبایل را وارد کنید.").max(20),
   tableNumber: z.string().trim().max(20).optional(),
   address: z.string().trim().max(500).optional(),
+  // Only meaningful for type DELIVERY — see order-mgmt-service.ts's createManualOrder.
+  courierId: z.string().trim().optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
   items: z.array(manualOrderItemSchema).min(1, "حداقل یک آیتم انتخاب کنید."),
   paymentMethod: z.enum(["CASH", "CARD", "CREDIT"]),
   creditNote: z.string().trim().max(500).optional(),
