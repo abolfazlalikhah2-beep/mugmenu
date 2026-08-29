@@ -17,6 +17,7 @@ import {
 } from "@/features/menu/services/order-flow";
 import { creditCashbackForOrder, getWalletBalance, redeemWalletForOrder } from "@/features/customer/services/wallet-service";
 import { businessHasFeature } from "@/features/plans/services/plan-service";
+import { nextDailyInvoiceNumber } from "@/lib/invoice-number";
 
 export type CreateOrderResult = { ok: true; orderId: string } | { ok: false; error: string };
 
@@ -140,9 +141,11 @@ export async function createOrder(input: unknown, customerAccountId?: string): P
   }
 
   const totalPrice = payableBeforeRedeem - walletRedeemedAmount;
+  const receiptInvoiceNumber = await nextDailyInvoiceNumber(business.id);
 
   const order = await menuRepository.createOrder({
     businessId: business.id,
+    receiptInvoiceNumber,
     type: data.type,
     customerName: data.customerName,
     customerPhone: data.customerPhone,

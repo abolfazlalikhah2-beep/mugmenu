@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { formatToman } from "@/features/menu/utils/money";
 
 export interface KitchenReceiptData {
   id: string;
   orderNumber: number;
+  /** Daily sequential 3-digit invoice number (e.g. "001") — see Order.receiptInvoiceNumber's schema comment. Null on pre-migration orders. */
+  receiptInvoiceNumber: string | null;
   createdAt: Date;
   type: "DINE_IN" | "TAKEAWAY" | "DELIVERY";
   customerName: string;
@@ -34,11 +36,6 @@ function saleMethodLabel(type: KitchenReceiptData["type"]) {
   if (type === "DINE_IN") return "روی میز";
   if (type === "TAKEAWAY") return "بیرون‌بر";
   return "ارسال با پیک";
-}
-
-/** Random 5-digit number (10000-99999) shown as the invoice number on the print — deliberately not order.orderNumber (see task requirements). */
-function randomInvoiceNumber() {
-  return Math.floor(10000 + Math.random() * 90000);
 }
 
 const PERSIAN_TO_LATIN_DIGITS: Record<string, string> = {
@@ -101,8 +98,6 @@ function TotalRow({ label, value, big, strong }: { label: string; value: string;
  * app/print/orders/[orderId]/page.tsx for the trigger flow.
  */
 export function KitchenReceipt({ order }: { order: KitchenReceiptData }) {
-  const invoiceNumber = useMemo(() => randomInvoiceNumber(), []);
-
   useEffect(() => {
     const id = requestAnimationFrame(() => {
       window.print();
@@ -165,7 +160,7 @@ export function KitchenReceipt({ order }: { order: KitchenReceiptData }) {
         {/* 2. Order info */}
         <Section>
           <div style={{ textAlign: "center", fontSize: 12, fontWeight: 800, marginBottom: 1 }}>فاکتور فروش</div>
-          <InfoRow label="شماره فاکتور" value={String(invoiceNumber)} strong />
+          <InfoRow label="شماره فاکتور" value={order.receiptInvoiceNumber ?? String(order.orderNumber)} strong />
           <InfoRow label="نام مشتری" value={order.customerName} strong />
           <InfoRow label="شیوه فروش" value={saleMethodLabel(order.type)} strong />
           {order.type === "DINE_IN" && order.tableNumber && <InfoRow label="شماره میز" value={order.tableNumber} />}

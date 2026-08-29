@@ -10,6 +10,7 @@ import {
 import { validateOrderDraft, computeTotal } from "@/features/menu/services/order-flow";
 import { businessHasFeature } from "@/features/plans/services/plan-service";
 import { createCreditRecord } from "@/features/credits/services/credit-service";
+import { nextDailyInvoiceNumber } from "@/lib/invoice-number";
 import type { OrderStatus } from "@/lib/generated/prisma/enums";
 
 export function getOrders(businessId: string, filter: { status?: OrderStatus; search?: string }) {
@@ -126,6 +127,8 @@ export async function createManualOrder(businessId: string, input: unknown): Pro
   const priceMap = new Map(products.map((p) => [p.id, p.price]));
   const totalPrice = computeTotal(data.items, priceMap);
 
+  const receiptInvoiceNumber = await nextDailyInvoiceNumber(businessId);
+
   const order = await repo.createManualOrder({
     businessId,
     type: data.type,
@@ -135,6 +138,7 @@ export async function createManualOrder(businessId: string, input: unknown): Pro
     address: data.address,
     totalPrice,
     paymentMethod: data.paymentMethod,
+    receiptInvoiceNumber,
     items: data.items.map((i) => ({
       productId: i.productId,
       quantity: i.quantity,

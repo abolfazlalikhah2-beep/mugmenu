@@ -105,12 +105,34 @@ model Business {
   cashbackPercent          Int      @default(5)
   cashbackCapPerOrder      Int      @default(50000)
   // Birthday message template (dashboard "باشگاه مشتریان" › "پیام تولد"
-  // tab). Settings + manual test-send only — no birthDate field exists on
-  // CustomerAccount and there's no cron scheduler in this app, so automatic
-  // daily sending isn't built (same category as the mock SMS provider).
+  // tab). Settings + manual test-send only — sending is still manual (no
+  // cron scheduler in this app, same category as the mock SMS provider);
+  // CustomerAccount.birthDate now exists to support it, just not the daily
+  // auto-send.
   birthdayMessageEnabled   Boolean  @default(false)
   birthdayMessageText      String?
   birthdayGiftAmount       Int      @default(50000)
+  // Daily receipt invoice-number counter (printed receipt's "شماره فاکتور")
+  // — resets to 1 every calendar day and wraps 999 back to 1. Mutated only
+  // via lib/invoice-number.ts's nextDailyInvoiceNumber, an atomic
+  // UPDATE...RETURNING so concurrent orders never collide. See
+  // Order.receiptInvoiceNumber below.
+  lastInvoiceCounter Int       @default(0)
+  lastInvoiceDate    DateTime? @db.Date
+  // Loyalty membership tier thresholds (dashboard "باشگاه مشتریان" › "سطوح
+  // عضویت" tab, distinct from the points-based SILVER/GOLD tier on the
+  // customer-facing wallet page in features/customer/services/loyalty.ts).
+  // A customer reaches a tier once their lifetime order count OR lifetime
+  // spend for this business meets/exceeds that tier's threshold — see
+  // features/dashboard/services/membership-tier.ts's computeMembershipTier,
+  // evaluated at read time (not stored per customer, so changing these
+  // thresholds instantly re-grades everyone).
+  silverMinOrders Int @default(5)
+  silverMinSpend  Int @default(1000000)
+  goldMinOrders   Int @default(15)
+  goldMinSpend    Int @default(3000000)
+  vipMinOrders    Int @default(30)
+  vipMinSpend     Int @default(7000000)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
@@ -417,6 +439,12 @@ model Order {
   discountAmount       Int?
   discountName         String?
   walletRedeemedAmount Int?
+  // Daily sequential 3-digit invoice number printed on the receipt (e.g.
+  // "001"), assigned once at order creation via lib/invoice-number.ts's
+  // nextDailyInvoiceNumber — see Business.lastInvoiceCounter. Not unique
+  // globally, only meaningful together with createdAt's calendar day (the
+  // counter resets daily). Null on orders placed before this field existed.
+  receiptInvoiceNumber String?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   // Set when the order was placed while the customer was logged in to their
@@ -510,6 +538,12 @@ model CustomerAccount {
   business      Business @relation(fields: [businessId], references: [id])
   phone         String
   fullName      String
+  // Loyalty club birthday-message feature (dashboard "باشگاه مشتریان" ›
+  // "پیام تولد") — captured at customer registration (public menu account
+  // signup) and in the "ثبت سفارش دستی" admin modal. Date-only, year is
+  // meaningful for its own sake (not just month/day) since nothing else
+  // here needs a birth year.
+  birthDate     DateTime? @db.Date
   walletBalance Int      @default(0)
   loyaltyPoints Int      @default(0)
   createdAt     DateTime @default(now())

@@ -177,6 +177,8 @@ export interface CreateOrderData {
   walletRedeemedAmount?: number;
   /** Set when placed while logged in to a customer account — see features/customer. */
   customerAccountId?: string;
+  /** Daily sequential receipt number, pre-assigned by the caller via lib/invoice-number.ts. */
+  receiptInvoiceNumber: string;
   items: CreateOrderItemData[];
 }
 
