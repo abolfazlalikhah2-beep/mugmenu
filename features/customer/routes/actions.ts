@@ -6,6 +6,7 @@ import * as addressService from "@/features/customer/services/address-service";
 import * as repo from "@/features/customer/repositories/customer-repository";
 import { updateProfileSchema } from "@/features/customer/services/customer-schemas";
 import { requireCustomerSession, clearCustomerSession } from "@/features/customer/services/customer-session-service";
+import { resolvePostLoginPath } from "@/features/customer/services/next-path";
 
 export interface ActionState {
   error?: string;
@@ -21,9 +22,14 @@ export async function sendCustomerOtpAction(
   _prevState: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const result = await customerAuthService.sendOtp({ slug, phone: String(formData.get("phone") ?? "") });
+  const phone = String(formData.get("phone") ?? "");
+  const result = await customerAuthService.sendOtp({ slug, phone });
   if (!result.ok) return { error: result.error };
-  redirect(`/${slug}/account/verify?phone=${encodeURIComponent(String(formData.get("phone") ?? ""))}`);
+
+  const next = String(formData.get("next") ?? "");
+  const params = new URLSearchParams({ phone });
+  if (next) params.set("next", next);
+  redirect(`/${slug}/account/verify?${params.toString()}`);
 }
 
 export async function resendCustomerOtpAction(slug: string, phone: string) {
@@ -41,7 +47,7 @@ export async function verifyCustomerOtpAction(
     code: String(formData.get("code") ?? ""),
   });
   if (!result.ok) return { error: result.error };
-  redirect(`/${slug}`);
+  redirect(resolvePostLoginPath(slug, String(formData.get("next") ?? "")));
 }
 
 export async function customerLogoutAction(slug: string) {

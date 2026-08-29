@@ -14,10 +14,10 @@ export default async function CustomerVerifyPage({
   searchParams,
 }: {
   params: Promise<{ cafeSlug: string }>;
-  searchParams: Promise<{ phone?: string }>;
+  searchParams: Promise<{ phone?: string; next?: string }>;
 }) {
   const { cafeSlug } = await params;
-  const { phone } = await searchParams;
+  const { phone, next } = await searchParams;
   if (!phone) redirect(`/${cafeSlug}/account/login`);
 
   const business = await getBusinessBrand(cafeSlug);
@@ -30,7 +30,7 @@ export default async function CustomerVerifyPage({
   return (
     <MenuPageShell dir={t.dir}>
       <TopBar title={t.verifyTitle} backHref={`/${cafeSlug}/account/login`} />
-      <CustomerVerifyForm slug={cafeSlug} businessName={businessName} phone={phone} lang={lang} />
+      <CustomerVerifyForm slug={cafeSlug} businessName={businessName} phone={phone} lang={lang} next={next} />
     </MenuPageShell>
   );
 }

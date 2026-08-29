@@ -10,10 +10,13 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function CustomerLoginPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ cafeSlug: string }>;
+  searchParams: Promise<{ next?: string }>;
 }) {
   const { cafeSlug } = await params;
+  const { next } = await searchParams;
   const business = await getBusinessBrand(cafeSlug);
   if (!business) notFound();
 
@@ -23,7 +26,7 @@ export default async function CustomerLoginPage({
 
   return (
     <MenuPageShell dir={t.dir}>
-      <CustomerLoginForm slug={cafeSlug} businessName={businessName} lang={lang} />
+      <CustomerLoginForm slug={cafeSlug} businessName={businessName} lang={lang} next={next} />
     </MenuPageShell>
   );
 }

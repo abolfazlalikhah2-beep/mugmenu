@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import * as orderService from "@/features/menu/services/order-service";
 import * as reviewService from "@/features/menu/services/review-service";
 import type { OrderType } from "@/features/menu/services/order-flow";
@@ -22,15 +21,25 @@ export interface CreateOrderActionInput {
 
 export interface CreateOrderActionState {
   error?: string;
+  orderId?: string;
 }
 
+/**
+ * Returns the new orderId rather than redirecting itself — redirect() inside
+ * a Server Action invoked via a direct client `await` (not a <form action>)
+ * throws a special NEXT_REDIRECT signal that a wrapping try/catch on the
+ * caller can end up swallowing, which is exactly what silently broke both
+ * the redirect AND the cart-clear that was supposed to run right after it
+ * (see cart-page-client.tsx's handleSubmit). The client now owns clearing
+ * the cart and navigating, in that order, once it has the orderId.
+ */
 export async function createOrderAction(
   input: CreateOrderActionInput
 ): Promise<CreateOrderActionState> {
   const customerSession = await getCustomerSession(input.slug);
   const result = await orderService.createOrder(input, customerSession?.customerAccountId);
   if (!result.ok) return { error: result.error };
-  redirect(`/${input.slug}/receipt/${result.orderId}`);
+  return { orderId: result.orderId };
 }
 
 export interface SubmitReviewActionInput {

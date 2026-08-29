@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { MapPin, Wallet } from "lucide-react";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
@@ -38,6 +38,7 @@ export function CartPageClient({
   checkout: CartCheckoutContext | null;
 }) {
   const { cafeSlug } = useParams<{ cafeSlug: string }>();
+  const router = useRouter();
   const { items, orderType, setOrderType, clear } = useCart();
   const [customerName, setCustomerName] = React.useState("");
   const [customerPhone, setCustomerPhone] = React.useState("");
@@ -151,12 +152,16 @@ export function CartPageClient({
         })),
         redeemAmount,
       });
-      if (result.error) {
-        setError(result.error);
+      if (result.error || !result.orderId) {
+        setError(result.error ?? t.orderFailed);
         setPending(false);
         return;
       }
+      // Clear before navigating — for both guest and logged-in customers,
+      // the cart is tied to this browser (localStorage), not the account,
+      // so there's nothing auth-specific to branch on here.
       clear();
+      router.push(`/${cafeSlug}/receipt/${result.orderId}`);
     } catch {
       setError(t.orderFailed);
       setPending(false);

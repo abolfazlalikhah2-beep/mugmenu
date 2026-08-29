@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { Check, MapPin } from "lucide-react";
 import { getReceiptData } from "@/features/menu/services/menu-service";
 import { getMenuLangCookie } from "@/features/menu/services/menu-language-service";
+import { getCustomerSession } from "@/features/customer/services/customer-session-service";
+import { trackOrderHref } from "@/features/customer/services/next-path";
 import { businessHasFeature } from "@/features/plans/services/plan-service";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { MenuImage } from "@/components/menu/menu-image";
@@ -43,6 +45,9 @@ export default async function ReceiptPage({
   const lang: MenuLang = (await getMenuLangCookie(cafeSlug)) ?? "fa";
   const t = menuCopy(lang);
   const align = lang === "en" ? "text-left" : "text-right";
+
+  const customerSession = await getCustomerSession(cafeSlug);
+  const trackHref = trackOrderHref(cafeSlug, orderId, Boolean(customerSession));
 
   const subtotal = order.items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
   const detail = orderTypeLabel(lang, order.type, order.tableNumber);
@@ -136,7 +141,7 @@ export default async function ReceiptPage({
       )}
 
       <div className="mx-4 my-5 flex flex-col gap-3 md:mx-10 md:flex-row">
-        <Link href={`/${cafeSlug}/receipt/${orderId}`} className="flex-1">
+        <Link href={trackHref} className="flex-1">
           <Button variant="primary" className="w-full">
             {t.trackOrder}
           </Button>

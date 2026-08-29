@@ -15,10 +15,13 @@ export function CustomerLoginForm({
   slug,
   businessName,
   lang = "fa",
+  next,
 }: {
   slug: string;
   businessName: string;
   lang?: MenuLang;
+  /** Where to send the customer after a successful login (e.g. back to the order they wanted to track) — see features/customer/services/next-path.ts. */
+  next?: string;
 }) {
   const action = sendCustomerOtpAction.bind(null, slug);
   const [state, formAction, pending] = useActionState(action, initialState);
@@ -30,6 +33,7 @@ export function CustomerLoginForm({
       <div className="-mt-9 rounded-t-[28px] bg-card px-5 pb-6">
         <CustomerBrandHeader businessName={businessName} subtitle={t.loginSubtitle} />
         <form action={formAction} className="flex flex-col gap-4.5">
+          {next && <input type="hidden" name="next" value={next} />}
           <Input
             name="phone"
             label={t.phoneNumberLabel}

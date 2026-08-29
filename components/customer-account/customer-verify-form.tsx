@@ -19,11 +19,14 @@ export function CustomerVerifyForm({
   businessName,
   phone,
   lang = "fa",
+  next,
 }: {
   slug: string;
   businessName: string;
   phone: string;
   lang?: MenuLang;
+  /** Carried over from the login form — see features/customer/services/next-path.ts. */
+  next?: string;
 }) {
   const action = verifyCustomerOtpAction.bind(null, slug);
   const [state, formAction, pending] = useActionState(action, initialState);
@@ -56,6 +59,7 @@ export function CustomerVerifyForm({
         <CustomerBrandHeader businessName={businessName} subtitle={verifySubtitleLabel(lang, phone)} />
         <form action={formAction} className="flex flex-col gap-4.5">
           <input type="hidden" name="phone" value={phone} />
+          {next && <input type="hidden" name="next" value={next} />}
           <Input name="code" label={t.otpCodeLabel} dir="ltr" className="text-right" inputMode="numeric" required />
           <button
             type="button"
