@@ -125,9 +125,9 @@ export function KitchenReceipt({ order }: { order: KitchenReceiptData }) {
         @media print {
           html, body { background: #fff !important; }
         }
-        .receipt-table { width: 100%; border-collapse: collapse; font-size: 9.5px; }
-        .receipt-table th, .receipt-table td { border: 1px solid #000; padding: 1px 2px; }
-        .receipt-table thead th { background: #EFEFEF; font-weight: 700; font-size: 9.5px; }
+        .receipt-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .receipt-table th, .receipt-table td { border: 1px solid #000; padding: 3px 3px; }
+        .receipt-table thead th { background: #EFEFEF; font-weight: 800; font-size: 11px; }
       `}</style>
       <div
         style={{
@@ -178,11 +178,11 @@ export function KitchenReceipt({ order }: { order: KitchenReceiptData }) {
           <table className="receipt-table">
             <thead>
               <tr>
-                <th style={{ width: 20 }}>ردیف</th>
+                <th style={{ width: 22 }}>ردیف</th>
                 <th style={{ textAlign: "right" }}>نام کالا</th>
-                <th style={{ width: 28 }}>تعداد</th>
-                <th style={{ width: 46 }}>قیمت</th>
-                <th style={{ width: 50 }}>جمع</th>
+                <th style={{ width: 30 }}>تعداد</th>
+                <th style={{ width: 50 }}>قیمت</th>
+                <th style={{ width: 54 }}>جمع</th>
               </tr>
             </thead>
             <tbody>
@@ -190,13 +190,13 @@ export function KitchenReceipt({ order }: { order: KitchenReceiptData }) {
                 <tr key={line.id} style={{ verticalAlign: "top" }}>
                   <td style={{ textAlign: "center" }}>{i + 1}</td>
                   <td style={{ textAlign: "right" }}>
-                    <div style={{ fontWeight: 700 }}>{line.product.name}</div>
+                    <div style={{ fontWeight: 800, fontSize: 11.5 }}>{line.product.name}</div>
                     {line.options.map((o, oi) => (
-                      <div key={oi} style={{ fontSize: 8, color: "#444", marginTop: 0 }}>
+                      <div key={oi} style={{ fontSize: 9, color: "#444", marginTop: 0 }}>
                         — {o.groupName}: {o.optionName}
                       </div>
                     ))}
-                    {line.note && <div style={{ fontSize: 8, color: "#444", marginTop: 0 }}>★ {line.note}</div>}
+                    {line.note && <div style={{ fontSize: 9, color: "#444", marginTop: 0 }}>★ {line.note}</div>}
                   </td>
                   <td style={{ textAlign: "center" }}>{line.quantity}</td>
                   <td style={{ textAlign: "left", fontFamily: "Montserrat, sans-serif" }}>{formatToman(line.unitPrice, "en")}</td>
@@ -209,13 +209,19 @@ export function KitchenReceipt({ order }: { order: KitchenReceiptData }) {
           </table>
         </div>
 
-        {/* 4. Totals */}
+        {/* 4. Totals — تخفیف/مالیات/سرویس/بسته‌بندی only print when the business actually configured a non-zero value; a never-set fee shouldn't show as "0". */}
         <Section>
           <TotalRow label="جمع اقلام کالا" value={String(itemCount)} strong />
-          <TotalRow label="تخفیف فاکتور" value={formatToman(order.discountAmount ?? 0, "en")} strong />
-          <TotalRow label="مالیات و عوارض" value={formatToman(order.taxAmount ?? 0, "en")} strong />
-          <TotalRow label="هزینه سرویس" value={formatToman(order.serviceFeeAmount ?? 0, "en")} strong />
-          <TotalRow label="هزینه بسته‌بندی" value={formatToman(order.packagingFeeAmount ?? 0, "en")} strong />
+          {!!order.discountAmount && (
+            <TotalRow label="تخفیف فاکتور" value={formatToman(order.discountAmount, "en")} strong />
+          )}
+          {!!order.taxAmount && <TotalRow label="مالیات و عوارض" value={formatToman(order.taxAmount, "en")} strong />}
+          {!!order.serviceFeeAmount && (
+            <TotalRow label="هزینه سرویس" value={formatToman(order.serviceFeeAmount, "en")} strong />
+          )}
+          {!!order.packagingFeeAmount && (
+            <TotalRow label="هزینه بسته‌بندی" value={formatToman(order.packagingFeeAmount, "en")} strong />
+          )}
           <div style={{ borderTop: "1.5px solid #000", marginTop: 1, paddingTop: 1 }}>
             <TotalRow label="قابل پرداخت (تومان)" value={formatToman(order.totalPrice, "en")} big />
           </div>
