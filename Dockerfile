@@ -40,9 +40,19 @@ RUN addgroup --system --gid 1001 nodejs \
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
+# next build's standalone output only bundles node_modules traced from
+# runtime imports, which excludes the prisma CLI (nothing at runtime
+# imports it). Overlay the full node_modules from the builder stage so
+# `prisma migrate deploy` below has the CLI available.
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
-CMD ["node", "server.js"]
+# Runs against Liara's internal network (this container's own runtime
+# env), not the external connection that hangs from local machines.
+# Safe to run on every start: migrate deploy only applies migrations
+# that haven't been applied yet, never rolls back or drops data.
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
