@@ -22,6 +22,7 @@ export interface CreateOrderActionInput {
 export interface CreateOrderActionState {
   error?: string;
   orderId?: string;
+  requiresLogin?: boolean;
 }
 
 /**
@@ -38,7 +39,7 @@ export async function createOrderAction(
 ): Promise<CreateOrderActionState> {
   const customerSession = await getCustomerSession(input.slug);
   const result = await orderService.createOrder(input, customerSession?.customerAccountId);
-  if (!result.ok) return { error: result.error };
+  if (!result.ok) return { error: result.error, requiresLogin: result.requiresLogin };
   return { orderId: result.orderId };
 }
 

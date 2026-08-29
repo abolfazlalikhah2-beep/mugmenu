@@ -153,6 +153,12 @@ export function CartPageClient({
         redeemAmount,
       });
       if (result.error || !result.orderId) {
+        // The cart page already redirects a signed-out guest to login before
+        // they get here — this only fires if the session expired mid-fill.
+        if (result.requiresLogin) {
+          router.push(`/${cafeSlug}/account/login?next=${encodeURIComponent(`/${cafeSlug}/cart`)}`);
+          return;
+        }
         setError(result.error ?? t.orderFailed);
         setPending(false);
         return;

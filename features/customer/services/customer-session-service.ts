@@ -5,7 +5,11 @@ import { SignJWT, jwtVerify } from "jose";
 import { logger } from "@/lib/logger";
 
 const SESSION_COOKIE = "magmenu_customer_session";
-const MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
+// Ordering now requires a logged-in session (see order-service.ts's
+// createOrder), so this balances staying signed in across a typical week of
+// repeat visits against a stale, unattended-device session lingering too
+// long — re-verify by OTP after a week of inactivity.
+const MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
 function secretKey() {
   const secret = process.env.SESSION_SECRET;

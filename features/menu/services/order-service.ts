@@ -19,7 +19,9 @@ import { creditCashbackForOrder, getWalletBalance, redeemWalletForOrder } from "
 import { businessHasFeature } from "@/features/plans/services/plan-service";
 import { nextDailyInvoiceNumber } from "@/lib/invoice-number";
 
-export type CreateOrderResult = { ok: true; orderId: string } | { ok: false; error: string };
+export type CreateOrderResult =
+  | { ok: true; orderId: string }
+  | { ok: false; error: string; requiresLogin?: boolean };
 
 const ORDER_CREATE_IP_LIMIT = { limit: 10, windowMs: 60 * 1000 }; // 10 orders / min / IP
 
@@ -55,6 +57,18 @@ export async function createOrder(input: unknown, customerAccountId?: string): P
     businessHasFeature(business.id, "loyalty.cashback"),
   ]);
   if (!canOrder) return { ok: false, error: "این کسب‌وکار در حال حاضر امکان سفارش آنلاین ندارد." };
+
+  // Login is mandatory to place an order (guest checkout removed) — the
+  // cart page itself redirects a guest to /account/login before they ever
+  // reach this action (see app/(public)/[cafeSlug]/cart/page.tsx), but that
+  // UI-level gate can be bypassed by calling this action directly, so the
+  // real enforcement is here. order.three_mode and customer.wallet_login
+  // are gated by the same plan tier (see feature-matrix.ts's
+  // ORDER_AND_ADVANCED), so no business that can accept online orders is
+  // ever left without customer login to require.
+  if (!customerAccountId) {
+    return { ok: false, error: "برای ثبت سفارش ابتدا وارد حساب کاربری خود شوید.", requiresLogin: true };
+  }
 
   // isAcceptingOrders (the owner's manual "سفارش‌گیری" toggle) and the
   // order-type tabs already hide disabled modes on the public menu, but a
