@@ -49,7 +49,7 @@ export default async function ItemDetailPage({
           priority
         />
         <Link
-          href={`/${cafeSlug}/menu`}
+          href={`/${cafeSlug}`}
           className="absolute top-4 right-4 flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-black/28 text-white backdrop-blur-sm"
         >
           <ChevronRight size={22} />

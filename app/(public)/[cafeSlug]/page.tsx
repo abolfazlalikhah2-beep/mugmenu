@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { after } from "next/server";
-import { UtensilsCrossed, ScrollText, Package } from "lucide-react";
-import { getMenuEntryData } from "@/features/menu/services/menu-service";
+import { getMenuMainData } from "@/features/menu/services/menu-service";
 import { getCustomerSession } from "@/features/customer/services/customer-session-service";
 import { getAccountProfile } from "@/features/customer/services/customer-auth-service";
 import { getWalletAndLoyaltySummary } from "@/features/customer/services/wallet-service";
@@ -14,15 +13,15 @@ import { menuCopy, localizedName } from "@/features/menu/utils/menu-language";
 import { MenuPageShell } from "@/components/menu/menu-page-shell";
 import { MenuHero } from "@/components/menu/menu-hero";
 import { RestaurantHeader } from "@/components/menu/restaurant-header";
-import { OrderTypeRow } from "@/components/menu/order-type-row";
+import { CategoryBrowser } from "@/components/menu/category-browser";
+import { EntryDrawer } from "@/components/menu/entry-drawer";
 import { FooterBrand } from "@/components/menu/footer-brand";
 import { CartFab } from "@/components/menu/cart-fab";
-import { LanguageToggle } from "@/components/menu/language-toggle";
 import { LanguageGate } from "@/components/menu/language-gate";
 import { MenuEntryBadge } from "@/components/customer-account/menu-entry-badge";
 import { MenuWalletTeaser, MenuLoginTeaser } from "@/components/customer-account/menu-wallet-teaser";
 
-export default async function MenuEntryPage({
+export default async function MenuMainPage({
   params,
   searchParams,
 }: {
@@ -31,11 +30,11 @@ export default async function MenuEntryPage({
 }) {
   const { cafeSlug } = await params;
   const [data, customerSession] = await Promise.all([
-    getMenuEntryData(cafeSlug),
+    getMenuMainData(cafeSlug),
     getCustomerSession(cafeSlug),
   ]);
   if (!data) notFound();
-  const { business, rating, recentReviews } = data;
+  const { business, rating, recentReviews, categories, products } = data;
 
   const { src } = await searchParams;
   const h = await headers();
@@ -76,7 +75,10 @@ export default async function MenuEntryPage({
   // The plan gate alone isn't enough — a business on a paid plan can still
   // have manually toggled "سفارش‌گیری" off (dashboard "حساب کاربری"), which
   // must hide ordering here the same way order-service.ts's createOrder()
-  // rejects it server-side (see order-flow.ts's orderAcceptanceError).
+  // rejects it server-side (see order-flow.ts's orderAcceptanceError). Order
+  // TYPE itself (dine-in/takeaway/delivery) is no longer chosen here — the
+  // entry and category-browse screens were merged into one browse-first
+  // page (Menu Flow.dc.html), so it's picked at checkout via DeliveryTabs.
   const orderingEnabled = canOrderFeature && business.isAcceptingOrders;
   const showCashbackTeaser = cashbackEnabled && business.cashbackPercent > 0;
 
@@ -86,8 +88,22 @@ export default async function MenuEntryPage({
         <MenuHero
           background={heroBackground}
           overlayOpacity={business.heroOverlayOpacity}
-          className="h-[200px] w-full md:h-[210px]"
+          className="h-[200px] w-full md:h-[223px]"
           priority
+        />
+        <EntryDrawer
+          slug={cafeSlug}
+          name={displayName}
+          address={business.address}
+          phone={business.phone}
+          hours={business.hours}
+          isAcceptingOrders={business.isAcceptingOrders}
+          reviews={recentReviews}
+          logoUrl={business.logoUrl}
+          lang={lang}
+          latitude={business.latitude}
+          longitude={business.longitude}
+          bilingualEnabled={business.bilingualMenuEnabled}
         />
         {loginEnabled && (
           <MenuEntryBadge
@@ -96,9 +112,6 @@ export default async function MenuEntryPage({
             initial={account?.fullName.slice(0, 1)}
             label={account ? t.myAccount : t.loginRegister}
           />
-        )}
-        {business.bilingualMenuEnabled && (
-          <LanguageToggle slug={cafeSlug} lang={lang} className="absolute top-3.5 left-3.5 z-10" />
         )}
       </div>
       <RestaurantHeader
@@ -126,28 +139,13 @@ export default async function MenuEntryPage({
           <MenuLoginTeaser slug={cafeSlug} cashbackPercent={business.cashbackPercent} lang={lang} />
         )
       )}
-      <p className={`px-4.5 pt-2.5 text-center text-sm md:px-10 ${lang === "en" ? "font-mont" : ""}`}>{t.lead}</p>
-      <div className="flex flex-col gap-3 px-4.5 py-4 md:px-10 md:py-5">
-        {orderingEnabled && business.acceptsDineIn && (
-          <OrderTypeRow
-            label={t.rowDineIn}
-            icon={<UtensilsCrossed size={22} className="text-brand" />}
-            href={`/${cafeSlug}/menu?type=dine_in`}
-          />
-        )}
-        <OrderTypeRow
-          label={t.rowVisual}
-          icon={<ScrollText size={22} className="text-brand" />}
-          href={orderingEnabled ? `/${cafeSlug}/menu?type=view` : `/${cafeSlug}/menu`}
-        />
-        {orderingEnabled && business.acceptsTakeaway && (
-          <OrderTypeRow
-            label={t.rowTakeaway}
-            icon={<Package size={22} className="text-brand" />}
-            href={`/${cafeSlug}/menu?type=takeaway`}
-          />
-        )}
-      </div>
+      <CategoryBrowser
+        slug={cafeSlug}
+        categories={categories}
+        products={products}
+        lang={lang}
+        orderingEnabled={orderingEnabled}
+      />
       <FooterBrand />
       {orderingEnabled && <CartFab slug={cafeSlug} />}
     </MenuPageShell>

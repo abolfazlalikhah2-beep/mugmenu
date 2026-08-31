@@ -9,19 +9,31 @@ function formatRating(avg: number | null): string | null {
   return avg !== null ? avg.toFixed(1) : null;
 }
 
-export async function getMenuEntryData(slug: string) {
+/**
+ * Everything the merged entry+browse screen needs — identity/hours/reviews
+ * (previously getMenuEntryData) plus categories/products (previously
+ * getCategoryBrowserData) — in one request. The two screens were merged
+ * into one browse-first page (Menu Flow.dc.html's screen 1: identity →
+ * category chips → product list, no order-type-picker step); order type is
+ * now chosen at checkout instead, via cart-page-client.tsx's DeliveryTabs.
+ */
+export async function getMenuMainData(slug: string) {
   const business = await repo.getBusinessWithHours(slug);
   if (!business) return null;
 
-  const [ratingAgg, recentReviews] = await Promise.all([
+  const [ratingAgg, recentReviews, categories, products] = await Promise.all([
     repo.getBusinessRatingAggregate(business.id),
     repo.getRecentReviews(business.id, 2),
+    repo.getCategories(business.id),
+    repo.getProducts(business.id),
   ]);
 
   return {
     business,
     rating: formatRating(ratingAgg.avg),
     recentReviews,
+    categories: categories.filter((c) => isCategoryVisibleNow(c)),
+    products,
   };
 }
 
@@ -69,17 +81,6 @@ export async function getSitemapBusinesses(): Promise<SitemapBusiness[]> {
 /** Custom-domain routing (menu-order/menu-advanced plans) — see proxy.ts. */
 export function findSlugByCustomDomain(customDomain: string) {
   return repo.getBusinessSlugByCustomDomain(customDomain);
-}
-
-export async function getCategoryBrowserData(slug: string) {
-  const business = await repo.getBusiness(slug);
-  if (!business) return null;
-
-  const [categories, products] = await Promise.all([
-    repo.getCategories(business.id),
-    repo.getProducts(business.id),
-  ]);
-  return { business, categories: categories.filter((c) => isCategoryVisibleNow(c)), products };
 }
 
 /** slug is not just a display concern — a product/order id from another business must 404 here, not render under the wrong tenant's URL. */

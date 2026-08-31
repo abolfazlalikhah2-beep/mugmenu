@@ -107,7 +107,7 @@ export function AddToCartControl({
               },
               qty
             );
-            router.push(`/${slug}/menu`);
+            router.push(`/${slug}`);
           }}
           className="mt-1 flex h-[54px] items-center justify-center gap-2.5 rounded-btn bg-brand text-base text-white disabled:opacity-60"
         >

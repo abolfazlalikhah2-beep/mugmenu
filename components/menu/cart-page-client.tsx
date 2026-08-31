@@ -97,7 +97,7 @@ export function CartPageClient({
         <TopBar title={t.cartTitle} backHref={`/${cafeSlug}`} />
         <div className="flex flex-col items-center gap-4 px-6 py-16 text-center">
           <p className="text-sm font-light text-text-1">{t.orderingDisabled}</p>
-          <Link href={`/${cafeSlug}/menu`}>
+          <Link href={`/${cafeSlug}`}>
             <Button variant="secondary">{t.viewMenu}</Button>
           </Link>
         </div>
@@ -111,7 +111,7 @@ export function CartPageClient({
         <TopBar title={t.cartTitle} backHref={`/${cafeSlug}`} />
         <div className="flex flex-col items-center gap-4 px-6 py-16 text-center">
           <p className="text-sm font-light text-text-1">{t.cartEmpty}</p>
-          <Link href={`/${cafeSlug}/menu`}>
+          <Link href={`/${cafeSlug}`}>
             <Button variant="secondary">{t.viewMenu}</Button>
           </Link>
         </div>
