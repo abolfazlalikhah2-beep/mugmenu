@@ -548,6 +548,12 @@ export function quantityLabel(lang: MenuLang, n: number): string {
   return lang === "en" ? `Qty: ${value}` : `تعداد: ${value}`;
 }
 
+/** Category browser's section title, e.g. "کباب‌ها" · "6 آیتم" (Menu Flow.dc.html). */
+export function itemCountLabel(lang: MenuLang, n: number): string {
+  const value = localizedNumber(lang, n);
+  return lang === "en" ? `${value} items` : `${value} آیتم`;
+}
+
 export function confirmDeleteAddressLabel(lang: MenuLang, title: string): string {
   return lang === "en" ? `Delete address "${title}"?` : `آدرس «${title}» حذف شود؟`;
 }

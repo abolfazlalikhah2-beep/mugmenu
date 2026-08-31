@@ -1,14 +1,12 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { Search, ShoppingCart } from "lucide-react";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CategoryIcon } from "@/components/menu/category-icon";
 import { ProductCard, type ProductCardData } from "@/components/menu/product-card";
 import { ProductSearchModal } from "@/components/menu/product-search-modal";
-import { useCart } from "@/features/menu/client/cart-context";
-import { menuCopy, type MenuLang } from "@/features/menu/utils/menu-language";
+import { menuCopy, itemCountLabel, type MenuLang } from "@/features/menu/utils/menu-language";
 
 export interface CategoryData {
   id: string;
@@ -34,7 +32,6 @@ export function CategoryBrowser({
 }) {
   const [activeId, setActiveId] = React.useState(categories[0]?.id);
   const [searchOpen, setSearchOpen] = React.useState(false);
-  const { count } = useCart();
   const visible = activeId === ALL_ID ? products : products.filter((p) => p.categoryId === activeId);
   const t = menuCopy(lang);
   const activeCategoryName =
@@ -42,24 +39,7 @@ export function CategoryBrowser({
 
   return (
     <>
-      <div className="flex items-center justify-between border-t border-[#F0F0F0] bg-card px-4 py-3.5 md:px-6.5">
-        <Link
-          href={`/${slug}/cart`}
-          aria-label={t.cartTitle}
-          className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand text-white"
-        >
-          <ShoppingCart size={20} />
-          {count > 0 && (
-            <span className="absolute -top-1.5 -left-1.5 flex h-[19px] min-w-[19px] items-center justify-center rounded-full border-2 border-card bg-[#E5484D] px-1 text-[11px] font-semibold text-white">
-              {count}
-            </span>
-          )}
-        </Link>
-        <span className="flex-1 truncate px-2 text-center text-base font-semibold">{activeCategoryName}</span>
-        <div className="h-11 w-11 shrink-0" />
-      </div>
-
-      <div className="flex items-center gap-2.5 bg-card px-4 pt-3 pb-4 md:px-6.5">
+      <div className="flex items-center gap-2.5 px-4 pt-4 pb-2.5 md:px-6.5">
         <div className="flex flex-1 gap-2.5 overflow-x-auto md:flex-wrap md:overflow-visible">
           <button
             onClick={() => setActiveId(ALL_ID)}
@@ -94,6 +74,11 @@ export function CategoryBrowser({
         >
           <Search size={20} />
         </button>
+      </div>
+
+      <div className="flex items-center justify-between px-4 pt-1 pb-2 md:px-6.5">
+        <span className="text-base font-bold">{activeCategoryName}</span>
+        <span className="text-xs font-light text-text-3">{itemCountLabel(lang, visible.length)}</span>
       </div>
 
       <div className="flex flex-col gap-3.5 bg-[#F4F5F4] p-4 md:grid md:grid-cols-2 md:gap-4.5 md:p-6.5">
