@@ -40,6 +40,13 @@ RUN addgroup --system --gid 1001 nodejs \
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# next build's file tracing for .next/standalone omits images-manifest.json
+# (it lives at the top level of .next/, not under .next/standalone/.next/),
+# so without this next/image rejects every remote host at runtime — no
+# manifest means no remotePatterns to match against, regardless of what
+# next.config.ts says. Confirmed missing via `find / -name images-manifest.json`
+# inside the running container turning up nothing.
+COPY --from=builder --chown=nextjs:nodejs /app/.next/images-manifest.json ./.next/images-manifest.json
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
 # next build's standalone output only bundles node_modules traced from
