@@ -141,5 +141,16 @@ export async function uploadImage(input: UploadImageInput): Promise<string> {
   }
 
   const base = config.publicUrl?.replace(/\/$/, "") ?? `${config.endpoint.replace(/\/$/, "")}/${config.bucket}`;
-  return `${base}/${key}`;
+  const publicUrl = `${base}/${key}`;
+  // uploads.s3_client_init only logs config.endpoint (the internal upload
+  // endpoint, always S3_ENDPOINT by design — PUT requests go there, not the
+  // public CDN domain). It does NOT reveal what URL actually gets saved to
+  // the DB. Log that explicitly so "which domain did this upload end up
+  // with" is answerable from logs instead of inferred from the wrong field.
+  logger.info("uploads.image_url_resolved", {
+    key,
+    usedPublicUrl: Boolean(config.publicUrl),
+    publicUrl,
+  });
+  return publicUrl;
 }
