@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
-    "postbuild": "cp .next/images-manifest.json .next/standalone/.next/images-manifest.json || true",
+    "postbuild": "cp .next/images-manifest.json .next/standalone/.next/images-manifest.json || true && node -e \"const fs=require('fs');const f='.next/standalone/.next/images-manifest.json';const m=JSON.parse(fs.readFileSync(f));m.images.remotePatterns=[{protocol:'https',hostname:'cdn.serwapp.com'},{protocol:'https',hostname:'storage.c2.liara.site'}];fs.writeFileSync(f,JSON.stringify(m));\"",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
