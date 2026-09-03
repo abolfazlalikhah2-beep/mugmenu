@@ -2,9 +2,10 @@ import { FEATURE_MATRIX, type FeatureKey, type PlanKey } from "@/features/plans/
 import { FEATURE_LABELS } from "@/features/plans/feature-labels";
 
 const COLUMNS: { key: PlanKey; label: string; emoji: string }[] = [
-  { key: "menu-display", label: "منو دیداری", emoji: "👀" },
-  { key: "menu-order", label: "منو سفارش", emoji: "🧾" },
-  { key: "menu-advanced", label: "منو پیشرفته", emoji: "🚀" },
+  { key: "firuze", label: "فیروزه", emoji: "💠" },
+  { key: "yashm", label: "یشم", emoji: "💵" },
+  { key: "opal", label: "اوپال", emoji: "🧾" },
+  { key: "zomorrod", label: "زمرد", emoji: "🚀" },
 ];
 
 // A curated subset of features/plans/feature-matrix.ts — full enough to show
@@ -96,7 +97,7 @@ export function PricingComparisonTable() {
                     key={col.key}
                     scope="col"
                     className={`px-4 py-4.5 text-center text-sm ${
-                      col.key === "menu-order" ? "bg-brand/8 font-bold text-brand" : "font-medium text-text-1"
+                      col.key === "opal" ? "bg-brand/8 font-bold text-brand" : "font-medium text-text-1"
                     }`}
                   >
                     {col.emoji} {col.label}
@@ -114,7 +115,7 @@ export function PricingComparisonTable() {
                     {FEATURE_LABELS[key]}
                   </th>
                   {COLUMNS.map((col) => (
-                    <td key={col.key} className={`px-4 py-4 text-center ${col.key === "menu-order" ? "bg-brand/4" : ""}`}>
+                    <td key={col.key} className={`px-4 py-4 text-center ${col.key === "opal" ? "bg-brand/4" : ""}`}>
                       <Cell featureKey={key} planKey={col.key} />
                     </td>
                   ))}

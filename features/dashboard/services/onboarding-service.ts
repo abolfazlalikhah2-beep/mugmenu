@@ -6,12 +6,12 @@ import { onboardingSchema } from "@/features/dashboard/services/dashboard-schema
 import { getPlanByKey } from "@/features/plans/repositories/plan-repository";
 import { computePlanDates } from "@/features/plans/services/plan-dates";
 
-// New businesses default to the base plan (menu-display), not a free grant
-// of a paid tier — there's no self-service plan picker or payment gateway
-// at signup yet (phase 3 payment work, see CLAUDE.md), so upgrading to
-// menu-order/menu-advanced happens manually via the super admin panel
-// (either a real subscription or the demo trial modal), never automatically.
-const DEFAULT_SIGNUP_PLAN_KEY = "menu-display";
+// New businesses default to the base plan (firuze), not a free grant of a
+// paid tier — there's no self-service plan picker or payment gateway at
+// signup yet (phase 3 payment work, see CLAUDE.md), so upgrading to
+// yashm/opal/zomorrod happens manually via the super admin panel (either a
+// real subscription or the demo trial modal), never automatically.
+const DEFAULT_SIGNUP_PLAN_KEY = "firuze";
 const DEFAULT_SIGNUP_BILLING_CYCLE = "MONTHLY";
 
 export type ServiceResult = { ok: true; slug: string } | { ok: false; error: string };

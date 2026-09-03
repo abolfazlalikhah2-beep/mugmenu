@@ -16,6 +16,8 @@ import {
   FolderTree,
   Tags,
   Settings,
+  Mail,
+  UserPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/features/auth/routes/actions";
@@ -27,6 +29,8 @@ const NAV = [
   { href: "/superadmin/payment-cards", label: "تنظیمات پرداخت", icon: CreditCard },
   { href: "/superadmin/payment-requests", label: "درخواست‌های پرداخت", icon: ReceiptText },
   { href: "/superadmin/tickets", label: "تیکت‌ها", icon: LifeBuoy },
+  { href: "/superadmin/contacts", label: "پیام‌های تماس", icon: Mail },
+  { href: "/superadmin/leads", label: "لیدها", icon: UserPlus },
   {
     href: "/superadmin/blog",
     label: "مقالات",

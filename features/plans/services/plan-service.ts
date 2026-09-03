@@ -4,7 +4,6 @@ import { resolveFeatureAccess, type FeatureAccess } from "@/features/plans/servi
 import { isDemoEffective } from "@/features/plans/services/demo-access";
 import type { FeatureKey } from "@/features/plans/feature-matrix";
 import type { BillingCycle } from "@/features/plans/services/plan-dates";
-import { logger } from "@/lib/logger";
 
 export type { FeatureAccess } from "@/features/plans/services/feature-access";
 
@@ -15,12 +14,12 @@ export interface BusinessFeatureSet {
   limits: Record<string, string | null>;
 }
 
-const DEMO_PLAN_KEY = "menu-advanced";
+const DEMO_PLAN_KEY = "zomorrod";
 
 /**
  * While a super-admin demo trial is active and not yet expired, the
- * business's actual planId is ignored and it's treated as menu-advanced —
- * see features/plans/services/demo-access.ts's isDemoEffective.
+ * business's actual planId is ignored and it's treated as zomorrod (the top
+ * tier) — see features/plans/services/demo-access.ts's isDemoEffective.
  */
 async function resolveEffectivePlan(businessId: string) {
   const business = await repo.getBusinessPlanState(businessId);
@@ -43,16 +42,6 @@ export async function getBusinessFeatureSet(businessId: string): Promise<Busines
   const keys = new Set(plan.features.map((f) => f.featureKey));
   const limits: Record<string, string | null> = {};
   for (const f of plan.features) limits[f.featureKey] = f.limitValue;
-
-  // TEMP DEBUG — remove after diagnosing the menu-order lock bug.
-  logger.info("plans.debug_feature_set", {
-    businessId,
-    effectivePlanId: plan.id,
-    effectivePlanKey: plan.key,
-    featureCount: keys.size,
-    hasDiscountManualAuto: keys.has("discount.manual_auto"),
-    hasOrderManualEntry: keys.has("order.manual_entry"),
-  });
 
   return { planKey: plan.key, planName: plan.name, keys, limits };
 }

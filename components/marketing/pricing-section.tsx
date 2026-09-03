@@ -18,7 +18,7 @@ export function PricingSection() {
             id="pricing-heading"
             className="mt-4.5 text-[clamp(1.6rem,4vw,2.5rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
           >
-            همین حالا رایگان شروع کنید، هر وقت نیاز داشتید ارتقا دهید
+            پلن مناسب کسب‌وکارتان را انتخاب کنید، هر وقت نیاز داشتید ارتقا دهید
           </h2>
         </div>
 

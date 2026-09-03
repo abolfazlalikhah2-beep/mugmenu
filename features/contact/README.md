@@ -6,8 +6,10 @@ submission is just a lead/support request row, not tied to any `Business`.
 ## Layers
 
 - `repositories/contact-message-repository.ts` — the only file that touches `ContactMessage` via Prisma.
-- `services/contact-service.ts` — validates input with `contact-schemas.ts` (zod), rate-limits submissions per IP, logs the outcome, persists via the repository.
-- `routes/actions.ts` — the `"use server"` action `components/marketing/contact-form.tsx` calls. Thin: parse `FormData`, call the service, map the result to `ContactActionState`.
+- `services/contact-service.ts` — validates input with `contact-schemas.ts` (zod), rate-limits submissions per IP, logs the outcome, persists via the repository; `getContactMessages`/`setContactMessageRead` back the superadmin list.
+- `routes/actions.ts` — the `"use server"` action `components/marketing/contact-form.tsx` calls (thin: parse `FormData`, call the service, map the result to `ContactActionState`), plus `markContactMessageReadAction` for the superadmin list.
+
+`POST /api/contact` (`app/api/contact/route.ts`) hits the same `submitContactMessage` service as the form action — for callers that want a plain JSON endpoint instead of a form post. Reviewed from `/superadmin/contacts`.
 
 ## How to test
 

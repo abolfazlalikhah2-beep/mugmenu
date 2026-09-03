@@ -1,35 +1,88 @@
 /**
- * Single source of truth for what each of the 3 subscription tiers includes.
+ * Single source of truth for what each of the 4 subscription tiers includes.
  * Only used to seed the PlanFeature table (see prisma/seed.ts) — every
  * runtime gating check reads PlanFeature from the DB, never this file, so
  * changing what a plan includes after launch is a data change (edit
  * PlanFeature rows), not a code release.
  */
 
-export const PLAN_KEYS = ["menu-display", "menu-order", "menu-advanced"] as const;
+export const PLAN_KEYS = ["firuze", "yashm", "opal", "zomorrod"] as const;
 export type PlanKey = (typeof PLAN_KEYS)[number];
 
-export const ANNUAL_MONTHS = 12;
-export const ANNUAL_DISCOUNT = 0.8;
-export const SIX_MONTH_MONTHS = 6;
-export const SIX_MONTH_DISCOUNT = 0.9;
-
-export function computeAnnualPrice(monthlyPrice: number): number {
-  return Math.round(monthlyPrice * ANNUAL_MONTHS * ANNUAL_DISCOUNT);
+export interface PlanDef {
+  name: string;
+  slug: string;
+  description: string;
+  monthlyPrice: number;
+  sixMonthPrice: number;
+  annualPrice: number;
+  sortOrder: number;
+  isOrderingEnabled: boolean;
+  isCashierEnabled: boolean;
+  marketingFeatures: string[];
 }
 
-export function computeSixMonthPrice(monthlyPrice: number): number {
-  return Math.round(monthlyPrice * SIX_MONTH_MONTHS * SIX_MONTH_DISCOUNT);
-}
-
-export const PLAN_DEFS: Record<PlanKey, { name: string; monthlyPrice: number; sortOrder: number }> = {
-  "menu-display": { name: "منو دیداری", monthlyPrice: 600_000, sortOrder: 0 },
-  "menu-order": { name: "منو سفارش", monthlyPrice: 1_200_000, sortOrder: 1 },
-  "menu-advanced": { name: "منو پیشرفته", monthlyPrice: 2_500_000, sortOrder: 2 },
+// Prices are fixed per tier (not derived from a monthly-price formula) so
+// changing one tier's discount doesn't silently move another's.
+export const PLAN_DEFS: Record<PlanKey, PlanDef> = {
+  firuze: {
+    name: "فیروزه",
+    slug: "firuze",
+    description: "مناسب کافه‌ها و شروع رایگان",
+    monthlyPrice: 490_000,
+    sixMonthPrice: 2_450_000,
+    annualPrice: 4_700_000,
+    sortOrder: 0,
+    isOrderingEnabled: false,
+    isCashierEnabled: false,
+    marketingFeatures: ["منوی دیجیتال عمومی", "یک QR اختصاصی", "تا ۳۰ آیتم منو", "پشتیبانی ایمیلی"],
+  },
+  yashm: {
+    name: "یشم",
+    slug: "yashm",
+    description: "مناسب رستوران‌هایی که سفارش‌گیری دستی دارند",
+    monthlyPrice: 980_000,
+    sixMonthPrice: 4_900_000,
+    annualPrice: 9_400_000,
+    sortOrder: 1,
+    isOrderingEnabled: false,
+    isCashierEnabled: true,
+    marketingFeatures: ["همه امکانات فیروزه", "صندوق فروشگاهی", "ثبت سفارش دستی توسط صندوق", "گزارش فروش پایه"],
+  },
+  opal: {
+    name: "اوپال",
+    slug: "opal",
+    description: "مناسب رستوران‌های فعال با سفارش آنلاین",
+    monthlyPrice: 1_290_000,
+    sixMonthPrice: 6_450_000,
+    annualPrice: 12_400_000,
+    sortOrder: 2,
+    isOrderingEnabled: true,
+    isCashierEnabled: true,
+    marketingFeatures: ["همه امکانات یشم", "سفارش آنلاین از منو", "سه حالت سفارش هوشمند", "QR نامحدود میز", "اعلان لحظه‌ای سفارش"],
+  },
+  zomorrod: {
+    name: "زمرد",
+    slug: "zomorrod",
+    description: "مناسب رستوران‌های بزرگ و پرحجم",
+    monthlyPrice: 2_200_000,
+    sixMonthPrice: 11_000_000,
+    annualPrice: 21_000_000,
+    sortOrder: 3,
+    isOrderingEnabled: true,
+    isCashierEnabled: true,
+    marketingFeatures: [
+      "همه امکانات اوپال",
+      "گزارش‌گیری و آمار پیشرفته",
+      "خروجی اکسل از سفارش‌ها",
+      "باشگاه مشتریان",
+      "پشتیبانی ۲۴ ساعته",
+    ],
+  },
 };
 
 export const FEATURE_KEYS = [
-  // Always included in all 3 plans, no limit — not gated in code (always true).
+  // Always included in all 4 plans, no limit — not gated in code (always true).
   "menu.core",
   "menu.profile",
   "menu.multilang",
@@ -45,44 +98,52 @@ export const FEATURE_KEYS = [
   // Always included, limit varies by plan.
   "branch.count",
   "support.ticketing",
-  // menu-order + menu-advanced only.
+  // isCashierEnabled plans (yashm, opal, zomorrod).
+  "order.manual_entry",
+  "report.orders",
+  "printer.connection", // limit varies, absent for firuze
+  // isOrderingEnabled plans (opal, zomorrod).
   "domain.custom",
   "order.three_mode",
   "product.variants",
   "product.inventory",
   "discount.manual_auto",
-  "order.manual_entry",
   "review.submit_survey",
-  "report.orders",
-  "loyalty.cashback",
-  "customer.export",
   "customer.wallet_login",
   "payment.gateway",
-  "printer.connection", // limit varies (2 vs unlimited), absent for menu-display
-  // menu-advanced only.
+  // zomorrod only.
+  "loyalty.cashback",
   "loyalty.birthday_message",
   "loyalty.targeted_message",
   "sms.panel",
   "branch.multi_switcher",
   "delivery.internal_riders",
   "accounting.simple",
+  "customer.export",
 ] as const;
 
 export type FeatureKey = (typeof FEATURE_KEYS)[number];
 
 const ALL_PLANS: Record<PlanKey, string | null> = {
-  "menu-display": null,
-  "menu-order": null,
-  "menu-advanced": null,
+  firuze: null,
+  yashm: null,
+  opal: null,
+  zomorrod: null,
 };
 
-const ORDER_AND_ADVANCED: Partial<Record<PlanKey, string | null>> = {
-  "menu-order": null,
-  "menu-advanced": null,
+const CASHIER_UP: Partial<Record<PlanKey, string | null>> = {
+  yashm: null,
+  opal: null,
+  zomorrod: null,
+};
+
+const ORDERING_UP: Partial<Record<PlanKey, string | null>> = {
+  opal: null,
+  zomorrod: null,
 };
 
 const ADVANCED_ONLY: Partial<Record<PlanKey, string | null>> = {
-  "menu-advanced": null,
+  zomorrod: null,
 };
 
 /**
@@ -106,33 +167,35 @@ export const FEATURE_MATRIX: Record<FeatureKey, Partial<Record<PlanKey, string |
 
   // No Branch model / multi-location UI exists in the app yet — this only
   // seeds the limit for when that feature is built.
-  "branch.count": { "menu-display": "1", "menu-order": "1", "menu-advanced": "3" },
+  "branch.count": { firuze: "1", yashm: "1", opal: "3", zomorrod: "3" },
   "support.ticketing": {
-    "menu-display": "ticketing",
-    "menu-order": "ticketing",
-    "menu-advanced": "ticketing+phone",
+    firuze: "ticketing",
+    yashm: "ticketing",
+    opal: "ticketing",
+    zomorrod: "ticketing+phone",
   },
 
-  "domain.custom": ORDER_AND_ADVANCED,
-  "order.three_mode": ORDER_AND_ADVANCED,
-  "product.variants": ORDER_AND_ADVANCED,
-  "product.inventory": ORDER_AND_ADVANCED,
-  "discount.manual_auto": ORDER_AND_ADVANCED,
-  "order.manual_entry": ORDER_AND_ADVANCED,
-  "review.submit_survey": ORDER_AND_ADVANCED,
-  "report.orders": ORDER_AND_ADVANCED,
-  "loyalty.cashback": ORDER_AND_ADVANCED,
-  "customer.export": ORDER_AND_ADVANCED,
-  "customer.wallet_login": ORDER_AND_ADVANCED,
-  "payment.gateway": ORDER_AND_ADVANCED,
-  "printer.connection": { "menu-order": "2", "menu-advanced": "unlimited" },
+  "order.manual_entry": CASHIER_UP,
+  "report.orders": { yashm: "basic", opal: "basic", zomorrod: "advanced" },
+  "printer.connection": { yashm: "2", opal: "2", zomorrod: "unlimited" },
+
+  "domain.custom": ORDERING_UP,
+  "order.three_mode": ORDERING_UP,
+  "product.variants": ORDERING_UP,
+  "product.inventory": ORDERING_UP,
+  "discount.manual_auto": ORDERING_UP,
+  "review.submit_survey": ORDERING_UP,
+  "customer.wallet_login": ORDERING_UP,
+  "payment.gateway": ORDERING_UP,
 
   // No Branch/accounting feature exists in the app yet — seeded for
   // future-readiness only, nothing gates on these today.
+  "loyalty.cashback": ADVANCED_ONLY,
   "loyalty.birthday_message": ADVANCED_ONLY,
   "loyalty.targeted_message": ADVANCED_ONLY,
   "sms.panel": ADVANCED_ONLY,
   "branch.multi_switcher": ADVANCED_ONLY,
   "delivery.internal_riders": ADVANCED_ONLY,
   "accounting.simple": ADVANCED_ONLY,
+  "customer.export": ADVANCED_ONLY,
 };

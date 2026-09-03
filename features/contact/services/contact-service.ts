@@ -41,3 +41,11 @@ export async function submitContactMessage(input: unknown): Promise<ContactServi
   logger.info("contact.submitted", { phone });
   return { ok: true };
 }
+
+export function getContactMessages() {
+  return contactMessageRepository.getContactMessages();
+}
+
+export function setContactMessageRead(id: string, isRead: boolean) {
+  return contactMessageRepository.markContactMessageRead(id, isRead);
+}

@@ -192,10 +192,24 @@ enum BillingCycle {
 model Plan {
   id            String   @id @default(cuid())
   key           String   @unique
+  // Public-facing identifier for the 4 gem-named tiers (فیروزه/یشم/اوپال/زمرد)
+  // — currently always equal to `key` for these plans; kept as a separate
+  // column because `key` is also the internal FEATURE_MATRIX/getPlanByKey
+  // identifier and callers should read the one that matches their intent.
+  slug          String   @unique
   name          String
+  description   String?
   monthlyPrice  Int
   sixMonthPrice Int      @default(0)
   annualPrice   Int
+  // Coarse plan-level gates surfaced directly (pricing page, superadmin
+  // plan picker) — the granular PlanFeature/FEATURE_MATRIX rows below remain
+  // the source of truth for actual businessHasFeature() checks in code.
+  isOrderingEnabled Boolean  @default(false)
+  isCashierEnabled  Boolean  @default(false)
+  // Marketing bullet list for the pricing page — display only, not read by
+  // any gating logic. Named distinctly from the `features` relation below.
+  marketingFeatures String[] @default([])
   sortOrder    Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -990,6 +1004,8 @@ model ContactMessage {
   phone     String
   email     String?
   message   String
+  // Reviewed/marked read from /superadmin/contacts.
+  isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
   @@index([createdAt])
@@ -1056,6 +1072,17 @@ model BlogPostTag {
 
   @@id([postId, tagId])
   @@index([tagId])
+}
+
+// Phone-only lead capture (e.g. homepage "می‌خوام باهام تماس بگیرید" widget,
+// public, unauthenticated POST /api/lead) — reviewed/marked read from
+// /superadmin/leads. `source` distinguishes which widget/page captured it.
+model LeadCapture {
+  id        String   @id @default(cuid())
+  phone     String
+  source    String   @default("homepage")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 enum PostStatus {

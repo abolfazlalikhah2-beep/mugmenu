@@ -48,7 +48,7 @@ export async function createOrder(input: unknown, customerAccountId?: string): P
   const business = await menuRepository.getBusiness(data.slug);
   if (!business) return { ok: false, error: "کسب‌وکار پیدا نشد." };
 
-  // Plan gate: menu-display businesses can only show the menu, never accept
+  // Plan gate: firuze/yashm (no isOrderingEnabled) businesses can only show the menu, never accept
   // online orders — enforced here too since the UI-level gate (hiding the
   // add-to-cart controls) can be bypassed by calling this action directly.
   const [canOrder, hasWalletLogin, hasCashback] = await Promise.all([

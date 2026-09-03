@@ -2,49 +2,23 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { PLAN_KEYS, PLAN_DEFS, type PlanKey } from "@/features/plans/feature-matrix";
 
-const plans = [
-  {
-    key: "free",
-    emoji: "👀",
-    name: "منو دیداری",
-    description: "مناسب کافه‌ها و شروع رایگان",
-    price: { monthly: null, yearly: null } as const,
-    priceLabel: "رایگان",
-    features: ["منوی دیجیتال عمومی", "یک QR اختصاصی", "تا ۳۰ آیتم منو", "پشتیبانی ایمیلی"],
-    recommended: false,
-  },
-  {
-    key: "order",
-    emoji: "🧾",
-    name: "منو سفارش",
-    description: "مناسب رستوران‌های فعال با سفارش آنلاین",
-    price: { monthly: "۲۹۰", yearly: "۲۳۲" } as const,
-    priceLabel: null,
-    features: [
-      "همه‌ی امکانات منو دیداری",
-      "سه حالت سفارش هوشمند",
-      "QR نامحدود میز",
-      "اعلان لحظه‌ای سفارش",
-    ],
-    recommended: true,
-  },
-  {
-    key: "pro",
-    emoji: "🚀",
-    name: "منو پیشرفته",
-    description: "مناسب رستوران‌های بزرگ و پرحجم",
-    price: { monthly: "۵۹۰", yearly: "۴۷۲" } as const,
-    priceLabel: null,
-    features: [
-      "همه‌ی امکانات منو سفارش",
-      "گزارش‌گیری و آمار پیشرفته",
-      "خروجی اکسل از سفارش‌ها",
-      "پشتیبانی ۲۴ ساعته",
-    ],
-    recommended: false,
-  },
-];
+const EMOJI: Record<PlanKey, string> = {
+  firuze: "💠",
+  yashm: "💵",
+  opal: "🧾",
+  zomorrod: "🚀",
+};
+
+// Only opal (the flagship ordering tier) is highlighted — matches the
+// comparison table's highlighted column below.
+const RECOMMENDED_PLAN: PlanKey = "opal";
+
+// Simple 20% "yearly" marketing discount shown per month (matches the
+// "٪۲۰ تخفیف" badge) — not the exact annualPrice/12, which is snapshotted
+// separately per plan for billing.
+const YEARLY_DISCOUNT = 0.8;
 
 export function PricingPlans() {
   const [yearly, setYearly] = useState(false);
@@ -82,64 +56,62 @@ export function PricingPlans() {
       </div>
 
       <div className="mt-11 grid items-stretch gap-5.5 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
-        {plans.map((plan) => (
-          <div
-            key={plan.key}
-            className={`relative flex flex-col rounded-card-sm border p-7.5 ${
-              plan.recommended
-                ? "border-brand bg-card shadow-modal md:-translate-y-3"
-                : "border-border-line bg-card shadow-float"
-            }`}
-          >
-            {plan.recommended && (
-              <span className="absolute -top-3.5 right-1/2 translate-x-1/2 whitespace-nowrap rounded-pill bg-brand px-4 py-1.5 text-xs font-medium text-white shadow-[0_8px_17.5px_rgba(50,140,61,0.28)]">
-                پیشنهادی
-              </span>
-            )}
+        {PLAN_KEYS.map((key) => {
+          const plan = PLAN_DEFS[key];
+          const recommended = key === RECOMMENDED_PLAN;
+          const priceInThousands = Math.round((plan.monthlyPrice * (yearly ? YEARLY_DISCOUNT : 1)) / 1000);
 
-            <div className="text-lg font-bold text-ink">
-              {plan.emoji} {plan.name}
-            </div>
-            <p className="mt-1.5 text-sm font-light text-text-1">{plan.description}</p>
-
-            <div className="my-5.5 flex items-baseline gap-1.5">
-              {plan.priceLabel ? (
-                <span className="text-[1.9rem] font-bold text-ink">{plan.priceLabel}</span>
-              ) : (
-                <>
-                  <span className="text-[1.9rem] font-bold text-brand">
-                    {yearly ? plan.price.yearly : plan.price.monthly}
-                  </span>
-                  <span className="text-sm font-light text-text-2">هزار تومان / ماه</span>
-                </>
-              )}
-            </div>
-
-            <ul className="flex flex-col gap-3">
-              {plan.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-2.5 text-sm font-light text-text-1">
-                  <span aria-hidden="true" className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand/12 text-brand">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                      <path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-
-            <Link
-              href="/register"
-              className={`mt-7.5 block rounded-btn px-6 py-3.25 text-center text-sm font-medium transition-colors ${
-                plan.recommended
-                  ? "bg-brand text-white shadow-[0_8px_17.5px_rgba(50,140,61,0.28)] hover:bg-brand-hover"
-                  : "border-[1.5px] border-brand/22 bg-white text-brand hover:bg-brand/5"
+          return (
+            <div
+              key={key}
+              className={`relative flex flex-col rounded-card-sm border p-7.5 ${
+                recommended
+                  ? "border-brand bg-card shadow-modal md:-translate-y-3"
+                  : "border-border-line bg-card shadow-float"
               }`}
             >
-              {plan.priceLabel ? "شروع رایگان" : "انتخاب پلن"}
-            </Link>
-          </div>
-        ))}
+              {recommended && (
+                <span className="absolute -top-3.5 right-1/2 translate-x-1/2 whitespace-nowrap rounded-pill bg-brand px-4 py-1.5 text-xs font-medium text-white shadow-[0_8px_17.5px_rgba(50,140,61,0.28)]">
+                  پیشنهادی
+                </span>
+              )}
+
+              <div className="text-lg font-bold text-ink">
+                {EMOJI[key]} {plan.name}
+              </div>
+              <p className="mt-1.5 text-sm font-light text-text-1">{plan.description}</p>
+
+              <div className="my-5.5 flex items-baseline gap-1.5">
+                <span className="text-[1.9rem] font-bold text-brand">{priceInThousands.toLocaleString("fa-IR")}</span>
+                <span className="text-sm font-light text-text-2">هزار تومان / ماه</span>
+              </div>
+
+              <ul className="flex flex-col gap-3">
+                {plan.marketingFeatures.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2.5 text-sm font-light text-text-1">
+                    <span aria-hidden="true" className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand/12 text-brand">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/register"
+                className={`mt-7.5 block rounded-btn px-6 py-3.25 text-center text-sm font-medium transition-colors ${
+                  recommended
+                    ? "bg-brand text-white shadow-[0_8px_17.5px_rgba(50,140,61,0.28)] hover:bg-brand-hover"
+                    : "border-[1.5px] border-brand/22 bg-white text-brand hover:bg-brand/5"
+                }`}
+              >
+                انتخاب پلن
+              </Link>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

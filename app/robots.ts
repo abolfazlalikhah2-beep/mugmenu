@@ -12,7 +12,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
  * `[cafeSlug]` (e.g. `/dashboard/...`) since they too have a segment after
  * their own root, keeping this one rule instead of enumerating every route.
  *
- * This same rule set stays correct now that menu-display businesses are
+ * This same rule set stays correct now that firuze-tier businesses are
  * also reachable at `{slug}.{ROOT_DOMAIN}` (see proxy.ts/lib/subdomain.ts):
  * robots.txt is fetched per-origin, so a business subdomain gets its own
  * copy of this exact file (same route, different host) — its root "/" is

@@ -2,15 +2,7 @@ import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../lib/generated/prisma/client";
-import {
-  PLAN_KEYS,
-  PLAN_DEFS,
-  FEATURE_KEYS,
-  FEATURE_MATRIX,
-  computeAnnualPrice,
-  computeSixMonthPrice,
-  type PlanKey,
-} from "../features/plans/feature-matrix";
+import { PLAN_KEYS, PLAN_DEFS, FEATURE_KEYS, FEATURE_MATRIX, type PlanKey } from "../features/plans/feature-matrix";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -28,12 +20,22 @@ async function seedPlans(): Promise<Record<PlanKey, SeededPlan>> {
 
   for (const key of PLAN_KEYS) {
     const def = PLAN_DEFS[key];
-    const annualPrice = computeAnnualPrice(def.monthlyPrice);
-    const sixMonthPrice = computeSixMonthPrice(def.monthlyPrice);
+    const fields = {
+      name: def.name,
+      slug: def.slug,
+      description: def.description,
+      monthlyPrice: def.monthlyPrice,
+      sixMonthPrice: def.sixMonthPrice,
+      annualPrice: def.annualPrice,
+      isOrderingEnabled: def.isOrderingEnabled,
+      isCashierEnabled: def.isCashierEnabled,
+      marketingFeatures: def.marketingFeatures,
+      sortOrder: def.sortOrder,
+    };
     const plan = await prisma.plan.upsert({
       where: { key },
-      update: { name: def.name, monthlyPrice: def.monthlyPrice, sixMonthPrice, annualPrice, sortOrder: def.sortOrder },
-      create: { key, name: def.name, monthlyPrice: def.monthlyPrice, sixMonthPrice, annualPrice, sortOrder: def.sortOrder },
+      update: fields,
+      create: { key, ...fields },
     });
     plansByKey[key] = plan;
   }
@@ -53,10 +55,27 @@ async function seedPlans(): Promise<Record<PlanKey, SeededPlan>> {
   }
 
   // Any business created before Plan existed (or created without an explicit
-  // plan) defaults to menu-advanced so nobody loses access mid-migration —
-  // raw SQL because the generated client's Business type expects planId to
+  // plan) defaults to zomorrod so nobody loses access mid-migration — raw
+  // SQL because the generated client's Business type expects planId to
   // already be non-null (its final, post-migration shape).
-  await prisma.$executeRaw`UPDATE "Business" SET "planId" = ${plansByKey["menu-advanced"].id} WHERE "planId" IS NULL`;
+  await prisma.$executeRaw`UPDATE "Business" SET "planId" = ${plansByKey["zomorrod"].id} WHERE "planId" IS NULL`;
+
+  // One-time migration off the old 3-tier plans (menu-display/menu-order/
+  // menu-advanced) to the 4 gem-named tiers above, by rough tier
+  // equivalence. Idempotent: findUnique returns null once an old plan's
+  // already been deleted on a prior run. PlanFeature rows for the deleted
+  // plan cascade-delete automatically (see Plan.features' onDelete: Cascade).
+  const OLD_TO_NEW: Record<string, PlanKey> = {
+    "menu-display": "firuze",
+    "menu-order": "opal",
+    "menu-advanced": "zomorrod",
+  };
+  for (const [oldKey, newKey] of Object.entries(OLD_TO_NEW)) {
+    const oldPlan = await prisma.plan.findUnique({ where: { key: oldKey } });
+    if (!oldPlan) continue;
+    await prisma.business.updateMany({ where: { planId: oldPlan.id }, data: { planId: plansByKey[newKey].id } });
+    await prisma.plan.delete({ where: { key: oldKey } });
+  }
 
   return plansByKey;
 }
@@ -197,7 +216,7 @@ async function main() {
     update: demoBusinessFields,
     // planId only set on create, not update — re-seeding shouldn't undo a
     // plan change made through the super-admin plan switcher while testing.
-    create: { slug: "demo", ...demoBusinessFields, planId: plansByKey["menu-advanced"].id },
+    create: { slug: "demo", ...demoBusinessFields, planId: plansByKey["zomorrod"].id },
   });
 
   // Friday closed, Thursday shorter hours — gives the public accordion and
@@ -505,7 +524,7 @@ async function main() {
   if (existingTransactions === 0) {
     const now = new Date();
     const monthsAgo = (n: number) => new Date(now.getFullYear(), now.getMonth() - n, 15);
-    const currentPlan = plansByKey["menu-advanced"];
+    const currentPlan = plansByKey["zomorrod"];
     await prisma.transaction.createMany({
       data: [
         { businessId: business.id, amount: currentPlan.monthlyPrice, planName: currentPlan.name, status: "PAID", createdAt: monthsAgo(0) },

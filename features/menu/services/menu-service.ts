@@ -78,7 +78,7 @@ export async function getSitemapBusinesses(): Promise<SitemapBusiness[]> {
   return businesses.map((b) => ({ slug: b.slug, planKey: b.plan.key, customDomain: b.customDomain }));
 }
 
-/** Custom-domain routing (menu-order/menu-advanced plans) — see proxy.ts. */
+/** Custom-domain routing (opal/zomorrod plans (isOrderingEnabled)) — see proxy.ts. */
 export function findSlugByCustomDomain(customDomain: string) {
   return repo.getBusinessSlugByCustomDomain(customDomain);
 }
@@ -120,7 +120,7 @@ export interface CartCheckoutContext {
   autoDiscounts: AutoDiscountDef[];
   /** null when checking out as a guest (not logged in) — no wallet to redeem from. */
   walletBalance: number | null;
-  /** false for menu-display plan businesses, or when the owner has manually toggled "سفارش‌گیری" off — cart/checkout must stay blocked either way. */
+  /** false for firuze/yashm (no isOrderingEnabled) businesses, or when the owner has manually toggled "سفارش‌گیری" off — cart/checkout must stay blocked either way. */
   hasOrdering: boolean;
   /** Which order types this business currently accepts (dashboard settings > order settings) — the cart's type tabs must only offer these. */
   acceptsDineIn: boolean;

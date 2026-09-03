@@ -59,7 +59,7 @@ export function getActiveBusinessSlugs() {
   });
 }
 
-/** Custom-domain routing (menu-order/menu-advanced plans) — see proxy.ts. Excludes suspended businesses like every other public-menu lookup. */
+/** Custom-domain routing (opal/zomorrod plans (isOrderingEnabled)) — see proxy.ts. Excludes suspended businesses like every other public-menu lookup. */
 export function getBusinessSlugByCustomDomain(customDomain: string) {
   return prisma.business.findFirst({
     where: { customDomain, isSuspended: false },

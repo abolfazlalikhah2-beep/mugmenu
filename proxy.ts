@@ -42,7 +42,7 @@ async function resolveSubdomainRewrite(request: NextRequest, headers: Headers): 
   }
 
   // Not the app host and not a recognized slug-subdomain: might be a
-  // menu-order/menu-advanced business's connected custom domain.
+  // opal/zomorrod business's connected custom domain.
   try {
     const business = await findSlugByCustomDomain(host.split(":")[0]);
     if (business) return rewriteToSlug(request, business.slug, headers);

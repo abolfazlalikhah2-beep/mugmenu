@@ -69,7 +69,7 @@ export default async function MenuMainPage({
   const [canOrderFeature, cashbackEnabled, loginEnabled] = await Promise.all([
     businessHasFeature(business.id, "order.three_mode"),
     businessHasFeature(business.id, "loyalty.cashback"),
-    // menu-display has no ordering/customer accounts at all, so "ورود / ثبت‌نام" has nothing to lead to.
+    // firuze (no isOrderingEnabled) has no ordering/customer accounts at all, so "ورود / ثبت‌نام" has nothing to lead to.
     businessHasFeature(business.id, "customer.wallet_login"),
   ]);
   // The plan gate alone isn't enough — a business on a paid plan can still

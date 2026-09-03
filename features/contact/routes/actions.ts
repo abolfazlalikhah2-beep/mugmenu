@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { requireSuperAdmin } from "@/features/auth/services/authorize";
 import * as contactService from "@/features/contact/services/contact-service";
 
 export interface ContactActionState {
@@ -23,5 +25,12 @@ export async function submitContactMessageAction(
     message: formValue(formData, "message"),
   });
   if (!result.ok) return { ok: false, error: result.error, fieldErrors: result.fieldErrors };
+  return { ok: true };
+}
+
+export async function markContactMessageReadAction(id: string, isRead: boolean) {
+  await requireSuperAdmin();
+  await contactService.setContactMessageRead(id, isRead);
+  revalidatePath("/superadmin/contacts");
   return { ok: true };
 }

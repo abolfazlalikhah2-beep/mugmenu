@@ -24,7 +24,7 @@ export function PricingHero() {
         </h1>
 
         <p className="mx-auto mt-4 max-w-[48ch] text-[clamp(1rem,2.1vw,1.18rem)] font-light leading-[2] text-text-1">
-          پلنی متناسب با اندازه‌ی رستوران‌تان انتخاب کنید؛ رایگان شروع کنید و هر زمان خواستید ارتقا دهید.
+          پلنی متناسب با اندازه‌ی رستوران‌تان انتخاب کنید و هر زمان خواستید ارتقا دهید.
         </p>
       </div>
     </section>
