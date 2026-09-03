@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "postbuild": "cp .next/images-manifest.json .next/standalone/.next/images-manifest.json || true",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
