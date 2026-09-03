@@ -30,6 +30,10 @@ FROM deps AS builder
 COPY . .
 RUN npx prisma generate
 RUN npm run build
+# Verify Next.js actually generated images-manifest.json where we expect it,
+# right after the build that's supposed to produce it — if this fails, the
+# problem is generation (Next.js output changed), not the later COPY.
+RUN ls -la /app/.next/ && test -f /app/.next/images-manifest.json || (echo "BUILD FAILED: images-manifest.json missing from /app/.next/ after next build" && exit 1)
 
 # ---- runner (prod) -----------------------------------------------------
 FROM base AS runner
@@ -47,6 +51,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # next.config.ts says. Confirmed missing via `find / -name images-manifest.json`
 # inside the running container turning up nothing.
 COPY --from=builder --chown=nextjs:nodejs /app/.next/images-manifest.json ./.next/images-manifest.json
+# Verify the copy actually landed in the runner stage too — if the builder
+# check above passed but this one fails, the problem is the COPY/cache layer
+# itself, not generation. Fail the image build loudly instead of shipping a
+# runner that's silently missing it (see incident notes in CLAUDE.md).
+RUN ls -la /app/.next/ && test -f /app/.next/images-manifest.json || (echo "BUILD FAILED: images-manifest.json missing from runner /app/.next/ after COPY" && exit 1)
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
 # next build's standalone output only bundles node_modules traced from
