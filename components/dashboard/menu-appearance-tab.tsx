@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import Image from "next/image";
 import { Check, UtensilsCrossed, ScrollText, Package, MapPin } from "lucide-react";
 import { SettingsCard } from "@/components/dashboard/settings-card";
 import { ImageUploadField } from "@/components/uploads/image-upload-field";
@@ -91,7 +90,8 @@ export function MenuAppearanceTab({ business }: { business: MenuAppearanceFormVa
             </div>
             <div className="relative h-[140px] w-full overflow-hidden bg-[#2A2A2A]">
               {background.type === "image" ? (
-                <Image src={background.url} alt="" fill sizes="290px" className="object-cover" />
+                // eslint-disable-next-line @next/next/no-img-element -- Liara's proxy 400s /_next/image
+                <img src={background.url} alt="" className="absolute inset-0 h-full w-full object-cover" />
               ) : (
                 <div className="absolute inset-0" style={{ background: background.css }} />
               )}
@@ -100,7 +100,8 @@ export function MenuAppearanceTab({ business }: { business: MenuAppearanceFormVa
             <div className="flex items-start gap-2.5 px-4 pt-3.5">
               <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-brand/10 text-[11px] font-bold text-brand">
                 {logoUrl ? (
-                  <Image src={logoUrl} alt="" width={42} height={42} className="h-full w-full object-cover" />
+                  // eslint-disable-next-line @next/next/no-img-element -- Liara's proxy 400s /_next/image
+                  <img src={logoUrl} alt="" className="h-full w-full object-cover" />
                 ) : (
                   "ماگ"
                 )}

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TopMenuItemRow } from "@/features/dashboard/services/menu-analytics-aggregation";
@@ -20,7 +19,10 @@ export function MenuTopItemsTable({ items }: { items: TopMenuItemRow[] }) {
                 {(i + 1).toLocaleString("fa-IR")}
               </span>
               <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-[10px] bg-[#F2F2F2]">
-                {it.imageUrl && <Image src={it.imageUrl} alt={it.name} fill sizes="40px" className="object-cover" />}
+                {it.imageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element -- Liara's proxy 400s /_next/image
+                  <img src={it.imageUrl} alt={it.name} className="absolute inset-0 h-full w-full object-cover" />
+                )}
               </div>
               <span className="min-w-0 flex-1 truncate text-sm font-medium">{it.name}</span>
               <div className="flex shrink-0 items-center gap-1 text-xs text-text-3" title="بازدید">

@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { ImagePlus, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { uploadImageAction, type UploadImageResult } from "@/features/uploads/routes/actions";
@@ -84,7 +83,8 @@ export function ImageUploadField({
           )}
         >
           {url ? (
-            <Image src={url} alt="" fill sizes="88px" className="object-cover" />
+            // eslint-disable-next-line @next/next/no-img-element -- Liara's proxy 400s /_next/image
+            <img src={url} alt="" className="absolute inset-0 h-full w-full object-cover" />
           ) : (
             <ImagePlus size={26} className="text-[#B8B8B8]" />
           )}

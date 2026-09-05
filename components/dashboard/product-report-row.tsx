@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { TopProductRow } from "@/features/dashboard/services/report-aggregation";
 
@@ -29,7 +28,8 @@ export function ProductReportRow({
 
       <div className="relative h-[46px] w-[46px] shrink-0 overflow-hidden rounded-[13px] bg-[#F2F2F2] sm:h-[52px] sm:w-[52px]">
         {product.imageUrl && (
-          <Image src={product.imageUrl} alt={product.name} fill sizes="52px" className="object-cover" />
+          // eslint-disable-next-line @next/next/no-img-element -- Liara's proxy 400s /_next/image
+          <img src={product.imageUrl} alt={product.name} className="absolute inset-0 h-full w-full object-cover" />
         )}
       </div>
 

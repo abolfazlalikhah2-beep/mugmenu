@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import {
   Search,
   UtensilsCrossed,
@@ -467,7 +466,8 @@ export function ManualOrderModal({
                   >
                     <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-[#F2F2F2]">
                       {p.imageUrl && (
-                        <Image src={p.imageUrl} alt={p.name} fill sizes="44px" className="object-cover" />
+                        // eslint-disable-next-line @next/next/no-img-element -- Liara's proxy 400s /_next/image
+                        <img src={p.imageUrl} alt={p.name} className="absolute inset-0 h-full w-full object-cover" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1 text-right">

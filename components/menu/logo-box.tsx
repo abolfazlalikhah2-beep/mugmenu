@@ -7,7 +7,8 @@ export function LogoBox({ size = 64, logoUrl }: { size?: number; logoUrl?: strin
       style={{ width: size, height: size }}
     >
       {logoUrl ? (
-        <Image src={logoUrl} alt="" width={size} height={size} className="h-full w-full object-cover" />
+        // eslint-disable-next-line @next/next/no-img-element -- Liara's proxy 400s /_next/image
+        <img src={logoUrl} alt="" className="h-full w-full object-cover" />
       ) : (
         <Image
           src="/brand/logo-magmenu-white.png"

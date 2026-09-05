@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { HeroBackground } from "@/features/menu/utils/hero-background";
 
@@ -8,7 +7,6 @@ export function MenuHero({
   overlayOpacity,
   className,
   children,
-  priority = false,
 }: {
   background: HeroBackground;
   overlayOpacity: number;
@@ -22,7 +20,8 @@ export function MenuHero({
       style={background.type === "css" ? { background: background.css } : undefined}
     >
       {background.type === "image" && (
-        <Image src={background.url} alt="" fill sizes="100vw" priority={priority} className="object-cover" />
+        // eslint-disable-next-line @next/next/no-img-element -- Liara's proxy 400s /_next/image
+        <img src={background.url} alt="" className="absolute inset-0 h-full w-full object-cover" />
       )}
       <div className="absolute inset-0 bg-black" style={{ opacity: overlayOpacity / 100 }} />
       {children}

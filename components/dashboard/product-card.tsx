@@ -1,7 +1,6 @@
 "use client";
 
 import { useTransition } from "react";
-import Image from "next/image";
 import { Pencil, Trash2, Box } from "lucide-react";
 import { Toggle } from "@/components/dashboard/toggle";
 import { formatToman } from "@/features/menu/utils/money";
@@ -53,7 +52,8 @@ export function ProductCard({ product, onEdit }: { product: ProductCardData; onE
     >
       <div className="relative h-[150px] bg-[#F2F2F2]">
         {product.imageUrl && (
-          <Image src={product.imageUrl} alt={product.name} fill sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover" />
+          // eslint-disable-next-line @next/next/no-img-element -- Liara's proxy 400s /_next/image
+          <img src={product.imageUrl} alt={product.name} className="absolute inset-0 h-full w-full object-cover" />
         )}
         <div className="absolute top-3 right-3 flex gap-1.5">
           <span

@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import Image from "next/image";
 import { ModalShell } from "@/components/dashboard/modal-shell";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -89,12 +88,11 @@ export function PaymentRequestModal({
               rel="noopener noreferrer"
               className="relative block h-[280px] w-full overflow-hidden rounded-2xl border border-[#F0F0F0] bg-[#FAFBFA]"
             >
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element -- Liara's proxy 400s /_next/image */}
+              <img
                 src={request.screenshotUrl}
                 alt="رسید پرداخت"
-                fill
-                sizes="560px"
-                className="object-contain"
+                className="absolute inset-0 h-full w-full object-contain"
               />
             </a>
           </div>
