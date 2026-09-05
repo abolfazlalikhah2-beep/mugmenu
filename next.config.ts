@@ -57,6 +57,13 @@ const nextConfig: NextConfig = {
     // URLs directly instead — they're already optimized JPEGs.
     unoptimized: true,
   },
+  experimental: {
+    // Default 1MB body limit rejects background/hero image uploads (server
+    // action) with 413 before they ever reach the S3 upload code.
+    serverActions: {
+      bodySizeLimit: "5mb",
+    },
+  },
 };
 
 export default nextConfig;
