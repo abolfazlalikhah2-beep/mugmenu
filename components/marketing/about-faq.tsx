@@ -2,7 +2,7 @@ import { FaqAccordion, type FaqItem } from "@/components/marketing/faq-accordion
 
 const faqs: FaqItem[] = [
   {
-    question: "ماگ‌منو مناسب چه کسب‌وکارهایی است؟",
+    question: "سِرو مناسب چه کسب‌وکارهایی است؟",
     answer: "کافه‌ها، رستوران‌ها، فست‌فودها، قنادی‌ها و هر کسب‌وکار غذایی که به منوی دیجیتال و سفارش‌گیری نیاز دارد.",
   },
   {
@@ -29,7 +29,7 @@ export function AboutFaq() {
         </span>
         <h2
           id="about-faq-heading"
-          className="mt-4.5 text-[clamp(1.6rem,4vw,2.2rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
+          className="mt-4.5 text-[clamp(1.35rem,2.6vw,1.75rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
         >
           سوالات پرتکرار
         </h2>

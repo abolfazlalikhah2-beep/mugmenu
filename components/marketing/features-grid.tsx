@@ -67,7 +67,7 @@ const features = [
   },
   {
     title: "پشتیبانی ۲۴ ساعته",
-    description: "تیم پشتیبانی فارسی‌زبان ماگ‌منو در تمام ساعات شبانه‌روز پاسخگوی شماست.",
+    description: "تیم پشتیبانی فارسی‌زبان سِرو در تمام ساعات شبانه‌روز پاسخگوی شماست.",
     icon: (
       <>
         <path d="M4 13a8 8 0 0116 0" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
@@ -91,7 +91,7 @@ export function FeaturesGrid() {
           </span>
           <h2
             id="features-heading"
-            className="mx-auto mt-4.5 max-w-[22ch] text-[clamp(1.6rem,4vw,2.5rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
+            className="mx-auto mt-4.5 max-w-[22ch] text-[clamp(1.4rem,2.8vw,1.9rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
           >
             هر چیزی که برای منوی دیجیتال و مدیریت رستوران لازم دارید
           </h2>

@@ -30,7 +30,7 @@ const solutions = [
 
 export function AboutProblemSolution() {
   return (
-    <section aria-label="مشکل رستوران‌ها و راه‌حل ماگ‌منو" className="mx-auto max-w-290 px-5 pb-5 pt-11">
+    <section aria-label="مشکل رستوران‌ها و راه‌حل سِرو" className="mx-auto max-w-290 px-5 pb-5 pt-11">
       <div className="grid gap-5.5 [grid-template-columns:repeat(auto-fit,minmax(300px,1fr))]">
         <div className="rounded-card-sm border border-[#f0e0e0] bg-card p-8 shadow-float">
           <span className="inline-flex items-center gap-2 rounded-pill bg-[#c73a3a]/10 px-3.5 py-1.5 text-[13px] font-medium text-[#c73a3a]">
@@ -55,7 +55,7 @@ export function AboutProblemSolution() {
 
         <div className="rounded-card-sm border-2 border-brand bg-card p-8 shadow-modal">
           <span className="inline-flex items-center gap-2 rounded-pill bg-brand/10 px-3.5 py-1.5 text-[13px] font-medium text-brand">
-            راه‌حل ماگ‌منو
+            راه‌حل سِرو
           </span>
           <div className="mt-5.5 flex flex-col gap-4.5">
             {solutions.map((item) => (

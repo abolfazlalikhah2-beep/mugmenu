@@ -16,7 +16,7 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"),
-  title: "ماگ‌منو",
+  title: "سِرو",
   description: "منوی دیجیتال QR چندمستأجری برای رستوران و کافه",
 };
 

@@ -2,9 +2,9 @@ import { FaqAccordion, type FaqItem } from "@/components/marketing/faq-accordion
 
 const faqs: FaqItem[] = [
   {
-    question: "منوی QR ماگ‌منو چطور کار می‌کند؟",
+    question: "منوی QR سِرو چطور کار می‌کند؟",
     answer:
-      "کافی است منوی خود را در پنل بسازید؛ ماگ‌منو برای رستوران‌تان یک کد QR تولید می‌کند. مشتری با اسکن آن، منو را در مرورگر می‌بیند و می‌تواند سفارش دهد.",
+      "کافی است منوی خود را در پنل بسازید؛ سِرو برای رستوران‌تان یک کد QR تولید می‌کند. مشتری با اسکن آن، منو را در مرورگر می‌بیند و می‌تواند سفارش دهد.",
   },
   {
     question: "آیا مشتری باید اپلیکیشنی نصب کند؟",
@@ -23,7 +23,7 @@ const faqs: FaqItem[] = [
   },
   {
     question: "چطور می‌توانم با پشتیبانی تماس بگیرم؟",
-    answer: "تیم پشتیبانی ماگ‌منو در تمام ساعات شبانه‌روز از طریق پنل مدیریت یا صفحه تماس با ما در دسترس است.",
+    answer: "تیم پشتیبانی سِرو در تمام ساعات شبانه‌روز از طریق پنل مدیریت یا صفحه تماس با ما در دسترس است.",
   },
 ];
 
@@ -41,7 +41,7 @@ export function FaqSection() {
         </span>
         <h2
           id="faq-heading"
-          className="mt-4.5 text-[clamp(1.6rem,4vw,2.5rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
+          className="mt-4.5 text-[clamp(1.4rem,2.8vw,1.9rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
         >
           پاسخ سوالات شما
         </h2>

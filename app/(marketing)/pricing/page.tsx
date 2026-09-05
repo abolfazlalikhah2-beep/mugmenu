@@ -8,15 +8,15 @@ import { PricingComparisonTable } from "@/components/marketing/pricing-compariso
 import { PricingFaq } from "@/components/marketing/pricing-faq";
 
 export const metadata: Metadata = {
-  title: "تعرفه‌ها و قیمت‌ها — ماگ‌منو | منوی دیجیتال رستوران",
+  title: "تعرفه‌ها و قیمت‌ها — سِرو | منوی دیجیتال رستوران",
   description:
-    "پلن‌های ماگ‌منو را مقایسه کنید. از نمایش منوی QR رایگان تا سفارش‌گیری آنلاین حرفه‌ای. بدون کارت بانکی، شروع رایگان.",
+    "پلن‌های سِرو را مقایسه کنید. از نمایش منوی QR رایگان تا سفارش‌گیری آنلاین حرفه‌ای. بدون کارت بانکی، شروع رایگان.",
   keywords: "قیمت منوی دیجیتال, تعرفه نرم‌افزار رستوران, اشتراک منوی QR",
   alternates: {
     canonical: "/pricing",
   },
   openGraph: {
-    title: "تعرفه‌های ماگ‌منو — منوی دیجیتال رستوران",
+    title: "تعرفه‌های سِرو — منوی دیجیتال رستوران",
     description: "پلن مناسب رستوران خود را انتخاب کنید",
     locale: "fa_IR",
     type: "website",

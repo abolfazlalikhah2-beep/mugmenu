@@ -22,11 +22,11 @@ export async function AboutBlogPreview() {
               <path d="M6 3h9l4 4v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
               <path d="M8 9h6M8 13h8M8 17h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
             </svg>
-            بلاگ ماگ‌منو
+            بلاگ سِرو
           </span>
           <h2
             id="about-blog-heading"
-            className="mt-4 text-[clamp(1.6rem,4vw,2.4rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
+            className="mt-4 text-[clamp(1.4rem,2.8vw,1.9rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
           >
             آخرین مقالات ما
           </h2>

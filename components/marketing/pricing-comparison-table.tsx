@@ -78,7 +78,7 @@ export function PricingComparisonTable() {
           </span>
           <h2
             id="comparison-heading"
-            className="mt-4.5 text-[clamp(1.6rem,4vw,2.4rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
+            className="mt-4.5 text-[clamp(1.4rem,2.8vw,1.9rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
           >
             مقایسه‌ی کامل امکانات پلن‌ها
           </h2>

@@ -18,13 +18,13 @@ export function ContactPageHero() {
 
         <h1
           id="contact-page-heading"
-          className="mt-4.5 text-[clamp(2rem,5vw,3.2rem)] font-bold leading-[1.3] tracking-[-0.5px] text-ink"
+          className="mt-4.5 text-[clamp(1.5rem,3.2vw,2.2rem)] font-bold leading-[1.3] tracking-[-0.5px] text-ink"
         >
           تماس با ما
         </h1>
 
-        <p className="mx-auto mt-4 max-w-[48ch] text-[clamp(1rem,2.1vw,1.18rem)] font-light leading-[2] text-text-1">
-          هر سوال یا درخواستی دارید، از راه‌های زیر با تیم ماگ‌منو در ارتباط باشید؛ سریع پاسخ می‌دهیم.
+        <p className="mx-auto mt-4 max-w-[48ch] text-[14px] font-light leading-[1.9] text-text-1">
+          هر سوال یا درخواستی دارید، از راه‌های زیر با تیم سِرو در ارتباط باشید؛ سریع پاسخ می‌دهیم.
         </p>
       </div>
     </section>

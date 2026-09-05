@@ -11,17 +11,17 @@ export function CtaSection() {
           <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path d="M12 2l2.4 5 5.6.8-4 3.9 1 5.5-5-2.6-5 2.6 1-5.5-4-3.9 5.6-.8z" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
           </svg>
-          ۷ روز اشتراک رایگان
+          ۱ ماه اشتراک رایگان
         </span>
 
         <h2
           id="cta-heading"
-          className="relative mx-auto mt-5 max-w-[22ch] text-[clamp(1.6rem,4.4vw,2.6rem)] font-bold leading-[1.4] tracking-[-0.4px] text-white"
+          className="relative mx-auto mt-5 max-w-[22ch] text-[clamp(1.45rem,3vw,2rem)] font-bold leading-[1.4] tracking-[-0.4px] text-white"
         >
           همین امروز رستوران‌تان را دیجیتال کنید
         </h2>
-        <p className="relative mx-auto mt-4 max-w-[46ch] text-[clamp(1rem,2vw,1.15rem)] font-light leading-[2] text-white/85">
-          ۷ روز رایگان، بدون نیاز به کارت بانکی
+        <p className="relative mx-auto mt-4 max-w-[46ch] text-[14px] font-light leading-[1.9] text-white/85">
+          ۱ ماه رایگان، بدون نیاز به کارت بانکی
         </p>
 
         <Link

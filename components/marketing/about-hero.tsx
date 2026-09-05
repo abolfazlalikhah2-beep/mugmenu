@@ -18,13 +18,13 @@ export function AboutHero() {
 
         <h1
           id="about-heading"
-          className="mt-4.5 text-[clamp(2rem,5vw,3.2rem)] font-bold leading-[1.3] tracking-[-0.5px] text-ink"
+          className="mt-4.5 text-[clamp(1.5rem,3.2vw,2.2rem)] font-bold leading-[1.3] tracking-[-0.5px] text-ink"
         >
-          ماگ‌منو کنار رستوران شماست
+          سِرو کنار رستوران شماست
         </h1>
 
-        <p className="mx-auto mt-4 max-w-[52ch] text-[clamp(1rem,2.1vw,1.18rem)] font-light leading-[2] text-text-1">
-          ما ماگ‌منو را ساختیم تا مدیریت منو و سفارش برای رستوران‌ها و کافه‌های ایرانی ساده، سریع و بدون دردسر شود.
+        <p className="mx-auto mt-4 max-w-[52ch] text-[14px] font-light leading-[1.9] text-text-1">
+          ما سِرو را ساختیم تا مدیریت منو و سفارش برای رستوران‌ها و کافه‌های ایرانی ساده، سریع و بدون دردسر شود.
         </p>
       </div>
     </section>

@@ -71,7 +71,7 @@ export function ContactForm() {
 
       {state.ok && (
         <p className="rounded-input bg-brand/10 px-4.5 py-3 text-sm font-medium text-brand">
-          پیام شما ارسال شد؛ تیم ماگ‌منو به‌زودی با شما تماس می‌گیرد.
+          پیام شما ارسال شد؛ تیم سِرو به‌زودی با شما تماس می‌گیرد.
         </p>
       )}
       {!state.ok && state.error && !state.fieldErrors && (

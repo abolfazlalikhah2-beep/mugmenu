@@ -44,7 +44,7 @@ export function FaqList() {
           </span>
           <div className="leading-[1.6] text-white">
             <div className="text-lg font-bold">جواب سوالت رو پیدا نکردی؟</div>
-            <div className="text-sm font-light opacity-92">تیم پشتیبانی ماگ‌منو آماده‌ی کمک به شماست.</div>
+            <div className="text-sm font-light opacity-92">تیم پشتیبانی سِرو آماده‌ی کمک به شماست.</div>
           </div>
         </div>
 

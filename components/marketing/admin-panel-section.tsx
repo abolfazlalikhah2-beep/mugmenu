@@ -58,14 +58,14 @@ export function AdminPanelSection() {
 
           <h2
             id="admin-panel-heading"
-            className="mt-4.5 text-[clamp(1.6rem,4vw,2.5rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
+            className="mt-4.5 text-[clamp(1.4rem,2.8vw,1.9rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
           >
             پنل مدیریت رستوران؛ از موبایل، تبلت یا لپ‌تاپ
           </h2>
 
-          <p className="mt-4 max-w-[44ch] text-[clamp(1rem,2.1vw,1.15rem)] font-light leading-[2] text-text-1">
+          <p className="mt-4 max-w-[44ch] text-[14px] font-light leading-[1.9] text-text-1">
             بدون نصب هیچ برنامه‌ای، تنها با مرورگر هر دستگاهی به پنل مدیریت
-            ماگ‌منو دسترسی دارید و رستوران‌تان را از هر جا مدیریت می‌کنید.
+            سِرو دسترسی دارید و رستوران‌تان را از هر جا مدیریت می‌کنید.
           </p>
 
           <div className="mt-6.5 flex flex-col gap-4">
@@ -100,7 +100,7 @@ function DashboardPreview() {
   return (
     <div
       role="img"
-      aria-label="پیش‌نمایش پنل مدیریت ماگ‌منو روی لپ‌تاپ، شامل تعداد سفارش و درآمد امروز و لیست سفارش‌های میز و بیرون‌بر با وضعیت هرکدام"
+      aria-label="پیش‌نمایش پنل مدیریت سِرو روی لپ‌تاپ، شامل تعداد سفارش و درآمد امروز و لیست سفارش‌های میز و بیرون‌بر با وضعیت هرکدام"
       className="w-full max-w-130"
     >
       <div className="rounded-t-[22px] rounded-b-[8px] bg-[#0e120f] p-3 pb-3.5 shadow-[0_26px_41px_rgba(0,0,0,0.12)]">

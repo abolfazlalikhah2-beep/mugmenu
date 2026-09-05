@@ -34,7 +34,7 @@ export function PricingFaq() {
         </span>
         <h2
           id="pricing-faq-heading"
-          className="mt-4.5 text-[clamp(1.6rem,4vw,2.5rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
+          className="mt-4.5 text-[clamp(1.4rem,2.8vw,1.9rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
         >
           سوالات درباره‌ی تعرفه‌ها
         </h2>

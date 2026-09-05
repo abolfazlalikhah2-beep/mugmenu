@@ -9,7 +9,7 @@ export function ContactFormSection() {
             برای ما پیام بگذارید
           </h2>
           <p className="mt-2.5 text-sm font-light leading-[1.9] text-text-1">
-            فرم زیر را پر کنید؛ تیم ماگ‌منو در اسرع وقت با شما تماس می‌گیرد.
+            فرم زیر را پر کنید؛ تیم سِرو در اسرع وقت با شما تماس می‌گیرد.
           </p>
         </div>
 

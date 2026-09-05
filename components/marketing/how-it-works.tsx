@@ -68,11 +68,11 @@ export function HowItWorks() {
           <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path d="M13 3L4 14h6l-1 7 9-11h-6z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
           </svg>
-          نحوه کار ماگ‌منو
+          نحوه کار سِرو
         </span>
         <h2
           id="how-it-works-heading"
-          className="mx-auto mt-4.5 max-w-[20ch] text-[clamp(1.6rem,4vw,2.5rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
+          className="mx-auto mt-4.5 max-w-[20ch] text-[clamp(1.4rem,2.8vw,1.9rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
         >
           از اسکن مشتری تا رسیدن سفارش؛ فقط چند ثانیه
         </h2>

@@ -8,16 +8,16 @@ import { ContactFormSection } from "@/components/marketing/contact-form-section"
 import { ContactFaq } from "@/components/marketing/contact-faq";
 
 export const metadata: Metadata = {
-  title: "تماس با ما — ماگ‌منو",
+  title: "تماس با ما — سِرو",
   description:
-    "از طریق ایمیل، تیکت پشتیبانی، تلگرام و واتساپ یا فرم تماس با تیم ماگ‌منو در ارتباط باشید؛ برای سوالات، همکاری و درخواست پشتیبانی سریع پاسخ می‌دهیم.",
-  keywords: "تماس با ماگ‌منو, پشتیبانی منوی دیجیتال, فرم تماس, ایمیل پشتیبانی",
+    "از طریق ایمیل، تیکت پشتیبانی، تلگرام و واتساپ یا فرم تماس با تیم سِرو در ارتباط باشید؛ برای سوالات، همکاری و درخواست پشتیبانی سریع پاسخ می‌دهیم.",
+  keywords: "تماس با سِرو, پشتیبانی منوی دیجیتال, فرم تماس, ایمیل پشتیبانی",
   alternates: {
     canonical: "/contact",
   },
   openGraph: {
-    title: "تماس با ما — ماگ‌منو",
-    description: "راه‌های ارتباط با تیم ماگ‌منو برای سوالات، همکاری و پشتیبانی",
+    title: "تماس با ما — سِرو",
+    description: "راه‌های ارتباط با تیم سِرو برای سوالات، همکاری و پشتیبانی",
     locale: "fa_IR",
     type: "website",
   },

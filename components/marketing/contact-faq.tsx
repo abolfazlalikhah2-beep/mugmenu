@@ -27,7 +27,7 @@ export function ContactFaq() {
         </span>
         <h2
           id="contact-faq-heading"
-          className="mt-4.5 text-[clamp(1.6rem,4vw,2.2rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
+          className="mt-4.5 text-[clamp(1.35rem,2.6vw,1.75rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink"
         >
           پیش از تماس، این‌ها را ببینید
         </h2>

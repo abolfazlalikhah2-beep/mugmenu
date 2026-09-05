@@ -30,7 +30,7 @@ const stats = [
 
 export function ContactChannels() {
   return (
-    <section aria-label="راه‌های ارتباط با ماگ‌منو" className="mx-auto max-w-[1160px] px-5 py-6">
+    <section aria-label="راه‌های ارتباط با سِرو" className="mx-auto max-w-[1160px] px-5 py-6">
       <div className="grid gap-5.5 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
         <div className="flex flex-col rounded-card border border-border-line bg-card p-7.5 shadow-float transition-shadow hover:shadow-modal">
           <span className="self-start rounded-pill bg-brand/10 px-3 py-1.25 text-xs font-medium text-brand">ارتباط رسمی</span>

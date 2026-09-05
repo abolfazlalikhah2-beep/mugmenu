@@ -40,7 +40,7 @@ export function BlogPostArticle({ post }: { post: PublicBlogPost }) {
         </span>
       )}
 
-      <h1 className="mt-4 text-[clamp(1.8rem,4.6vw,2.8rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink">
+      <h1 className="mt-4 text-[clamp(1.5rem,3.4vw,2.1rem)] font-bold leading-[1.4] tracking-[-0.4px] text-ink">
         {post.title}
       </h1>
 
