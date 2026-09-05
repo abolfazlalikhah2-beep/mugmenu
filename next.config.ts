@@ -52,6 +52,10 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: s3RemotePatterns(),
     formats: ["image/avif", "image/webp"],
+    // Liara's reverse proxy rejects /_next/image optimization requests with
+    // 400 Bad Request before they reach Next.js. Serve the original S3/CDN
+    // URLs directly instead — they're already optimized JPEGs.
+    unoptimized: true,
   },
 };
 
