@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { Check, UtensilsCrossed, ScrollText, Package, MapPin } from "lucide-react";
 import { SettingsCard } from "@/components/dashboard/settings-card";
 import { ImageUploadField } from "@/components/uploads/image-upload-field";
+import { presignedUploadAction } from "@/features/uploads/client/presigned-upload";
 import {
   HERO_BG_KEYS,
   HERO_BG_PRESETS,
@@ -216,6 +217,7 @@ export function MenuAppearanceTab({ business }: { business: MenuAppearanceFormVa
                 defaultUrl={business.heroImageUrl}
                 boxClassName="h-[64px] w-full rounded-xl"
                 helpText="jpg یا png، ۱۶:۹، حداکثر ۵ مگابایت"
+                action={presignedUploadAction}
                 onUrlChange={(url) => {
                   setHeroImageUrl(url);
                   setHeroBgKey("photo");

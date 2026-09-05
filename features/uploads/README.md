@@ -21,12 +21,27 @@ in production), used by the dashboard (product/category images, business logo).
   action. Calls `requireBusinessOwner()` first — only a signed-in business owner can
   upload — then validates and uploads, returning `{ url }` or `{ error }`.
 
+## Direct-to-S3 uploads (presigned URL)
+
+Server Actions go through Next's `serverActions.bodySizeLimit` — but Liara's proxy
+413s the request before it even reaches Next.js if the body is over ~1MB,
+regardless of that config (see `next.config.ts`). For uploads that regularly exceed
+that (background/hero images), skip the Server Action body entirely:
+
+- `app/api/upload/presign/route.ts` — `POST { filename, contentType, kind }`, auth'd
+  the same way (`requireBusinessOwner()`), returns `{ presignedUrl, publicUrl }` via
+  `createPresignedUploadUrl()` in `storage-service.ts` (60s expiry).
+- `features/uploads/client/presigned-upload.ts` — `presignedUploadAction(kind, formData)`,
+  a client-side drop-in for the `action` prop of `ImageUploadField` below: calls the
+  route above, then `PUT`s the file straight to S3 from the browser.
+
 ## Client usage
 
-`components/uploads/image-upload-field.tsx` wraps this action: it uploads on file
-select and writes the resulting URL into a hidden `<input>`, so the surrounding
-form (product modal, category modal, onboarding) picks it up like any other field —
-no changes needed to how those forms submit.
+`components/uploads/image-upload-field.tsx` wraps an upload action (defaulting to
+`uploadImageAction`, overridable via the `action` prop — see `presignedUploadAction`
+above): it uploads on file select and writes the resulting URL into a hidden
+`<input>`, so the surrounding form (product modal, category modal, onboarding)
+picks it up like any other field — no changes needed to how those forms submit.
 
 ## How to test
 

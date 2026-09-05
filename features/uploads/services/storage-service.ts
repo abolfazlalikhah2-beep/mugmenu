@@ -1,6 +1,7 @@
 import "server-only";
 import { randomUUID } from "crypto";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { logger } from "@/lib/logger";
 
 /**
@@ -153,6 +154,42 @@ export async function uploadImage(input: UploadImageInput): Promise<string> {
     publicUrl,
   });
   return publicUrl;
+}
+
+export interface PresignedUploadInput {
+  kind: string;
+  businessId: string;
+  contentType: string;
+  extension: string;
+}
+
+export interface PresignedUploadResult {
+  presignedUrl: string;
+  publicUrl: string;
+}
+
+/**
+ * Presigned PUT URL so the browser can upload straight to S3, bypassing
+ * Next.js Server Actions (and Liara's proxy, which ignores the configured
+ * serverActions.bodySizeLimit and 413s uploads over ~1MB regardless — see
+ * next.config.ts). Same key layout as uploadImage() above; short expiry
+ * since the browser is expected to PUT immediately after requesting it.
+ */
+export async function createPresignedUploadUrl(input: PresignedUploadInput): Promise<PresignedUploadResult> {
+  const config = readConfig();
+  const s3 = getClient(config);
+  const key = `${input.kind}/${input.businessId}/${randomUUID()}.${input.extension}`;
+
+  const presignedUrl = await getSignedUrl(
+    s3,
+    new PutObjectCommand({ Bucket: config.bucket, Key: key, ContentType: input.contentType }),
+    { expiresIn: 60 }
+  );
+
+  const base = config.publicUrl?.replace(/\/$/, "") ?? `${config.endpoint.replace(/\/$/, "")}/${config.bucket}`;
+  const publicUrl = `${base}/${key}`;
+  logger.info("uploads.presigned_url_created", { key, kind: input.kind, businessId: input.businessId });
+  return { presignedUrl, publicUrl };
 }
 
 /**
