@@ -7,6 +7,11 @@ import { PricingPlansSection } from "@/components/marketing/pricing-plans-sectio
 import { PricingComparisonTable } from "@/components/marketing/pricing-comparison-table";
 import { PricingFaq } from "@/components/marketing/pricing-faq";
 
+// PricingPlansSection reads plans from the DB (getAllPlans()) — the DB isn't
+// reachable during Liara's build step, so this must never be statically
+// prerendered, only rendered at request time.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "تعرفه‌ها و قیمت‌ها — سِرو | منوی دیجیتال رستوران",
   description:
