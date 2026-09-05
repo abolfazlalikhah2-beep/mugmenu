@@ -1,6 +1,6 @@
 import "server-only";
 import { randomUUID } from "crypto";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { logger } from "@/lib/logger";
 
 /**
@@ -153,4 +153,55 @@ export async function uploadImage(input: UploadImageInput): Promise<string> {
     publicUrl,
   });
   return publicUrl;
+}
+
+/**
+ * Deletes one object from the bucket. Best-effort: callers use this to clean
+ * up an old image right after replacing it, and a stray unreferenced file in
+ * S3 is a much smaller problem than blocking/failing the caller's own update
+ * over a storage-provider hiccup — so this logs and swallows errors instead
+ * of throwing.
+ */
+export async function deleteFromS3(key: string): Promise<void> {
+  const config = readConfig();
+  const s3 = getClient(config);
+
+  try {
+    await s3.send(new DeleteObjectCommand({ Bucket: config.bucket, Key: key }));
+    logger.info("uploads.image_deleted", { key });
+  } catch (e) {
+    logger.error("uploads.image_delete_failed", { key, error: describeUploadError(e) });
+  }
+}
+
+/**
+ * Recovers the S3 object key from a URL previously returned by uploadImage()
+ * — strips whichever base was used to build it (the CDN S3_PUBLIC_URL, or
+ * S3_ENDPOINT/S3_BUCKET when no public URL is configured), so it works
+ * regardless of which one was active when the object was originally uploaded.
+ */
+function keyFromPublicUrl(url: string): string | null {
+  let pathname: string;
+  try {
+    pathname = new URL(url).pathname.replace(/^\//, "");
+  } catch {
+    return null;
+  }
+
+  const config = readConfig();
+  const bucketPrefix = `${config.bucket}/`;
+  if (pathname.startsWith(bucketPrefix)) {
+    pathname = pathname.slice(bucketPrefix.length);
+  }
+  return pathname || null;
+}
+
+/** Convenience wrapper for the common "delete whatever this URL points to" case — see deleteFromS3. */
+export async function deleteImageByUrl(url: string): Promise<void> {
+  const key = keyFromPublicUrl(url);
+  if (!key) {
+    logger.error("uploads.image_delete_skipped_unparseable_url", { url });
+    return;
+  }
+  await deleteFromS3(key);
 }

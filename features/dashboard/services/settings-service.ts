@@ -1,6 +1,7 @@
 import "server-only";
 import { logger } from "@/lib/logger";
 import { getMenuUrl } from "@/lib/menu-url";
+import { deleteImageByUrl } from "@/features/uploads/services/storage-service";
 import * as repo from "@/features/dashboard/repositories/dashboard-repository";
 import {
   businessInfoSchema,
@@ -73,7 +74,13 @@ export async function updateMenuAppearance(businessId: string, input: unknown): 
   const parsed = menuAppearanceSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
 
+  const existing = await repo.getBusinessById(businessId);
   await repo.updateBusiness(businessId, parsed.data);
+  // Only after the DB write succeeds, so a failed update never leaves the
+  // business pointing at a logo we've already deleted from S3.
+  if (existing?.logoUrl && parsed.data.logoUrl && existing.logoUrl !== parsed.data.logoUrl) {
+    await deleteImageByUrl(existing.logoUrl);
+  }
   logger.info("dashboard.menu_appearance_updated", { businessId });
   return { ok: true };
 }

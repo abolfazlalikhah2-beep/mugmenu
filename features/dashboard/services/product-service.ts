@@ -2,6 +2,7 @@ import "server-only";
 import { logger } from "@/lib/logger";
 import * as repo from "@/features/dashboard/repositories/dashboard-repository";
 import { productSchema, productTranslationSchema } from "@/features/dashboard/services/dashboard-schemas";
+import { deleteImageByUrl } from "@/features/uploads/services/storage-service";
 
 export type ServiceResult = { ok: true } | { ok: false; error: string };
 
@@ -50,6 +51,11 @@ export async function updateProduct(
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
 
   await repo.updateProduct(productId, parsed.data);
+  // Only after the DB write succeeds, so a failed update never leaves the
+  // product pointing at an image we've already deleted from S3.
+  if (existing.imageUrl && parsed.data.imageUrl && existing.imageUrl !== parsed.data.imageUrl) {
+    await deleteImageByUrl(existing.imageUrl);
+  }
   logger.info("dashboard.product_updated", { businessId, productId });
   return { ok: true };
 }
