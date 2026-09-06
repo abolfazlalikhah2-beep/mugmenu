@@ -201,6 +201,7 @@ export function MenuAppearanceTab({ business }: { business: MenuAppearanceFormVa
             name="logoUrl"
             defaultUrl={business.logoUrl}
             helpText="jpg، png یا webp، مربعی، حداکثر ۵ مگابایت"
+            action={presignedUploadAction}
             onUrlChange={setLogoUrl}
           />
         </SettingsCard>

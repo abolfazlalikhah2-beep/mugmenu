@@ -6,6 +6,7 @@ import { Check, CreditCard, Landmark } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { ImageUploadField } from "@/components/uploads/image-upload-field";
+import { presignedUploadAction } from "@/features/uploads/client/presigned-upload";
 import { createPaymentRequestAction, type ActionState } from "@/features/payments/routes/actions";
 import type { PlanPricing } from "@/features/payments/services/payment-service";
 
@@ -168,6 +169,7 @@ export function PaymentPageView({
           name="screenshotUrl"
           label="تصویر رسید پرداخت"
           helpText="اسکرین‌شات رسید انتقال وجه — jpg، png یا webp، حداکثر ۵ مگابایت"
+          action={presignedUploadAction}
         />
         {state.error && <p className="text-right text-xs text-red-500">{state.error}</p>}
         <button

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { FormToggle } from "@/components/dashboard/form-toggle";
 import { Toggle } from "@/components/dashboard/toggle";
 import { ImageUploadField } from "@/components/uploads/image-upload-field";
+import { presignedUploadAction } from "@/features/uploads/client/presigned-upload";
 import {
   createCategoryAction,
   updateCategoryAction,
@@ -241,7 +242,13 @@ export function CategoryModal({
         {scheduleDays.map((d) => (
           <input key={d} type="hidden" name="scheduleDays" value={d} />
         ))}
-        <ImageUploadField kind="categories" name="imageUrl" defaultUrl={category?.imageUrl} label="تصویر دسته" />
+        <ImageUploadField
+          kind="categories"
+          name="imageUrl"
+          defaultUrl={category?.imageUrl}
+          label="تصویر دسته"
+          action={presignedUploadAction}
+        />
         <Input name="name" label="نام دسته" defaultValue={category?.name} required />
         <div className="flex flex-col gap-2.5">
           <label className="text-right text-[13px] font-light text-text-4">آیکون پیشنهادی</label>

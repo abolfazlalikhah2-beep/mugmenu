@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { FormToggle } from "@/components/dashboard/form-toggle";
 import { Toggle } from "@/components/dashboard/toggle";
 import { ImageUploadField } from "@/components/uploads/image-upload-field";
+import { presignedUploadAction } from "@/features/uploads/client/presigned-upload";
 import { UpgradeGate } from "@/components/dashboard/upgrade-gate";
 import {
   createProductAction,
@@ -323,7 +324,13 @@ export function ProductModal({
         <input type="hidden" name="trackInventory" value={trackInventory ? "true" : "false"} />
         <input type="hidden" name="stock" value={stock} />
         <input type="hidden" name="lowStockThreshold" value={lowStockThreshold} />
-        <ImageUploadField kind="products" name="imageUrl" defaultUrl={product?.imageUrl} label="تصویر محصول" />
+        <ImageUploadField
+          kind="products"
+          name="imageUrl"
+          defaultUrl={product?.imageUrl}
+          label="تصویر محصول"
+          action={presignedUploadAction}
+        />
         <div className="flex flex-col gap-4 sm:flex-row">
           <Input name="name" label="نام محصول" defaultValue={product?.name} required className="flex-1" />
           <div className="flex flex-1 flex-col gap-2">
