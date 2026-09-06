@@ -66,7 +66,7 @@ export default async function MenuMainPage({
     : [null, null];
 
   const heroBackground = resolveHeroBackground(business);
-  const [canOrderFeature, cashbackEnabled, loginEnabled] = await Promise.all([
+  const [canOrderFeature, cashbackFeatureEnabled, loginEnabled] = await Promise.all([
     businessHasFeature(business.id, "order.three_mode"),
     businessHasFeature(business.id, "loyalty.cashback"),
     // firuze (no isOrderingEnabled) has no ordering/customer accounts at all, so "ورود / ثبت‌نام" has nothing to lead to.
@@ -80,7 +80,7 @@ export default async function MenuMainPage({
   // entry and category-browse screens were merged into one browse-first
   // page (Menu Flow.dc.html), so it's picked at checkout via DeliveryTabs.
   const orderingEnabled = canOrderFeature && business.isAcceptingOrders;
-  const showCashbackTeaser = cashbackEnabled && business.cashbackPercent > 0;
+  const showCashbackTeaser = cashbackFeatureEnabled && business.cashbackEnabled && business.cashbackPercent > 0;
 
   return (
     <MenuPageShell dir={t.dir}>

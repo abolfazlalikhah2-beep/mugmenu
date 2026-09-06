@@ -224,6 +224,7 @@ export function MenuAppearanceTab({ business }: { business: MenuAppearanceFormVa
                   setHeroBgKey("photo");
                 }}
               />
+              <p className="text-center text-[11px] font-light text-text-3">سایز پیشنهادی: ۱۴۴۰ × ۴۰۰ پیکسل</p>
               {heroImageUrl && heroBgKey !== "photo" && (
                 <button
                   type="button"
