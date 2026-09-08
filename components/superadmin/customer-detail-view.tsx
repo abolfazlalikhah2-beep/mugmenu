@@ -2,6 +2,7 @@ import { Store } from "lucide-react";
 import { SubscriptionBadge } from "@/components/superadmin/customer-row";
 import { PaymentHistoryRow } from "@/components/superadmin/payment-history-row";
 import { CustomerDetailActions } from "@/components/superadmin/customer-detail-actions";
+import { CustomDomainForm } from "@/components/superadmin/custom-domain-form";
 import { computePlanStatus } from "@/features/dashboard/services/plan-status";
 import type { CustomerDetail } from "@/features/superadmin/services/customer-service";
 import { getMenuUrl } from "@/lib/menu-url";
@@ -101,6 +102,8 @@ export function CustomerDetailView({
         />
         <InfoItem label="آخرین ورود" value={owner?.lastLoginAt?.toLocaleString("fa-IR", { dateStyle: "short", timeStyle: "short" }) ?? "—"} />
       </div>
+
+      <CustomDomainForm businessId={business.id} customDomain={business.customDomain} />
 
       <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2">
         <div className="flex flex-col gap-3 rounded-[18px] border border-[#EFEFEF] bg-card p-[18px_20px]">

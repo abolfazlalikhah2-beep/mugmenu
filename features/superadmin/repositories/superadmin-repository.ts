@@ -112,6 +112,18 @@ export function setBusinessSuspended(businessId: string, isSuspended: boolean) {
   return prisma.business.update({ where: { id: businessId }, data: { isSuspended } });
 }
 
+/** customDomain has no DB-level unique constraint, so callers must check this before writing — proxy.ts's routing lookup is a findFirst and would silently pick one of two colliding businesses otherwise. */
+export function findBusinessByCustomDomain(customDomain: string, excludeBusinessId: string) {
+  return prisma.business.findFirst({
+    where: { customDomain, id: { not: excludeBusinessId } },
+    select: { id: true, name: true },
+  });
+}
+
+export function updateBusinessCustomDomain(businessId: string, customDomain: string | null) {
+  return prisma.business.update({ where: { id: businessId }, data: { customDomain } });
+}
+
 // ---------- Dashboard overview ----------
 
 export function countAllBusinesses() {

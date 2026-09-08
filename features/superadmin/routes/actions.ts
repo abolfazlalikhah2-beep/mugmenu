@@ -107,6 +107,21 @@ export async function updateBusinessDemoAction(
   return { ok: true };
 }
 
+export async function updateCustomDomainAction(
+  businessId: string,
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  await requireSuperAdmin();
+  const result = await customerService.updateCustomDomain(businessId, {
+    customDomain: String(formData.get("customDomain") ?? ""),
+  });
+  if (!result.ok) return { error: result.error };
+  revalidatePath(`/superadmin/customers/${businessId}`);
+  revalidatePath("/superadmin/customers");
+  return { ok: true };
+}
+
 export async function createTeamMemberAction(
   _prevState: ActionState,
   formData: FormData

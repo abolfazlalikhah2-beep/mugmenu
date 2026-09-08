@@ -5,7 +5,13 @@ import { logger } from "@/lib/logger";
 import * as repo from "@/features/superadmin/repositories/superadmin-repository";
 import * as planService from "@/features/plans/services/plan-service";
 import { findUserByPhone } from "@/features/auth/repositories/user-repository";
-import { changePlanSchema, demoTrialSchema, newCustomerSchema } from "@/features/superadmin/services/superadmin-schemas";
+import { getRootDomain } from "@/lib/subdomain";
+import {
+  changePlanSchema,
+  demoTrialSchema,
+  newCustomerSchema,
+  updateCustomDomainSchema,
+} from "@/features/superadmin/services/superadmin-schemas";
 import { computeSubscriptionStatus, type SubscriptionStatus } from "@/features/superadmin/services/subscription-status";
 import { isDemoEffective } from "@/features/plans/services/demo-access";
 import { computePlanDates, type BillingCycle } from "@/features/plans/services/plan-dates";
@@ -122,6 +128,28 @@ export async function updateDemo(businessId: string, input: unknown): Promise<Se
     isDemoActive: parsed.data.isDemoActive,
     demoExpiresAt,
   });
+  return { ok: true };
+}
+
+export async function updateCustomDomain(businessId: string, input: unknown): Promise<ServiceResult> {
+  const parsed = updateCustomDomainSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  const business = await repo.getBusinessDetail(businessId);
+  if (!business) return { ok: false, error: "کسب‌وکار پیدا نشد." };
+
+  if (parsed.data.customDomain) {
+    const rootDomain = getRootDomain();
+    if (parsed.data.customDomain === rootDomain || parsed.data.customDomain.endsWith(`.${rootDomain}`)) {
+      return { ok: false, error: "این دامنه در محدوده دامنه اصلی سیستم است و قابل استفاده نیست." };
+    }
+
+    const conflict = await repo.findBusinessByCustomDomain(parsed.data.customDomain, businessId);
+    if (conflict) return { ok: false, error: `این دامنه قبلاً برای «${conflict.name}» ثبت شده است.` };
+  }
+
+  await repo.updateBusinessCustomDomain(businessId, parsed.data.customDomain);
+  logger.info("superadmin.business_custom_domain_updated", { businessId, customDomain: parsed.data.customDomain });
   return { ok: true };
 }
 

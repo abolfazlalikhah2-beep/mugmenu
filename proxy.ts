@@ -46,8 +46,12 @@ async function resolveSubdomainRewrite(request: NextRequest, headers: Headers): 
   try {
     const business = await findSlugByCustomDomain(host.split(":")[0]);
     if (business) return rewriteToSlug(request, business.slug, headers);
+    // Recognized as a "not our app host" domain but no business claims it
+    // — never fall through to the marketing page for a stranger's DNS
+    // record pointed at us.
+    return new NextResponse("Not Found", { status: 404 });
   } catch {
-    // DB unreachable — degrade to normal routing rather than 500 every
+    // DB unreachable — degrade to normal routing rather than 404/500 every
     // request to a host we don't otherwise recognize.
   }
   return null;

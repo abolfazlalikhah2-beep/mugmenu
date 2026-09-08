@@ -29,6 +29,22 @@ export const changePlanSchema = z.object({
   billingCycle: z.enum(["MONTHLY", "SIX_MONTH", "ANNUAL"]),
 });
 
+// Empty string clears the custom domain (customer-service.ts's
+// updateCustomDomain writes null for it). A non-empty value must look like
+// a bare hostname — no protocol/path/port — since it's compared directly
+// against the incoming request Host header in proxy.ts.
+export const updateCustomDomainSchema = z.object({
+  customDomain: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .max(255)
+    .regex(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/, "دامنه معتبر نیست (مثال: example.com).")
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => (v ? v : null)),
+});
+
 export const newCustomerSchema = z.object({
   fullName: z.string().trim().min(2, "نام و نام خانوادگی را کامل وارد کنید.").max(80),
   phone: z.string().trim().min(10, "شماره تماس معتبر نیست.").max(20),
