@@ -1,11 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PrimaryButton } from "@/components/dashboard/primary-button";
 import { ProductCard, type ProductCardData } from "@/components/dashboard/product-card";
-import { ProductModal, type CategoryOption } from "@/components/dashboard/product-modal";
+import type { CategoryOption } from "@/components/dashboard/product-modal";
+
+// Only mounted once the create/edit modal opens — keep its (sizeable, image
+// upload + option groups) JS out of the products page's initial bundle.
+const ProductModal = dynamic(() => import("@/components/dashboard/product-modal").then((m) => m.ProductModal));
 
 export function ProductsView({
   products,

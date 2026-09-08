@@ -84,6 +84,11 @@ export default async function MenuMainPage({
 
   return (
     <MenuPageShell dir={t.dir}>
+      {heroBackground.type === "image" && (
+        // LCP element on this page — preload it so the browser fetches it
+        // before it discovers the <img> tag while walking the DOM/CSSOM.
+        <link rel="preload" as="image" href={heroBackground.url} fetchPriority="high" />
+      )}
       <div className="relative">
         <MenuHero
           background={heroBackground}

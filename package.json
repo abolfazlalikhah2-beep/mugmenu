@@ -56,5 +56,13 @@
     "prisma@7.9.1": true,
     "sharp@0.34.5": true,
     "unrs-resolver@1.12.2": true
-  }
+  },
+  "browserslist": [
+    "chrome >= 91",
+    "edge >= 91",
+    "firefox >= 90",
+    "safari >= 15",
+    "ios >= 15",
+    "not dead"
+  ]
 }

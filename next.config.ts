@@ -64,6 +64,25 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "5mb",
     },
   },
+  async headers() {
+    // Next already serves /_next/static with this same header by default in
+    // production — this is a belt-and-suspenders explicit config (Liara's
+    // reverse proxy is known to strip/rewrite headers elsewhere in this
+    // project, see the images.unoptimized comment above). Skipped in dev:
+    // Next fingerprints every build asset here with a content hash so a
+    // given path never changes meaning in production, but in dev the same
+    // path IS reused across hot-reloads, and Next's own build output warns
+    // that overriding this header can break that.
+    if (process.env.NODE_ENV !== "production") return [];
+    return [
+      {
+        // Scoped to this prefix only: dynamic routes/pages must keep
+        // revalidating, an app-wide immutable cache would serve stale HTML.
+        source: "/_next/static/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

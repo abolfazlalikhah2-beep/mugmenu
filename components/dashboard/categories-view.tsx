@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { Search } from "lucide-react";
 import { PrimaryButton } from "@/components/dashboard/primary-button";
 import { CategoryRow, type CategoryRowData } from "@/components/dashboard/category-row";
-import { CategoryModal } from "@/components/dashboard/category-modal";
+
+const CategoryModal = dynamic(() => import("@/components/dashboard/category-modal").then((m) => m.CategoryModal));
 
 export function CategoriesView({
   categories,

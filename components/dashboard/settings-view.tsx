@@ -1,18 +1,42 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { BusinessInfoTab } from "@/components/dashboard/business-info-tab";
-import { OrderSettingsTab } from "@/components/dashboard/order-settings-tab";
-import { MenuAppearanceTab } from "@/components/dashboard/menu-appearance-tab";
-import { LanguageSettingsTab, type ProductTranslationRow } from "@/components/dashboard/language-settings-tab";
-import { QrSettingsTab } from "@/components/dashboard/qr-settings-tab";
-import { PrinterSettingsTab } from "@/components/dashboard/printer-settings-tab";
-import { PaymentTab } from "@/components/dashboard/payment-tab";
 import { UpgradeGate } from "@/components/dashboard/upgrade-gate";
+import type { ProductTranslationRow } from "@/components/dashboard/language-settings-tab";
 import type { PrinterFormValue } from "@/components/dashboard/printer-modal";
 import type { DayHours } from "@/features/menu/utils/business-hours";
+
+// Only one tab is ever visible at a time — loading all seven eagerly ships
+// JS for six panels nobody asked to see on this render (a big chunk of it:
+// html-to-image/jspdf pulled in transitively by the QR tab's export
+// buttons). Split each into its own chunk, fetched only when its tab opens.
+const TAB_LOADING = <div className="h-40 animate-pulse rounded-2xl bg-[#F3F3F3]" />;
+const BusinessInfoTab = dynamic(() => import("@/components/dashboard/business-info-tab").then((m) => m.BusinessInfoTab), {
+  loading: () => TAB_LOADING,
+});
+const OrderSettingsTab = dynamic(() => import("@/components/dashboard/order-settings-tab").then((m) => m.OrderSettingsTab), {
+  loading: () => TAB_LOADING,
+});
+const MenuAppearanceTab = dynamic(() => import("@/components/dashboard/menu-appearance-tab").then((m) => m.MenuAppearanceTab), {
+  loading: () => TAB_LOADING,
+});
+const LanguageSettingsTab = dynamic(
+  () => import("@/components/dashboard/language-settings-tab").then((m) => m.LanguageSettingsTab),
+  { loading: () => TAB_LOADING }
+);
+const QrSettingsTab = dynamic(() => import("@/components/dashboard/qr-settings-tab").then((m) => m.QrSettingsTab), {
+  loading: () => TAB_LOADING,
+});
+const PrinterSettingsTab = dynamic(
+  () => import("@/components/dashboard/printer-settings-tab").then((m) => m.PrinterSettingsTab),
+  { loading: () => TAB_LOADING }
+);
+const PaymentTab = dynamic(() => import("@/components/dashboard/payment-tab").then((m) => m.PaymentTab), {
+  loading: () => TAB_LOADING,
+});
 
 export interface SettingsFormValue {
   slug: string;

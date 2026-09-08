@@ -7,6 +7,7 @@ export function MenuHero({
   overlayOpacity,
   className,
   children,
+  priority,
 }: {
   background: HeroBackground;
   overlayOpacity: number;
@@ -21,7 +22,14 @@ export function MenuHero({
     >
       {background.type === "image" && (
         // eslint-disable-next-line @next/next/no-img-element -- Liara's proxy 400s /_next/image
-        <img src={background.url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <img
+          src={background.url}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          loading={priority ? "eager" : "lazy"}
+          decoding={priority ? "sync" : "async"}
+          fetchPriority={priority ? "high" : "auto"}
+        />
       )}
       <div className="absolute inset-0 bg-black" style={{ opacity: overlayOpacity / 100 }} />
       {children}

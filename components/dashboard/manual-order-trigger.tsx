@@ -2,9 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Lock } from "lucide-react";
 import { PrimaryButton } from "@/components/dashboard/primary-button";
-import { ManualOrderModal } from "@/components/dashboard/manual-order-modal";
+
+const ManualOrderModal = dynamic(() =>
+  import("@/components/dashboard/manual-order-modal").then((m) => m.ManualOrderModal)
+);
 
 export function ManualOrderTrigger({
   allowed,

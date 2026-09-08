@@ -5,6 +5,7 @@ export function MenuImage({
   alt = "",
   label,
   className,
+  priority,
 }: {
   imageUrl?: string | null;
   alt?: string;
@@ -17,7 +18,14 @@ export function MenuImage({
     return (
       <div className={cn("relative overflow-hidden bg-[#F2F2F2]", className)}>
         {/* eslint-disable-next-line @next/next/no-img-element -- Liara's proxy 400s /_next/image */}
-        <img src={imageUrl} alt={alt} className="absolute inset-0 h-full w-full object-cover" />
+        <img
+          src={imageUrl}
+          alt={alt}
+          className="absolute inset-0 h-full w-full object-cover"
+          loading={priority ? "eager" : "lazy"}
+          decoding={priority ? "sync" : "async"}
+          fetchPriority={priority ? "high" : "auto"}
+        />
       </div>
     );
   }
