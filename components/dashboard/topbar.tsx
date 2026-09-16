@@ -6,10 +6,12 @@ import { SidebarHamburgerButton } from "@/components/dashboard/sidebar-hamburger
 export function Topbar({
   title,
   businessName,
+  logoUrl,
   action,
 }: {
   title: string;
   businessName: string;
+  logoUrl?: string | null;
   action?: React.ReactNode;
 }) {
   return (
@@ -27,8 +29,12 @@ export function Topbar({
             <div className="text-sm font-medium">{businessName}</div>
             <div className="text-xs font-light text-text-3">مدیر مجموعه</div>
           </div>
-          <div className="flex h-[46px] w-[46px] items-center justify-center rounded-2xl bg-[#E5F0E6]">
-            <User size={22} className="text-brand" />
+          <div className="flex h-[46px] w-[46px] items-center justify-center overflow-hidden rounded-2xl bg-[#E5F0E6]">
+            {logoUrl ? (
+              <img src={logoUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <User size={22} className="text-brand" />
+            )}
           </div>
         </Link>
       </div>

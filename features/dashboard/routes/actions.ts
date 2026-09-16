@@ -44,7 +44,6 @@ export async function onboardingAction(
     phone: String(formData.get("phone") ?? ""),
     address: String(formData.get("address") ?? ""),
     description: String(formData.get("description") ?? ""),
-    customDomain: String(formData.get("customDomain") ?? ""),
   });
   if (!result.ok) return { error: result.error };
   redirect("/dashboard");
@@ -67,8 +66,10 @@ export async function updateBusinessInfoAction(
     nameEn: String(formData.get("nameEn") ?? ""),
     phone: String(formData.get("phone") ?? ""),
     address: String(formData.get("address") ?? ""),
+    description: String(formData.get("description") ?? ""),
     latitude: String(formData.get("latitude") ?? ""),
     longitude: String(formData.get("longitude") ?? ""),
+    customDomain: String(formData.get("customDomain") ?? ""),
   });
   if (!result.ok) return { error: result.error };
   revalidatePath("/dashboard/settings");

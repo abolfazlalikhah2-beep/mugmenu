@@ -23,7 +23,7 @@ export default async function DiscountsPage() {
 
   return (
     <>
-      <Topbar title="تخفیف‌ها" businessName={business.name} />
+      <Topbar title="تخفیف‌ها" businessName={business.name} logoUrl={business.logoUrl} />
       <PanelContent>
         <UpgradeGate allowed={hasDiscounts} title="تخفیف‌های دستی و خودکار در پلن شما موجود نیست">
           {data && (

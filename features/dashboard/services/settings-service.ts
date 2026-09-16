@@ -1,6 +1,6 @@
 import "server-only";
 import { logger } from "@/lib/logger";
-import { getMenuUrl } from "@/lib/menu-url";
+import { getMenuUrl, getQrUrls, type QrUrlEntry } from "@/lib/menu-url";
 import { deleteImageByUrl } from "@/features/uploads/services/storage-service";
 import * as repo from "@/features/dashboard/repositories/dashboard-repository";
 import {
@@ -25,9 +25,22 @@ export async function getBusinessMenuUrl(businessId: string): Promise<string | n
   return getMenuUrl({ slug: info.slug, planKey: info.plan.key, customDomain: info.customDomain });
 }
 
+export async function getBusinessQrUrls(businessId: string): Promise<QrUrlEntry[] | null> {
+  const info = await repo.getBusinessMenuUrlInfo(businessId);
+  if (!info) return null;
+  return getQrUrls({ slug: info.slug, customDomain: info.customDomain });
+}
+
 export async function updateBusinessInfo(businessId: string, input: unknown): Promise<ServiceResult> {
   const parsed = businessInfoSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  if (parsed.data.customDomain) {
+    const existing = await repo.getBusinessByCustomDomain(parsed.data.customDomain);
+    if (existing && existing.id !== businessId) {
+      return { ok: false, error: "این دامنه قبلاً برای یک کسب‌وکار دیگر ثبت شده است." };
+    }
+  }
 
   await repo.updateBusiness(businessId, parsed.data);
   logger.info("dashboard.business_info_updated", { businessId });

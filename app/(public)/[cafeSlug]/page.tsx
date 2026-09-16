@@ -96,6 +96,7 @@ export default async function MenuMainPage({
           name={displayName}
           address={business.address}
           phone={business.phone}
+          description={business.description}
           hours={business.hours}
           isAcceptingOrders={business.isAcceptingOrders}
           reviews={recentReviews}
@@ -118,6 +119,7 @@ export default async function MenuMainPage({
         name={displayName}
         address={business.address}
         phone={business.phone}
+        description={business.description}
         hours={business.hours}
         isAcceptingOrders={business.isAcceptingOrders}
         rating={rating}

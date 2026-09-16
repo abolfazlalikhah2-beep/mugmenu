@@ -90,7 +90,11 @@ export async function getItemDetailData(slug: string, productId: string) {
   const product = await repo.getProduct(productId);
   if (!product || product.businessId !== business.id) return null;
   const ratingAgg = await repo.getProductRatingAggregate(productId);
-  return { product, rating: formatRating(ratingAgg.avg) };
+  return {
+    product,
+    rating: formatRating(ratingAgg.avg),
+    isAcceptingOrders: business.isAcceptingOrders,
+  };
 }
 
 export async function getItemReviewsData(slug: string, productId: string) {

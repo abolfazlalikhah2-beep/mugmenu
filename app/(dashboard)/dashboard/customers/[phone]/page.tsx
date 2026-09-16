@@ -19,7 +19,7 @@ export default async function CustomerDetailPage({
 
   return (
     <>
-      <Topbar title="جزئیات مشتری" businessName={business.name} />
+      <Topbar title="جزئیات مشتری" businessName={business.name} logoUrl={business.logoUrl} />
       <PanelContent>
         <CustomerDetailView customer={customer} />
       </PanelContent>

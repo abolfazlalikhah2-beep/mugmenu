@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { SettingsCard } from "@/components/dashboard/settings-card";
 import { BusinessHoursRow } from "@/components/dashboard/business-hours-row";
 import { LocationPicker } from "@/components/dashboard/location-picker";
+import { UpgradeLockBadge } from "@/components/dashboard/upgrade-gate";
 import {
   updateBusinessInfoAction,
   updateBusinessHoursAction,
@@ -18,8 +19,10 @@ export interface BusinessInfoFormValue {
   nameEn: string | null;
   phone: string | null;
   address: string | null;
+  description: string | null;
   latitude: number | null;
   longitude: number | null;
+  customDomain: string | null;
 }
 
 const initialState: ActionState = {};
@@ -28,10 +31,12 @@ export function BusinessInfoTab({
   business,
   hours,
   googleMapsApiKey,
+  hasCustomDomain,
 }: {
   business: BusinessInfoFormValue;
   hours: DayHours[];
   googleMapsApiKey?: string;
+  hasCustomDomain: boolean;
 }) {
   const [infoState, infoAction, infoPending] = useActionState(updateBusinessInfoAction, initialState);
   const [hoursState, hoursAction, hoursPending] = useActionState(updateBusinessHoursAction, initialState);
@@ -75,6 +80,36 @@ export function BusinessInfoTab({
               latitude={business.latitude}
               longitude={business.longitude}
             />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-right text-[13px] font-light text-text-4">توضیحات مجموعه</label>
+            <textarea
+              name="description"
+              rows={3}
+              defaultValue={business.description ?? ""}
+              className="min-h-[70px] rounded-input border border-border-input p-[12px_16px] text-right text-[13px] leading-[1.9] text-[#555] outline-none focus:border-brand"
+            />
+          </div>
+        </SettingsCard>
+
+        <SettingsCard title="دامنه اختصاصی" subtitle="اتصال دامنه شخصی خودتان به منوی آنلاین">
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-1.5">
+              <label className="text-right text-[13px] font-light text-text-4">نام دامنه اختصاصی</label>
+              {!hasCustomDomain && <UpgradeLockBadge />}
+            </div>
+            <Input
+              name="customDomain"
+              dir="ltr"
+              className="text-right"
+              placeholder="example.com"
+              defaultValue={business.customDomain ?? ""}
+              disabled={!hasCustomDomain}
+            />
+            <p className="text-right text-[11px] font-light text-text-4">
+              برای اتصال دامنه اختصاصی، در پنل آروان‌کلاد یک رکورد CNAME با مقدار serwapp.com ایجاد کنید و سپس دامنه
+              خود را اینجا وارد کنید.
+            </p>
           </div>
         </SettingsCard>
 

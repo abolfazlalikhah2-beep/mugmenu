@@ -39,6 +39,11 @@ export function updateBusiness(id: string, data: Record<string, unknown>) {
   return prisma.business.update({ where: { id }, data });
 }
 
+/** Pre-save uniqueness check for the settings form (Business.customDomain is @unique) — lets settings-service return a friendly error instead of a raw constraint violation. */
+export function getBusinessByCustomDomain(customDomain: string) {
+  return prisma.business.findUnique({ where: { customDomain }, select: { id: true } });
+}
+
 export function createBusiness(data: {
   slug: string;
   name: string;

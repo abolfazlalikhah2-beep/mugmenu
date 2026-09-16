@@ -23,6 +23,7 @@ export function EntryDrawer({
   name,
   address,
   phone,
+  description,
   hours,
   isAcceptingOrders,
   reviews,
@@ -36,6 +37,7 @@ export function EntryDrawer({
   name: string;
   address: string | null;
   phone: string | null;
+  description: string | null;
   hours: DayHours[];
   isAcceptingOrders: boolean;
   reviews: { customerName: string; rating: number; comment: string | null }[];
@@ -103,6 +105,7 @@ export function EntryDrawer({
         name={name}
         address={address}
         phone={phone}
+        description={description}
         hours={hours}
         isAcceptingOrders={isAcceptingOrders}
         reviews={reviews}

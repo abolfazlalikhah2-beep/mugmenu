@@ -14,6 +14,7 @@ export interface RestaurantHeaderProps {
   name: string;
   address: string | null;
   phone: string | null;
+  description: string | null;
   hours: DayHours[];
   isAcceptingOrders: boolean;
   rating: string | null;
@@ -28,6 +29,7 @@ export function RestaurantHeader({
   name,
   address,
   phone,
+  description,
   hours,
   isAcceptingOrders,
   rating,
@@ -74,6 +76,7 @@ export function RestaurantHeader({
         name={name}
         address={address}
         phone={phone}
+        description={description}
         hours={hours}
         isAcceptingOrders={isAcceptingOrders}
         reviews={reviews}

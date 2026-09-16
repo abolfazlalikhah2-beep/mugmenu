@@ -12,7 +12,7 @@ export default async function SupportPage() {
 
   return (
     <>
-      <Topbar title="پشتیبانی" businessName={business.name} />
+      <Topbar title="پشتیبانی" businessName={business.name} logoUrl={business.logoUrl} />
       <PanelContent>
         <SupportView tickets={tickets} />
       </PanelContent>

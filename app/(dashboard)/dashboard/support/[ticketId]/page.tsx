@@ -21,7 +21,7 @@ export default async function TicketDetailPage({
 
   return (
     <>
-      <Topbar title="جزئیات تیکت" businessName={business.name} />
+      <Topbar title="جزئیات تیکت" businessName={business.name} logoUrl={business.logoUrl} />
       <PanelContent>
         <TicketDetailView ticket={ticket} />
       </PanelContent>

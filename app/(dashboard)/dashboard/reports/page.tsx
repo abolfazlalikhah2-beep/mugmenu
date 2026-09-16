@@ -46,7 +46,7 @@ export default async function ReportsPage({
 
   return (
     <>
-      <Topbar title="گزارش‌ها" businessName={business.name} />
+      <Topbar title="گزارش‌ها" businessName={business.name} logoUrl={business.logoUrl} />
       <PanelContent>
         <ReportsView
           ordersData={ordersData}

@@ -13,7 +13,7 @@ export default async function AccountPage() {
 
   return (
     <>
-      <Topbar title="حساب کاربری" businessName={business.name} />
+      <Topbar title="حساب کاربری" businessName={business.name} logoUrl={business.logoUrl} />
       <PanelContent>
         <AccountView
           billingCycle={overview.billingCycle}

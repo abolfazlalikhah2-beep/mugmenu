@@ -4,6 +4,7 @@ import { forwardRef } from "react";
 import { MapPin, Clock } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { summarizeUniformHours, type DayHours } from "@/features/menu/utils/business-hours";
+import type { QrUrlEntry } from "@/lib/menu-url";
 
 export interface QrCardBusiness {
   name: string;
@@ -15,13 +16,13 @@ export const QrCard = forwardRef<
   HTMLDivElement,
   {
     business: QrCardBusiness;
-    publicUrl: string;
+    qrCodes: QrUrlEntry[];
     showInfo: boolean;
     showHours: boolean;
     showLogo: boolean;
     size?: number;
   }
->(function QrCard({ business, publicUrl, showInfo, showHours, showLogo, size = 210 }, ref) {
+>(function QrCard({ business, qrCodes, showInfo, showHours, showLogo, size = 210 }, ref) {
   const uniformHours = summarizeUniformHours(business.hours);
   return (
     <div
@@ -41,8 +42,15 @@ export const QrCard = forwardRef<
         </div>
       )}
 
-      <div className="rounded-[20px] border border-[#F0F0F0] p-4">
-        <QRCodeSVG value={publicUrl} size={size} level="M" />
+      <div className="flex flex-col items-center gap-4">
+        {qrCodes.map((qr) => (
+          <div key={qr.url} className="flex flex-col items-center gap-2">
+            {qr.label && <span className="text-xs font-medium text-text-2">{qr.label}</span>}
+            <div className="rounded-[20px] border border-[#F0F0F0] p-4">
+              <QRCodeSVG value={qr.url} size={size} level="M" />
+            </div>
+          </div>
+        ))}
       </div>
 
       {showHours && uniformHours && (

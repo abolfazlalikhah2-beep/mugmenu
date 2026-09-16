@@ -35,6 +35,7 @@ export default async function DashboardHomePage() {
       <Topbar
         title="داشبورد"
         businessName={business.name}
+        logoUrl={business.logoUrl}
         action={
           <ManualOrderTrigger
             allowed={hasManualEntry}

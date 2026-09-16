@@ -31,7 +31,7 @@ export default async function CreditsPage({
 
   return (
     <>
-      <Topbar title="نسیه" businessName={business.name} />
+      <Topbar title="نسیه" businessName={business.name} logoUrl={business.logoUrl} />
       <PanelContent>
         <UpgradeGate allowed={allowed} title="ثبت نسیه در پلن شما موجود نیست">
           <CreditsView records={records} status={statusFilter} from={from} to={to} dateRange={dateRange} />

@@ -25,9 +25,12 @@ export default async function ItemDetailPage({
   const { cafeSlug, itemId } = await params;
   const data = await getItemDetailData(cafeSlug, itemId);
   if (!data) notFound();
-  const { product, rating } = data;
+  const { product, rating, isAcceptingOrders } = data;
   after(() => logItemView(product.businessId, product.id));
-  const orderingEnabled = await businessHasFeature(product.businessId, "order.three_mode");
+  // Plan gate AND the owner's manual "سفارش‌گیری" toggle both have to allow
+  // ordering — same combined check as the menu page and cart checkout.
+  const canOrderFeature = await businessHasFeature(product.businessId, "order.three_mode");
+  const orderingEnabled = canOrderFeature && isAcceptingOrders;
   const hasDiscount = !!product.discountPercent;
   const finalPrice = computeDiscountedPrice(product.price, product.discountPercent);
   const outOfStock = product.trackInventory && product.stock <= 0;

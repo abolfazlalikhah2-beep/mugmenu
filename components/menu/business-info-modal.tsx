@@ -16,6 +16,7 @@ export interface BusinessInfoModalProps {
   name: string;
   address: string | null;
   phone: string | null;
+  description: string | null;
   hours: DayHours[];
   isAcceptingOrders: boolean;
   reviews: { customerName: string; rating: number; comment: string | null }[];
@@ -83,6 +84,7 @@ export function BusinessInfoModal({
   name,
   address,
   phone,
+  description,
   hours,
   isAcceptingOrders,
   reviews,
@@ -147,7 +149,9 @@ export function BusinessInfoModal({
 
           <div className={cn(align, lang === "en" && "font-mont")}>
             <div className="mb-2 text-sm">{t.infoAbout}</div>
-            <p className="m-0 text-justify text-xs leading-[1.9] font-light text-text-1">{t.infoAboutText}</p>
+            <p className="m-0 text-justify text-xs leading-[1.9] font-light text-text-1">
+              {description || t.infoAboutText}
+            </p>
           </div>
 
           {reviews.length > 0 && (

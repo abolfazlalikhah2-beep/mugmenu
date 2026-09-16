@@ -29,7 +29,7 @@ export default async function PaymentPage() {
 
   return (
     <>
-      <Topbar title="پرداخت اشتراک" businessName={business.name} />
+      <Topbar title="پرداخت اشتراک" businessName={business.name} logoUrl={business.logoUrl} />
       <PanelContent>
         <PaymentPageView
           options={[sixMonthPricing, annualPricing]}

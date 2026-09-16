@@ -19,7 +19,7 @@ export default async function ProductsPage() {
 
   return (
     <>
-      <Topbar title="محصولات" businessName={business.name} />
+      <Topbar title="محصولات" businessName={business.name} logoUrl={business.logoUrl} />
       <PanelContent>
         <ProductsView
           products={products}

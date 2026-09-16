@@ -8,6 +8,7 @@ import { OrderSettingsTab } from "@/components/dashboard/order-settings-tab";
 import { MenuAppearanceTab } from "@/components/dashboard/menu-appearance-tab";
 import { LanguageSettingsTab, type ProductTranslationRow } from "@/components/dashboard/language-settings-tab";
 import { QrSettingsTab } from "@/components/dashboard/qr-settings-tab";
+import type { QrUrlEntry } from "@/lib/menu-url";
 import { PrinterSettingsTab } from "@/components/dashboard/printer-settings-tab";
 import { PaymentTab } from "@/components/dashboard/payment-tab";
 import { UpgradeGate } from "@/components/dashboard/upgrade-gate";
@@ -20,8 +21,10 @@ export interface SettingsFormValue {
   nameEn: string | null;
   phone: string | null;
   address: string | null;
+  description: string | null;
   latitude: number | null;
   longitude: number | null;
+  customDomain: string | null;
   hours: DayHours[];
   acceptsDineIn: boolean;
   acceptsTakeaway: boolean;
@@ -56,7 +59,7 @@ export function SettingsView({
   featureKeys,
   printerLimit,
   googleMapsApiKey,
-  menuUrl,
+  qrUrls,
 }: {
   business: SettingsFormValue;
   printers: PrinterFormValue[];
@@ -64,9 +67,10 @@ export function SettingsView({
   featureKeys: string[];
   printerLimit: string | null;
   googleMapsApiKey?: string;
-  menuUrl: string;
+  qrUrls: QrUrlEntry[];
 }) {
   const hasPrinter = featureKeys.includes("printer.connection");
+  const hasCustomDomain = featureKeys.includes("domain.custom");
   const [tab, setTab] = useState(0);
 
   return (
@@ -94,12 +98,17 @@ export function SettingsView({
 
       <div className="flex-1 overflow-y-auto pb-6">
         {tab === 0 && (
-          <BusinessInfoTab business={business} hours={business.hours} googleMapsApiKey={googleMapsApiKey} />
+          <BusinessInfoTab
+            business={business}
+            hours={business.hours}
+            googleMapsApiKey={googleMapsApiKey}
+            hasCustomDomain={hasCustomDomain}
+          />
         )}
         {tab === 1 && <MenuAppearanceTab business={business} />}
         {tab === 2 && <LanguageSettingsTab business={business} products={products} />}
         {tab === 3 && <OrderSettingsTab business={business} />}
-        {tab === 4 && <QrSettingsTab business={business} menuUrl={menuUrl} />}
+        {tab === 4 && <QrSettingsTab business={business} qrUrls={qrUrls} />}
         {tab === 5 && (
           <UpgradeGate allowed={hasPrinter} title="اتصال پرینتر در پلن شما موجود نیست">
             <PrinterSettingsTab printers={printers} limit={printerLimit} />

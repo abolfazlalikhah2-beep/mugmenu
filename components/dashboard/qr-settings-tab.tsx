@@ -5,6 +5,7 @@ import { Download, FileText } from "lucide-react";
 import { Toggle } from "@/components/dashboard/toggle";
 import { QrCard, type QrCardBusiness } from "@/components/dashboard/qr-card";
 import { updateQrSettingsAction, type ActionState } from "@/features/dashboard/routes/actions";
+import type { QrUrlEntry } from "@/lib/menu-url";
 
 export interface QrSettingsFormValue extends QrCardBusiness {
   slug: string;
@@ -35,7 +36,7 @@ function ToggleRow({
   );
 }
 
-export function QrSettingsTab({ business, menuUrl }: { business: QrSettingsFormValue; menuUrl: string }) {
+export function QrSettingsTab({ business, qrUrls }: { business: QrSettingsFormValue; qrUrls: QrUrlEntry[] }) {
   const [state, formAction, pending] = useActionState(updateQrSettingsAction, initialState);
   const [showInfo, setShowInfo] = useState(business.qrShowInfo);
   const [showHours, setShowHours] = useState(business.qrShowHours);
@@ -83,7 +84,7 @@ export function QrSettingsTab({ business, menuUrl }: { business: QrSettingsFormV
         <QrCard
           ref={cardRef}
           business={business}
-          publicUrl={menuUrl}
+          qrCodes={qrUrls}
           showInfo={showInfo}
           showHours={showHours}
           showLogo={showLogo}

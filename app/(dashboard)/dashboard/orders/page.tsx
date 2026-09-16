@@ -39,6 +39,7 @@ export default async function OrdersPage({
       <Topbar
         title="سفارشات"
         businessName={business.name}
+        logoUrl={business.logoUrl}
         action={
           <ManualOrderTrigger
             allowed={hasManualEntry}

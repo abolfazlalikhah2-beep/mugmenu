@@ -12,7 +12,7 @@ export default async function CategoriesPage() {
 
   return (
     <>
-      <Topbar title="دسته‌بندی" businessName={business.name} />
+      <Topbar title="دسته‌بندی" businessName={business.name} logoUrl={business.logoUrl} />
       <PanelContent>
         <CategoriesView categories={categories} />
       </PanelContent>

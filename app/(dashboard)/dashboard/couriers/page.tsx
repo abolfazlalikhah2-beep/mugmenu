@@ -19,7 +19,7 @@ export default async function CouriersPage() {
 
   return (
     <>
-      <Topbar title="پیک‌ها" businessName={business.name} />
+      <Topbar title="پیک‌ها" businessName={business.name} logoUrl={business.logoUrl} />
       <PanelContent>
         <UpgradeGate allowed={hasCouriers} title="مدیریت پیک‌های داخلی در پلن شما موجود نیست">
           {data && <CouriersView couriers={data.couriers} summary={data.summary} />}

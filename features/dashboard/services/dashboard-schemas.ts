@@ -23,16 +23,24 @@ export const onboardingSchema = z.object({
   address: z.string().trim().min(3, "آدرس را کامل وارد کنید."),
   description: z.string().trim().max(2000).optional(),
   logoUrl: optionalImageUrl,
-  // Only shown/enabled for opal/zomorrod (domain.custom feature)
-  // — see app/onboarding/page.tsx. No DNS/provisioning yet, just storage.
-  customDomain: z
-    .string()
-    .trim()
-    .max(255)
-    .optional()
-    .or(z.literal(""))
-    .transform((v) => (v ? normalizeCustomDomain(v) : undefined)),
 });
+
+// Shared by businessInfoSchema below — customDomain is only collected after
+// onboarding, from dashboard settings (gated to the domain.custom feature,
+// see business-info-tab.tsx), never at signup: onboarding always starts a
+// business on the firuze plan (no domain.custom), so gating it there would
+// just make the field permanently invisible.
+// Transforms an empty submission to `null`, not `undefined` — this schema
+// feeds prisma.business.update(), which treats an `undefined` field as "not
+// provided" and leaves the existing value untouched, so `undefined` here
+// would make clearing a previously-set customDomain silently no-op.
+const optionalCustomDomain = z
+  .string()
+  .trim()
+  .max(255)
+  .optional()
+  .or(z.literal(""))
+  .transform((v) => (v ? normalizeCustomDomain(v) : null));
 
 const optionalCoordinate = (min: number, max: number) =>
   z
@@ -45,10 +53,15 @@ export const businessInfoSchema = z.object({
   nameEn: z.string().trim().max(60).optional(),
   phone: z.string().trim().min(10, "شماره تماس معتبر نیست.").max(20),
   address: z.string().trim().min(3, "آدرس را کامل وارد کنید."),
+  description: z.string().trim().max(2000).optional(),
   // Google Maps pin (dashboard's LocationPicker) — null when the owner hasn't
   // set a location yet, independent of the free-text address above.
   latitude: optionalCoordinate(-90, 90),
   longitude: optionalCoordinate(-180, 180),
+  // Only rendered/enabled in the UI for opal/zomorrod (domain.custom
+  // feature) — see business-info-tab.tsx. No DNS/provisioning yet, just
+  // storage; settings-service.ts checks it's not already taken before saving.
+  customDomain: optionalCustomDomain,
 });
 
 const timeString = z.string().trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "قالب ساعت معتبر نیست.");

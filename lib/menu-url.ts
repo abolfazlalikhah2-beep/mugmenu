@@ -30,3 +30,30 @@ export function getMenuUrl(business: MenuUrlBusiness): string {
   }
   return `https://${rootDomain}/${business.slug}`;
 }
+
+/** The root-domain path URL, regardless of plan/customDomain — always resolves today, unlike the firuze subdomain (pending wildcard DNS) or a customDomain (pending its own DNS/SSL setup). */
+export function getDefaultMenuUrl(slug: string): string {
+  return `https://${getRootDomain()}/${slug}`;
+}
+
+export interface QrUrlEntry {
+  url: string;
+  label: string | null;
+}
+
+/**
+ * QR codes for the dashboard's QR tab. Unlike getMenuUrl (one canonical URL,
+ * used for SEO/sitemap/"view menu" links), a printed QR code needs to keep
+ * working even after a custom domain is added or changed, so this always
+ * includes the default path URL and adds the customDomain as a second entry
+ * when one is set — never a single either/or choice between them.
+ */
+export function getQrUrls(business: { slug: string; customDomain?: string | null }): QrUrlEntry[] {
+  const entries: QrUrlEntry[] = [
+    { url: getDefaultMenuUrl(business.slug), label: business.customDomain ? "لینک پیش‌فرض" : null },
+  ];
+  if (business.customDomain) {
+    entries.push({ url: `https://${business.customDomain}`, label: "دامنه اختصاصی" });
+  }
+  return entries;
+}

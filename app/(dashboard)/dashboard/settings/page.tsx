@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireBusinessOwner } from "@/features/auth/services/authorize";
-import { getBusiness, getBusinessMenuUrl } from "@/features/dashboard/services/settings-service";
+import { getBusiness, getBusinessQrUrls } from "@/features/dashboard/services/settings-service";
 import { getPrinters } from "@/features/dashboard/services/printer-service";
 import { getProducts } from "@/features/dashboard/services/product-service";
 import { getBusinessFeatureSet } from "@/features/plans/services/plan-service";
@@ -10,18 +10,18 @@ import { SettingsView } from "@/components/dashboard/settings-view";
 
 export default async function SettingsPage() {
   const { businessId } = await requireBusinessOwner();
-  const [business, printers, products, featureSet, menuUrl] = await Promise.all([
+  const [business, printers, products, featureSet, qrUrls] = await Promise.all([
     getBusiness(businessId),
     getPrinters(businessId),
     getProducts(businessId),
     getBusinessFeatureSet(businessId),
-    getBusinessMenuUrl(businessId),
+    getBusinessQrUrls(businessId),
   ]);
   if (!business) notFound();
 
   return (
     <>
-      <Topbar title="تنظیمات" businessName={business.name} />
+      <Topbar title="تنظیمات" businessName={business.name} logoUrl={business.logoUrl} />
       <PanelContent>
         <SettingsView
           business={business}
@@ -30,7 +30,7 @@ export default async function SettingsPage() {
           featureKeys={featureSet ? [...featureSet.keys] : []}
           printerLimit={featureSet?.limits["printer.connection"] ?? null}
           googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
-          menuUrl={menuUrl ?? `/${business.slug}`}
+          qrUrls={qrUrls ?? [{ url: `/${business.slug}`, label: null }]}
         />
       </PanelContent>
     </>
