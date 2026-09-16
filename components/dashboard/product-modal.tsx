@@ -329,6 +329,7 @@ export function ProductModal({
           name="imageUrl"
           defaultUrl={product?.imageUrl}
           label="تصویر محصول"
+          helpText="مربع ۸۰۰×۸۰۰ پیکسل — JPG، PNG یا WebP، حداکثر ۵ مگابایت"
           action={presignedUploadAction}
         />
         <div className="flex flex-col gap-4 sm:flex-row">

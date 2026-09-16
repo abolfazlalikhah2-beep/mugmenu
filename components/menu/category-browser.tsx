@@ -30,7 +30,7 @@ export function CategoryBrowser({
   lang?: MenuLang;
   orderingEnabled?: boolean;
 }) {
-  const [activeId, setActiveId] = React.useState(categories[0]?.id);
+  const [activeId, setActiveId] = React.useState<string>(ALL_ID);
   const [searchOpen, setSearchOpen] = React.useState(false);
   const visible = activeId === ALL_ID ? products : products.filter((p) => p.categoryId === activeId);
   const t = menuCopy(lang);
