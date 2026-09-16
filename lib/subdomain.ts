@@ -68,3 +68,21 @@ export function buildSlugPathname(pathname: string, slug: string): string {
   if (pathname === prefix || pathname.startsWith(`${prefix}/`)) return pathname;
   return pathname === "/" ? prefix : `${prefix}${pathname}`;
 }
+
+/**
+ * Canonicalizes a custom-domain value to one comparable form, whether it
+ * came from a request's Host header (e.g. "jalal.ir:443") or was typed into
+ * the onboarding form (e.g. "https://WWW.Jalal.ir/") — both normalize to
+ * "jalal.ir". Used on both sides of the customDomain lookup (proxy.ts's
+ * incoming host and menu-repository.ts's stored value) so they always
+ * compare equal.
+ */
+export function normalizeCustomDomain(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .split(":")[0]
+    .replace(/^www\./, "")
+    .replace(/\/+$/, "");
+}

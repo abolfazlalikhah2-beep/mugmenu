@@ -84,7 +84,7 @@ model Business {
   // Captured at onboarding (dashboard "نام دامنه اختصاصی" field), only
   // shown/enabled for businesses on menu-order/menu-advanced (domain.custom
   // feature) — no DNS/provisioning yet, just storage (see CLAUDE.md).
-  customDomain         String?
+  customDomain         String?  @unique
   // Set from the super admin panel (تعلیق پنل) — enforced in
   // requireBusinessOwner(), not just a UI flag.
   isSuspended          Boolean  @default(false)

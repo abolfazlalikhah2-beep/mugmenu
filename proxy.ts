@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { extractSlugFromHost, isAppHost, buildSlugPathname, getRootDomain } from "@/lib/subdomain";
+import { extractSlugFromHost, isAppHost, buildSlugPathname, getRootDomain, normalizeCustomDomain } from "@/lib/subdomain";
 import { findSlugByCustomDomain } from "@/features/menu/services/menu-service";
 
 // Served identically on every host (see app/robots.ts's and app/sitemap.ts's
@@ -44,7 +44,7 @@ async function resolveSubdomainRewrite(request: NextRequest, headers: Headers): 
   // Not the app host and not a recognized slug-subdomain: might be a
   // opal/zomorrod business's connected custom domain.
   try {
-    const business = await findSlugByCustomDomain(host.split(":")[0]);
+    const business = await findSlugByCustomDomain(normalizeCustomDomain(host));
     if (business) return rewriteToSlug(request, business.slug, headers);
   } catch {
     // DB unreachable — degrade to normal routing rather than 500 every

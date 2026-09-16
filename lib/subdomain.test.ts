@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { extractSlugFromHost, isAppHost, buildSlugPathname } from "./subdomain";
+import { extractSlugFromHost, isAppHost, buildSlugPathname, normalizeCustomDomain } from "./subdomain";
 
 describe("extractSlugFromHost", () => {
   it("extracts the slug from a production subdomain", () => {
@@ -82,5 +82,32 @@ describe("buildSlugPathname", () => {
   it("does not treat a path merely starting with the slug string as prefixed", () => {
     // "/demo2" must still get prefixed to "/demo/demo2", not mistaken for "/demo" + "2"
     expect(buildSlugPathname("/demo2", "demo")).toBe("/demo/demo2");
+  });
+});
+
+describe("normalizeCustomDomain", () => {
+  it("passes a bare hostname through unchanged", () => {
+    expect(normalizeCustomDomain("jalal.ir")).toBe("jalal.ir");
+  });
+
+  it("strips a port, as seen on an incoming Host header", () => {
+    expect(normalizeCustomDomain("jalal.ir:443")).toBe("jalal.ir");
+  });
+
+  it("strips a scheme, www prefix, and trailing slash, as seen on a form value", () => {
+    expect(normalizeCustomDomain("https://www.jalal.ir/")).toBe("jalal.ir");
+    expect(normalizeCustomDomain("http://jalal.ir")).toBe("jalal.ir");
+  });
+
+  it("is case-insensitive", () => {
+    expect(normalizeCustomDomain("WWW.JALAL.IR")).toBe("jalal.ir");
+  });
+
+  it("trims surrounding whitespace", () => {
+    expect(normalizeCustomDomain("  jalal.ir  ")).toBe("jalal.ir");
+  });
+
+  it("makes a Host header and a form value for the same domain compare equal", () => {
+    expect(normalizeCustomDomain("jalal.ir")).toBe(normalizeCustomDomain("https://WWW.Jalal.ir/"));
   });
 });

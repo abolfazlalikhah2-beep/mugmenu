@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { HERO_BG_KEYS } from "@/features/menu/utils/hero-background";
+import { normalizeCustomDomain } from "@/lib/subdomain";
 
 const optionalImageUrl = z
   .string()
@@ -30,7 +31,7 @@ export const onboardingSchema = z.object({
     .max(255)
     .optional()
     .or(z.literal(""))
-    .transform((v) => (v ? v : undefined)),
+    .transform((v) => (v ? normalizeCustomDomain(v) : undefined)),
 });
 
 const optionalCoordinate = (min: number, max: number) =>

@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { prisma } from "@/lib/db";
+import { normalizeCustomDomain } from "@/lib/subdomain";
 import type { OrderType, VisitSource } from "@/lib/generated/prisma/enums";
 
 /** Active AUTOMATIC discounts for a business, within their date window (open-ended start/end allowed) — see order-service.ts's checkout discount step. */
@@ -59,10 +60,17 @@ export function getActiveBusinessSlugs() {
   });
 }
 
-/** Custom-domain routing (opal/zomorrod plans (isOrderingEnabled)) — see proxy.ts. Excludes suspended businesses like every other public-menu lookup. */
+/**
+ * Custom-domain routing (opal/zomorrod plans (isOrderingEnabled)) — see proxy.ts.
+ * Excludes suspended businesses like every other public-menu lookup.
+ * Re-normalizes `customDomain` defensively (proxy.ts already normalizes the
+ * incoming host) so this matches however the value ended up stored — the
+ * onboarding form normalizes on save too, but this covers rows written
+ * before that existed.
+ */
 export function getBusinessSlugByCustomDomain(customDomain: string) {
   return prisma.business.findFirst({
-    where: { customDomain, isSuspended: false },
+    where: { customDomain: normalizeCustomDomain(customDomain), isSuspended: false },
     select: { slug: true },
   });
 }
