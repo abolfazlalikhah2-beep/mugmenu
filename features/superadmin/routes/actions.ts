@@ -70,17 +70,31 @@ export async function createCustomerAction(
   formData: FormData
 ): Promise<CreateCustomerActionState> {
   await requireSuperAdmin();
-  const result = await customerService.createCustomer({
-    fullName: String(formData.get("fullName") ?? ""),
-    phone: String(formData.get("phone") ?? ""),
-    businessName: String(formData.get("businessName") ?? ""),
-    slug: String(formData.get("slug") ?? ""),
-    planId: String(formData.get("planId") ?? ""),
-    billingCycle: String(formData.get("billingCycle") ?? ""),
-  });
-  if (!result.ok) return { error: result.error };
-  revalidatePath("/superadmin/customers");
-  return { ok: true, tempPassword: result.tempPassword, businessId: result.businessId, slug: result.slug };
+  try {
+    const result = await customerService.createCustomer({
+      fullName: String(formData.get("fullName") ?? ""),
+      phone: String(formData.get("phone") ?? ""),
+      businessName: String(formData.get("businessName") ?? ""),
+      slug: String(formData.get("slug") ?? ""),
+      planId: String(formData.get("planId") ?? ""),
+      billingCycle: String(formData.get("billingCycle") ?? ""),
+    });
+    if (!result.ok) {
+      console.log("createCustomerAction: createCustomer returned an error:", result.error);
+      return { error: result.error };
+    }
+    revalidatePath("/superadmin/customers");
+    return { ok: true, tempPassword: result.tempPassword, businessId: result.businessId, slug: result.slug };
+  } catch (err) {
+    // Without this catch, a thrown error (e.g. a Prisma constraint violation
+    // not covered by newCustomerSchema/customer-service's explicit checks)
+    // never resolves into state.error — React's form action still resets
+    // uncontrolled fields (fullName/phone) on completion, so the user just
+    // sees a blank form with no message while the real error only reaches
+    // the server console unformatted.
+    console.log("createCustomerAction: unexpected error:", err);
+    return { error: "خطای غیرمنتظره‌ای رخ داد. لطفاً دوباره تلاش کنید." };
+  }
 }
 
 export async function changePlanAction(businessId: string, planId: string, billingCycle: string) {
