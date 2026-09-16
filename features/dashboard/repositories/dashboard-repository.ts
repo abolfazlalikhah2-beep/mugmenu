@@ -415,8 +415,27 @@ export function updateProduct(
   });
 }
 
-export function deleteProduct(id: string) {
-  return prisma.product.delete({ where: { id } });
+export function countOrderItemsForProduct(productId: string) {
+  return prisma.orderItem.count({ where: { productId } });
+}
+
+/**
+ * MenuVisit/Discount rows referencing this product are deleted (pure
+ * analytics + a now-meaningless product-scoped discount); Review rows are
+ * disconnected (productId -> null) rather than deleted, since a null
+ * productId is already a valid "restaurant-level" review (see Review's
+ * schema comment) and this preserves the rating/comment. OrderItem is
+ * deliberately NOT touched here — callers must block deletion when order
+ * history exists (see product-service.ts's countOrderItemsForProduct
+ * check) rather than destroying order line items.
+ */
+export async function deleteProduct(id: string) {
+  await prisma.$transaction([
+    prisma.menuVisit.deleteMany({ where: { productId: id } }),
+    prisma.discount.deleteMany({ where: { productId: id } }),
+    prisma.review.updateMany({ where: { productId: id }, data: { productId: null } }),
+    prisma.product.delete({ where: { id } }),
+  ]);
 }
 
 // ---------- Categories ----------

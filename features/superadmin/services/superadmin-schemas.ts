@@ -32,7 +32,7 @@ export const changePlanSchema = z.object({
 export const newCustomerSchema = z.object({
   fullName: z.string().trim().min(2, "نام و نام خانوادگی را کامل وارد کنید.").max(80),
   phone: z.string().trim().min(10, "شماره تماس معتبر نیست.").max(20),
-  businessName: z.string().trim().min(2, "نام مجموعه را کامل وارد کنید.").max(100),
+  businessName: z.string().trim().min(1, "نام مجموعه را وارد کنید.").max(100),
   slug: z
     .string()
     .trim()

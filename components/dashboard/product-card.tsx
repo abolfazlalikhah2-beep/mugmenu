@@ -41,7 +41,8 @@ export function ProductCard({ product, onEdit }: { product: ProductCardData; onE
   function handleDelete() {
     if (!confirm(`«${product.name}» حذف شود؟`)) return;
     startTransition(async () => {
-      await deleteProductAction(product.id);
+      const result = await deleteProductAction(product.id);
+      if (result && !result.ok) alert(result.error);
     });
   }
 

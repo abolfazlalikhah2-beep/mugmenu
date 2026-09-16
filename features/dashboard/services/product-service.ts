@@ -81,6 +81,16 @@ export async function deleteProduct(businessId: string, productId: string): Prom
   if (!existing || existing.businessId !== businessId) {
     return { ok: false, error: "محصول پیدا نشد." };
   }
+  // OrderItem.productId is required (no onDelete rule), so a product with
+  // order history can't be hard-deleted without destroying past order lines
+  // — block it with a clear error instead of letting the FK constraint throw.
+  const orderItemCount = await repo.countOrderItemsForProduct(productId);
+  if (orderItemCount > 0) {
+    return {
+      ok: false,
+      error: "این محصول در سفارش‌های قبلی استفاده شده و قابل حذف نیست؛ می‌توانید آن را غیرفعال کنید.",
+    };
+  }
   await repo.deleteProduct(productId);
   logger.info("dashboard.product_deleted", { businessId, productId });
   return { ok: true };
