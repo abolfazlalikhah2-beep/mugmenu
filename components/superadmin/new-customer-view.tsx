@@ -39,6 +39,8 @@ function suggestSlug(name: string): string {
 
 export function NewCustomerView({ plans }: { plans: PlanOption[] }) {
   const [state, formAction, pending] = useActionState(createCustomerAction, initialState);
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
@@ -107,11 +109,27 @@ export function NewCustomerView({ plans }: { plans: PlanOption[] }) {
         <input type="hidden" name="billingCycle" value={billingCycle} />
 
         <div className="flex flex-col gap-4 sm:flex-row">
-          <Input name="fullName" label="نام و نام خانوادگی صاحب امتیاز" required className="flex-1" />
-          <Input name="phone" label="شماره تماس" dir="ltr" className="flex-1 text-right" required />
+          <Input
+            name="fullName"
+            label="نام و نام خانوادگی صاحب امتیاز"
+            required
+            className="flex-1"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
+          <Input
+            name="phone"
+            label="شماره تماس"
+            dir="ltr"
+            className="flex-1 text-right"
+            required
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
         </div>
 
         <Input
+          name="businessName"
           label="نام مجموعه"
           required
           value={businessName}
