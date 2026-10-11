@@ -112,6 +112,50 @@ export function setBusinessSuspended(businessId: string, isSuspended: boolean) {
   return prisma.business.update({ where: { id: businessId }, data: { isSuspended } });
 }
 
+/**
+ * Permanently deletes a business and everything under it. Most child models
+ * carry their own `businessId` and have no `onDelete: Cascade` on that
+ * relation (schema.prisma leaves Business's own children un-cascaded, unlike
+ * e.g. ProductOptionGroup -> ProductOption), so this deletes bottom-up by
+ * hand in a single transaction instead of relying on the DB — order matters:
+ * a row must be gone before anything it references with a plain (non-cascade)
+ * FK can be deleted.
+ */
+export function deleteBusinessCascade(businessId: string) {
+  return prisma.$transaction(
+    [
+      prisma.walletTransaction.deleteMany({ where: { customerAccount: { businessId } } }),
+      prisma.creditRecord.deleteMany({ where: { businessId } }),
+      prisma.orderSurvey.deleteMany({ where: { order: { businessId } } }),
+      prisma.review.deleteMany({ where: { businessId } }),
+      prisma.menuVisit.deleteMany({ where: { businessId } }),
+      prisma.discount.deleteMany({ where: { businessId } }),
+      prisma.orderItem.deleteMany({ where: { order: { businessId } } }),
+      prisma.ticketMessage.deleteMany({ where: { ticket: { businessId } } }),
+      prisma.customerAddress.deleteMany({ where: { customerAccount: { businessId } } }),
+      prisma.order.deleteMany({ where: { businessId } }),
+      prisma.product.deleteMany({ where: { businessId } }),
+      prisma.category.deleteMany({ where: { businessId } }),
+      prisma.customerAccount.deleteMany({ where: { businessId } }),
+      prisma.courier.deleteMany({ where: { businessId } }),
+      prisma.ticket.deleteMany({ where: { businessId } }),
+      prisma.transaction.deleteMany({ where: { businessId } }),
+      prisma.contact.deleteMany({ where: { businessId } }),
+      prisma.smsMessage.deleteMany({ where: { businessId } }),
+      prisma.printer.deleteMany({ where: { businessId } }),
+      prisma.paymentRequest.deleteMany({ where: { businessId } }),
+      prisma.user.deleteMany({ where: { businessId } }),
+      prisma.business.delete({ where: { id: businessId } }),
+    ],
+    // A real business can have thousands of orders/order items — the
+    // default 5s transaction timeout (and the default 2s maxWait to even
+    // acquire a connection for it) is comfortably too short for that many
+    // sequential deleteMany statements, so this would otherwise intermittently
+    // abort mid-cascade on a large tenant.
+    { maxWait: 10_000, timeout: 60_000 }
+  );
+}
+
 // ---------- Dashboard overview ----------
 
 export function countAllBusinesses() {

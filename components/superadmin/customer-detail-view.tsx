@@ -149,6 +149,7 @@ export function CustomerDetailView({
       <CustomerDetailActions
         businessId={business.id}
         storeName={business.name}
+        slug={business.slug}
         isSuspended={business.isSuspended}
         plans={plans}
         currentPlanId={business.planId}

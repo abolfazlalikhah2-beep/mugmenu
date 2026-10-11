@@ -65,6 +65,13 @@ export async function toggleSuspendBusinessAction(businessId: string, next: bool
   return result;
 }
 
+export async function deleteCustomerAction(businessId: string, confirmSlug: string) {
+  const { userId } = await requireSuperAdmin();
+  const result = await customerService.deleteCustomer(businessId, confirmSlug, userId);
+  if (result.ok) revalidatePath("/superadmin/customers");
+  return result;
+}
+
 export async function createCustomerAction(
   _prevState: CreateCustomerActionState,
   formData: FormData

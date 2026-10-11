@@ -20,8 +20,13 @@ business owner panel; there is no separate super-admin auth path (see the
     the Zarinpal gateway settings form (`lib/payments/payment-gateway.ts`
     is the mock provider, same pattern as `lib/sms/sms-provider.ts`).
   - `customer-service.ts` — the مشتریان list/detail, manual subscription
-    renewal, و تعلیق پنل (`Business.isSuspended`, enforced in
-    `requireBusinessOwner()`).
+    renewal, تعلیق پنل (`Business.isSuspended`, enforced in
+    `requireBusinessOwner()`), و حذف دائم مشتری. Delete requires typing the
+    business's exact slug back (checked in the service, not just the UI) and
+    hard-deletes the `Business` row plus every child row across ~20 models
+    bottom-up in one transaction (`repo.deleteBusinessCascade`) — most of
+    those relations have no `onDelete: Cascade` in `schema.prisma`, so the
+    DB won't do this for us.
   - `team-service.ts` — ماگ‌منو's own internal staff accounts
     (`User.isSuperAdmin`), invited the same way `dashboard/user-mgmt-service.ts`
     invites business staff: a temp password shown once, no email/SMS invite

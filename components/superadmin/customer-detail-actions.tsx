@@ -8,6 +8,7 @@ import {
   toggleSuspendBusinessAction,
 } from "@/features/superadmin/routes/actions";
 import { DemoTrialModal } from "@/components/superadmin/demo-trial-modal";
+import { DeleteCustomerModal } from "@/components/superadmin/delete-customer-modal";
 
 interface PlanOption {
   id: string;
@@ -21,6 +22,7 @@ interface PlanOption {
 export function CustomerDetailActions({
   businessId,
   storeName,
+  slug,
   isSuspended,
   plans,
   currentPlanId,
@@ -31,6 +33,7 @@ export function CustomerDetailActions({
 }: {
   businessId: string;
   storeName: string;
+  slug: string;
   isSuspended: boolean;
   plans: PlanOption[];
   currentPlanId: string;
@@ -46,6 +49,7 @@ export function CustomerDetailActions({
   const [billingCycle, setBillingCycle] = useState(currentBillingCycle);
   const [planError, setPlanError] = useState<string | null>(null);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   function handleRenew() {
     if (!confirm(`تمدید دستی اشتراک «${storeName}» به مدت ۳۰ روز از امروز ثبت شود؟`)) return;
@@ -129,6 +133,15 @@ export function CustomerDetailActions({
         />
       )}
 
+      {deleteModalOpen && (
+        <DeleteCustomerModal
+          businessId={businessId}
+          storeName={storeName}
+          slug={slug}
+          onClose={() => setDeleteModalOpen(false)}
+        />
+      )}
+
       <div className="flex flex-wrap gap-3">
         <button
           type="button"
@@ -156,6 +169,14 @@ export function CustomerDetailActions({
           }
         >
           {suspendPending ? "..." : isSuspended ? "رفع تعلیق" : "تعلیق پنل"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setDeleteModalOpen(true)}
+          className="flex h-[50px] w-[130px] items-center justify-center rounded-2xl border text-[15px]"
+          style={{ borderColor: "#F0DADA", background: "#FBECEC", color: "#C15656" }}
+        >
+          حذف مشتری
         </button>
       </div>
     </div>

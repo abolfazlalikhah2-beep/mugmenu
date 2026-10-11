@@ -108,6 +108,44 @@ export async function setSuspended(businessId: string, isSuspended: boolean): Pr
   return { ok: true };
 }
 
+/**
+ * `confirmSlug` must never be trusted as-is: it's re-checked here against
+ * the slug this same call just read from the DB (not whatever the client
+ * last rendered), so a stale page or a tampered request body can't slip a
+ * mismatched slug through. The caller (deleteCustomerAction) is expected to
+ * have already run requireSuperAdmin() and pass its userId as `actorUserId`.
+ *
+ * No AuditLog/ActivityLog model exists in schema.prisma yet (and this
+ * change deliberately avoids adding one — see CLAUDE.md's migration
+ * constraints), so the only audit trail for this irreversible action is
+ * this structured log line. That's a real gap: a dedicated persisted audit
+ * table (actor, action, target, metadata, timestamp) is worth adding before
+ * this feature sees real production use, so a deletion survives beyond
+ * whatever log retention the host provides.
+ */
+export async function deleteCustomer(
+  businessId: string,
+  confirmSlug: string,
+  actorUserId: string
+): Promise<ServiceResult> {
+  const business = await repo.getBusinessDetail(businessId);
+  if (!business) return { ok: false, error: "کسب‌وکار پیدا نشد." };
+  if (confirmSlug.trim() !== business.slug) {
+    return { ok: false, error: "شناسه وارد شده مطابقت ندارد." };
+  }
+
+  await repo.deleteBusinessCascade(businessId);
+  logger.warn("superadmin.business_deleted", {
+    audit: true,
+    actorUserId,
+    businessId,
+    slug: business.slug,
+    businessName: business.name,
+    deletedAt: new Date().toISOString(),
+  });
+  return { ok: true };
+}
+
 export async function updateDemo(businessId: string, input: unknown): Promise<ServiceResult> {
   const parsed = demoTrialSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
