@@ -10,8 +10,7 @@ const links = [
     ),
   },
   {
-    // No dedicated help-center route yet; routed to FAQ until one exists.
-    href: "/faq",
+    href: "/help",
     title: "مرکز راهنما",
     desc: "آموزش قدم‌به‌قدم امکانات ماگ‌منو",
     icon: (

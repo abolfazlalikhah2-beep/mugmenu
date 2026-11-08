@@ -7,6 +7,7 @@ const navLinks = [
   { label: "درباره ما", href: "/about" },
   { label: "تماس با ما", href: "/contact" },
   { label: "بلاگ", href: "/blog" },
+  { label: "راهنما", href: "/help" },
 ];
 
 export function SiteHeader() {

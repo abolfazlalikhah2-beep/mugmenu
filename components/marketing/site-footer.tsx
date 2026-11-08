@@ -6,6 +6,7 @@ const footerLinks = [
   { label: "مشتریان", href: "/customers" },
   { label: "درباره ما", href: "/about" },
   { label: "بلاگ", href: "/blog" },
+  { label: "راهنما", href: "/help" },
   { label: "سوالات متداول", href: "/faq" },
   { label: "تماس با ما", href: "/contact" },
   { label: "دمو زنده", href: "/demo" },
