@@ -3,7 +3,10 @@ import { SiteHeader } from "@/components/marketing/site-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { CtaSection } from "@/components/marketing/cta-section";
 import { CustomersHero } from "@/components/marketing/customers-hero";
+import { StatsSection } from "@/components/marketing/stats-section";
 import { CustomersGrid } from "@/components/marketing/customers-grid";
+import { CustomersCaseStudies } from "@/components/marketing/customers-case-studies";
+import { CustomersTestimonials } from "@/components/marketing/customers-testimonials";
 
 export const metadata: Metadata = {
   title: "مشتریان سِرو — کسب‌وکارهایی که با ما همراه شده‌اند",
@@ -25,7 +28,10 @@ export default function CustomersPage() {
       <SiteHeader />
       <main>
         <CustomersHero />
+        <StatsSection />
         <CustomersGrid />
+        <CustomersCaseStudies />
+        <CustomersTestimonials />
         <CtaSection />
       </main>
       <SiteFooter />

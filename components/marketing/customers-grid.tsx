@@ -1,29 +1,88 @@
-// Placeholder slots for real client logos/names — content to be added later
-// (see CLAUDE.md-adjacent task notes). Keeping a fixed count of empty slots
-// so the grid doesn't look broken before real customers are added.
-const PLACEHOLDER_SLOTS = Array.from({ length: 8 }, (_, i) => i);
+import Image from "next/image";
+
+const categories = ["شیرینی و بستنی", "فست‌فود", "رستوران", "کافه", "همه"];
+
+const customers = [
+  {
+    name: "برگرلند",
+    plan: "پلن اوپال",
+    location: "اصفهان · فست‌فود",
+    image: "/marketing/customers/card-burger.png",
+  },
+  {
+    name: "رستوران شبدر",
+    plan: "پلن زمرد",
+    location: "قم · رستوران",
+    image: "/marketing/customers/card-kebab.png",
+  },
+  {
+    name: "کافه کناری",
+    plan: "پلن اوپال",
+    location: "تهران · کافه",
+    image: "/marketing/customers/card-cafe.png",
+  },
+  {
+    name: "رستوران حافظ",
+    plan: "پلن زمرد",
+    location: "قم · رستوران",
+    image: "/marketing/customers/card-lamb.png",
+  },
+  {
+    name: "شیرینی برفی",
+    plan: "پلن فیروزه",
+    location: "مشهد · شیرینی",
+    image: "/marketing/customers/card-cake.png",
+  },
+  {
+    name: "کافه نارنج",
+    plan: "پلن یشم",
+    location: "شیراز · کافه",
+    image: "/marketing/customers/card-kenari-products.png",
+  },
+];
 
 export function CustomersGrid() {
   return (
-    <section aria-label="نمونه کسب‌وکارهای مشتری" className="px-5 py-9">
-      <div className="mx-auto grid max-w-[1200px] gap-4 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
-        {PLACEHOLDER_SLOTS.map((i) => (
-          <div
-            key={i}
-            className="flex h-28 flex-col items-center justify-center gap-2 rounded-card-sm border border-dashed border-border-input bg-card text-text-3"
-          >
-            <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M8 15l3-3.5 2.5 2.5L18 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span className="text-[11px] font-light">به‌زودی</span>
-          </div>
-        ))}
-      </div>
+    <section aria-label="نمونه کسب‌وکارهای مشتری" className="px-5 pb-13 pt-4">
+      <div className="mx-auto max-w-[1200px]">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {categories.map((label) => (
+            <button
+              key={label}
+              type="button"
+              className={
+                label === "همه"
+                  ? "rounded-pill bg-brand px-4 py-2 text-[13px] font-medium text-white"
+                  : "rounded-pill border border-border-line bg-card px-4 py-2 text-[13px] font-medium text-text-1"
+              }
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
-      <p className="mx-auto mt-6 max-w-[56ch] text-center text-[12.5px] font-light text-text-2">
-        لوگو و نام کسب‌وکارهای مشتری سِرو به‌زودی در این صفحه اضافه می‌شود.
-      </p>
+        <div className="mt-9 grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(300px,1fr))]">
+          {customers.map((c) => (
+            <div key={c.name} className="flex flex-col gap-2 rounded-card-sm border border-border-line bg-card p-2 shadow-float">
+              <div className="relative h-50 w-full overflow-hidden rounded-[18px]">
+                <Image src={c.image} alt={c.name} fill sizes="(min-width: 1024px) 370px, 90vw" className="object-cover" />
+              </div>
+              <div className="flex flex-col gap-1.5 px-3 pb-3 pt-1">
+                <div className="flex items-center justify-between">
+                  <span className="rounded-pill border border-[#cfe6d2] bg-[#e9f4ea] px-3 py-1.25 text-xs font-medium text-brand">
+                    {c.plan}
+                  </span>
+                  <span className="text-[17px] font-black text-ink">{c.name}</span>
+                </div>
+                <div className="flex items-center justify-end gap-1.5 text-xs font-light text-text-2">
+                  <span>{c.location}</span>
+                  <Image src="/marketing/customers/icon-location.svg" alt="" width={14} height={14} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
