@@ -3,9 +3,9 @@ import { SiteHeader } from "@/components/marketing/site-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { CtaSection } from "@/components/marketing/cta-section";
 import { ContactPageHero } from "@/components/marketing/contact-page-hero";
-import { ContactChannels } from "@/components/marketing/contact-channels";
+import { ContactInfoCards } from "@/components/marketing/contact-info-cards";
 import { ContactFormSection } from "@/components/marketing/contact-form-section";
-import { ContactFaq } from "@/components/marketing/contact-faq";
+import { ContactHelpLinks } from "@/components/marketing/contact-help-links";
 
 export const metadata: Metadata = {
   title: "تماس با ما — سِرو",
@@ -29,9 +29,9 @@ export default function ContactPage() {
       <SiteHeader />
       <main>
         <ContactPageHero />
-        <ContactChannels />
+        <ContactInfoCards />
         <ContactFormSection />
-        <ContactFaq />
+        <ContactHelpLinks />
         <CtaSection />
       </main>
       <SiteFooter />

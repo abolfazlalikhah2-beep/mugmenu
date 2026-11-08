@@ -1,20 +1,23 @@
 import { ContactForm } from "@/components/marketing/contact-form";
+import { ContactMap } from "@/components/marketing/contact-map";
 
 export function ContactFormSection() {
   return (
-    <section aria-labelledby="contact-form-heading" className="mx-auto max-w-[680px] px-5 py-10">
-      <div className="rounded-card border border-border-line bg-card p-7.5 shadow-float sm:p-9">
-        <div className="text-center">
-          <h2 id="contact-form-heading" className="text-[clamp(1.4rem,3.4vw,1.9rem)] font-bold leading-[1.4] tracking-[-0.3px] text-ink">
-            برای ما پیام بگذارید
-          </h2>
-          <p className="mt-2.5 text-sm font-light leading-[1.9] text-text-1">
-            فرم زیر را پر کنید؛ تیم سِرو در اسرع وقت با شما تماس می‌گیرد.
-          </p>
-        </div>
+    <section aria-labelledby="contact-form-heading" className="bg-[#f7f8f7] px-5 py-10 sm:px-36 sm:py-16">
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-6 sm:flex-row sm:items-stretch">
+        <ContactMap />
 
-        <div className="mt-7">
-          <ContactForm />
+        <div className="flex-1 rounded-card-sm border border-[#e4e6e4] bg-card p-6 shadow-float sm:p-8">
+          <h2 id="contact-form-heading" className="text-[22px] font-black leading-[1.8] text-ink">
+            ارسال پیام
+          </h2>
+          <p className="mt-1 text-[13px] font-light leading-[1.8] text-text-2">
+            فرم زیر را پر کنید؛ در اولین فرصت با شما تماس می‌گیریم.
+          </p>
+
+          <div className="mt-5">
+            <ContactForm />
+          </div>
         </div>
       </div>
     </section>

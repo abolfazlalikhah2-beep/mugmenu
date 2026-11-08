@@ -23,6 +23,7 @@ export async function submitContactMessageAction(
     phone: formValue(formData, "phone"),
     email: formValue(formData, "email"),
     message: formValue(formData, "message"),
+    subject: formValue(formData, "subject"),
   });
   if (!result.ok) return { ok: false, error: result.error, fieldErrors: result.fieldErrors };
   return { ok: true };

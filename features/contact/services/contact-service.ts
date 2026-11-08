@@ -31,12 +31,12 @@ export async function submitContactMessage(input: unknown): Promise<ContactServi
     return { ok: false, error: "تعداد پیام‌های ارسالی بیش از حد مجاز است. کمی بعد دوباره تلاش کنید." };
   }
 
-  const { name, phone, email, message } = parsed.data;
+  const { name, phone, email, message, subject } = parsed.data;
   await contactMessageRepository.createContactMessage({
     name,
     phone,
     email: email || undefined,
-    message,
+    message: subject ? `[${subject}] ${message}` : message,
   });
   logger.info("contact.submitted", { phone });
   return { ok: true };

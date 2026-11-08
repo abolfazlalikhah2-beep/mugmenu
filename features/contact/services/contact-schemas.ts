@@ -17,6 +17,9 @@ export const contactMessageSchema = z.object({
     .trim()
     .min(10, "پیام باید حداقل ۱۰ کاراکتر باشد.")
     .max(2000, "پیام بیش از حد طولانی است."),
+  // Optional UI-only categorization, folded into the stored message text —
+  // no separate column, keeps the repository/schema simple.
+  subject: z.string().trim().max(60).optional().or(z.literal("")),
 });
 
 export type ContactMessageInput = z.infer<typeof contactMessageSchema>;
