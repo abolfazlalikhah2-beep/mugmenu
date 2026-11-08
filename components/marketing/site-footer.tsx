@@ -10,6 +10,7 @@ const footerLinks = [
   { label: "سوالات متداول", href: "/faq" },
   { label: "تماس با ما", href: "/contact" },
   { label: "دمو زنده", href: "/demo" },
+  { label: "قوانین و مقررات", href: "/terms" },
 ];
 
 const FOOTER_PHONE = "09302280994";

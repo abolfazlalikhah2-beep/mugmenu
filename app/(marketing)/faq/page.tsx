@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { CtaSection } from "@/components/marketing/cta-section";
-import { FaqPageHero } from "@/components/marketing/faq-page-hero";
-import { FaqList } from "@/components/marketing/faq-list";
+import { FaqExplorer } from "@/components/marketing/faq-explorer";
 import { FaqStructuredData } from "@/components/marketing/faq-structured-data";
 
 export const metadata: Metadata = {
@@ -28,8 +27,7 @@ export default function FaqPage() {
       <FaqStructuredData />
       <SiteHeader />
       <main>
-        <FaqPageHero />
-        <FaqList />
+        <FaqExplorer />
         <CtaSection />
       </main>
       <SiteFooter />
