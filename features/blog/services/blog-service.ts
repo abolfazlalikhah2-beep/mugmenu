@@ -221,8 +221,29 @@ export function getPublishedPosts() {
   return repo.getPublishedPosts();
 }
 
+const BLOG_PAGE_SIZE = 9;
+
+export async function getPublishedPostsPage(filter: { categorySlug?: string; search?: string; page?: number }) {
+  const page = Math.max(1, filter.page ?? 1);
+  const { posts, total } = await repo.getPublishedPostsPage({
+    categorySlug: filter.categorySlug,
+    search: filter.search,
+    page,
+    pageSize: BLOG_PAGE_SIZE,
+  });
+  return { posts, total, page, pageCount: Math.max(1, Math.ceil(total / BLOG_PAGE_SIZE)) };
+}
+
 export function getPublishedPostBySlug(slug: string) {
   return repo.getPublishedPostBySlug(slug);
+}
+
+export async function getRelatedPosts(postId: string, categoryIds: string[], take = 3) {
+  const related = await repo.getRelatedPublishedPosts(postId, categoryIds, take);
+  if (related.length >= take || categoryIds.length === 0) return related;
+  const fallback = await repo.getRelatedPublishedPosts(postId, [], take);
+  const seen = new Set(related.map((p) => p.id));
+  return [...related, ...fallback.filter((p) => !seen.has(p.id))].slice(0, take);
 }
 
 export async function getPublicCategories() {

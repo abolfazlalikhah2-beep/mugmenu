@@ -189,6 +189,47 @@ export function getPublishedPosts() {
   });
 }
 
+export interface PublishedPostsFilter {
+  categorySlug?: string;
+  search?: string;
+  page: number;
+  pageSize: number;
+}
+
+export async function getPublishedPostsPage(filter: PublishedPostsFilter) {
+  const where = {
+    status: "PUBLISHED" as const,
+    categories: filter.categorySlug ? { some: { category: { slug: filter.categorySlug } } } : undefined,
+    title: filter.search ? { contains: filter.search, mode: "insensitive" as const } : undefined,
+  };
+
+  const [posts, total] = await Promise.all([
+    prisma.blogPost.findMany({
+      where,
+      orderBy: { publishedAt: "desc" },
+      skip: (filter.page - 1) * filter.pageSize,
+      take: filter.pageSize,
+      ...postWithRelations,
+    }),
+    prisma.blogPost.count({ where }),
+  ]);
+
+  return { posts, total };
+}
+
 export function getPublishedPostBySlug(slug: string) {
   return prisma.blogPost.findFirst({ where: { slug, status: "PUBLISHED" }, ...postWithRelations });
+}
+
+export function getRelatedPublishedPosts(postId: string, categoryIds: string[], take: number) {
+  return prisma.blogPost.findMany({
+    where: {
+      status: "PUBLISHED",
+      id: { not: postId },
+      categories: categoryIds.length > 0 ? { some: { categoryId: { in: categoryIds } } } : undefined,
+    },
+    orderBy: { publishedAt: "desc" },
+    take,
+    ...postWithRelations,
+  });
 }
