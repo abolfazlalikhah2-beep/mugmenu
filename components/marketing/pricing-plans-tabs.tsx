@@ -24,10 +24,10 @@ const TABS: { key: BillingTab; label: string }[] = [
   { key: "annual", label: "سالانه" },
 ];
 
-const UNIT_LABEL: Record<BillingTab, string> = {
-  monthly: "هزار تومان / ماه",
-  sixMonth: "هزار تومان / ۶ ماه",
-  annual: "هزار تومان / سال",
+const PERIOD_LABEL: Record<BillingTab, string> = {
+  monthly: "ماهانه",
+  sixMonth: "۶ ماهه",
+  annual: "سالانه",
 };
 
 function priceFor(plan: PricingPlanCard, tab: BillingTab) {
@@ -74,19 +74,23 @@ export function PricingPlansTabs({ plans }: { plans: PricingPlanCard[] }) {
       <div className="mt-9 grid items-stretch gap-5 [grid-template-columns:repeat(auto-fit,minmax(270px,1fr))]">
         {plans.map((plan) => {
           const priceInThousands = Math.round(priceFor(plan, tab) / 1000);
+          const annualTotal = Math.round(plan.annualPrice).toLocaleString("fa-IR");
 
           return (
             <div
               key={plan.key}
-              className={`relative flex flex-col rounded-card-sm border p-6.5 ${
+              className={`relative flex flex-col gap-4 rounded-card-sm border p-6 ${
                 plan.recommended
-                  ? "border-brand bg-card shadow-modal md:-translate-y-3"
+                  ? "border-2 border-brand bg-card shadow-[0_8px_30px_rgba(13,20,15,0.06),0_8px_18px_rgba(50,140,61,0.25)] md:-translate-y-3"
                   : "border-border-line bg-card shadow-float"
               }`}
             >
               {plan.recommended && (
-                <span className="absolute -top-3.25 right-1/2 translate-x-1/2 whitespace-nowrap rounded-pill bg-brand px-3.5 py-1.25 text-[11px] font-medium text-white shadow-[0_8px_17.5px_rgba(50,140,61,0.28)]">
+                <span className="absolute -top-4 right-1/2 inline-flex translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-pill bg-brand px-3 py-1.25 text-[12px] font-medium text-white">
                   پیشنهادی
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2l2.9 6.6 7.1.7-5.4 4.8 1.6 7-6.2-3.7-6.2 3.7 1.6-7-5.4-4.8 7.1-.7z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+                  </svg>
                 </span>
               )}
               {plan.freeTrial && (
@@ -95,21 +99,38 @@ export function PricingPlansTabs({ plans }: { plans: PricingPlanCard[] }) {
                 </span>
               )}
 
-              <div className="text-base font-bold text-ink">
-                {plan.emoji} {plan.name}
+              <div className="flex items-center gap-2.5">
+                <span
+                  aria-hidden="true"
+                  className={`flex h-10 w-10 flex-none items-center justify-center rounded-xl border text-[19px] ${
+                    plan.recommended ? "border-[#f1dfb8] bg-[#fbf3e3]" : "border-border-line bg-chip"
+                  }`}
+                >
+                  {plan.emoji}
+                </span>
+                <div className="flex flex-col items-end text-right">
+                  <span className="text-[17px] font-bold text-ink">{plan.name}</span>
+                  <span className="text-[12px] font-light text-text-2">{plan.description}</span>
+                </div>
               </div>
-              <p className="mt-1.5 text-[13px] font-light text-text-1">{plan.description}</p>
 
-              <div className="my-5 flex items-baseline gap-1.5">
-                <span className="text-[1.6rem] font-bold text-brand">{priceInThousands.toLocaleString("fa-IR")}</span>
-                <span className="text-[12.5px] font-light text-text-2">{UNIT_LABEL[tab]}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[1.9rem] font-bold leading-none text-ink">{priceInThousands.toLocaleString("fa-IR")}</span>
+                <span className="flex flex-col text-right text-[11.5px] font-light text-text-2">
+                  <span>هزار تومان</span>
+                  <span className="text-[10.5px] text-text-3">{PERIOD_LABEL[tab]}</span>
+                </span>
               </div>
+
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-pill bg-brand/10 px-3 py-1.25 text-[11.5px] font-medium text-brand">
+                پرداخت سالانه {annualTotal} تومان
+              </span>
 
               <ul className="flex flex-col gap-2.5">
                 {plan.marketingFeatures.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2.25 text-[13px] font-light text-text-1">
-                    <span aria-hidden="true" className="mt-0.5 flex h-4.5 w-4.5 flex-none items-center justify-center rounded-full bg-brand/12 text-brand">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                  <li key={feature} className="flex items-center gap-2.5 text-[13px] font-light text-text-1">
+                    <span aria-hidden="true" className="flex h-6.5 w-6.5 flex-none items-center justify-center rounded-[13px] border border-brand/20 bg-brand/10 text-brand">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                         <path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </span>
@@ -121,12 +142,15 @@ export function PricingPlansTabs({ plans }: { plans: PricingPlanCard[] }) {
               {isPurchasable ? (
                 <Link
                   href="/register"
-                  className={`mt-6.5 block rounded-btn px-5 py-3 text-center text-[13.5px] font-medium transition-colors ${
+                  className={`mt-1 flex items-center justify-center gap-2 rounded-btn px-5 py-3 text-center text-[13.5px] font-medium transition-colors ${
                     plan.recommended
                       ? "bg-brand text-white shadow-[0_8px_17.5px_rgba(50,140,61,0.28)] hover:bg-brand-hover"
                       : "border-[1.5px] border-brand/22 bg-white text-brand hover:bg-brand/5"
                   }`}
                 >
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                   انتخاب پلن
                 </Link>
               ) : (
@@ -135,7 +159,7 @@ export function PricingPlansTabs({ plans }: { plans: PricingPlanCard[] }) {
                   disabled
                   aria-disabled="true"
                   title="پلن ماهانه فقط نمایشی است؛ حداقل خرید ۶ ماهه"
-                  className="mt-6.5 block cursor-not-allowed rounded-btn border-[1.5px] border-border-line bg-chip px-5 py-3 text-center text-[13.5px] font-medium text-text-3"
+                  className="mt-1 block cursor-not-allowed rounded-btn border-[1.5px] border-border-line bg-chip px-5 py-3 text-center text-[13.5px] font-medium text-text-3"
                 >
                   فقط نمایشی
                 </button>

@@ -20,11 +20,11 @@ export function PricingHero() {
           id="pricing-heading"
           className="mt-4.5 text-[clamp(1.5rem,3.2vw,2.2rem)] font-bold leading-[1.3] tracking-[-0.5px] text-ink"
         >
-          اشتراک‌ها و تعرفه‌ها
+          پلنی که به کسب‌وکارت می‌خوره رو انتخاب کن
         </h1>
 
         <p className="mx-auto mt-4 max-w-[48ch] text-[14px] font-light leading-[1.9] text-text-1">
-          پلنی متناسب با اندازه‌ی رستوران‌تان انتخاب کنید و هر زمان خواستید ارتقا دهید.
+          قیمت‌ها ماهانه نمایش داده شده‌اند؛ پرداخت به‌صورت ۶ ماهه یا سالانه (٪۲۰ تخفیف) انجام می‌شود.
         </p>
       </div>
     </section>
